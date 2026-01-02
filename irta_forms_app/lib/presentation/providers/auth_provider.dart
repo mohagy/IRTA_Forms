@@ -154,6 +154,64 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  Future<bool> signInWithGoogle() async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final userCredential = await _authService.signInWithGoogle();
+      
+      if (userCredential?.user != null) {
+        final user = userCredential!.user!;
+        
+        // Check if user document exists in Firestore
+        final userDoc = await _firestore.collection('users').doc(user.uid).get();
+        
+        if (!userDoc.exists) {
+          // Create user document with applicant role (first time Google sign-in)
+          final userModel = UserModel(
+            id: user.uid,
+            email: user.email ?? '',
+            fullName: user.displayName ?? '',
+            phoneNumber: user.phoneNumber ?? '',
+            role: AppConstants.roleApplicant, // Always applicant for Google sign-in
+            status: 'Active',
+            createdAt: DateTime.now(),
+          );
+
+          await _userRepository.createUserWithId(user.uid, userModel);
+        } else {
+          // User exists, ensure role is applicant (Google sign-in is only for applicants)
+          final currentRole = userDoc.data()?['role'] as String?;
+          if (currentRole != AppConstants.roleApplicant) {
+            // Update role to applicant if it's not already
+            await _firestore.collection('users').doc(user.uid).update({
+              'role': AppConstants.roleApplicant,
+            });
+          }
+        }
+        
+        // Load user role after creating/updating document
+        await _loadUserRole(user.uid);
+      } else {
+        // User canceled the sign-in
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+      
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
   Future<void> signOut() async {
     await _authService.signOut();
     _user = null;

@@ -215,10 +215,72 @@ class _LoginPageState extends State<LoginPage> {
 
                     const SizedBox(height: 24),
 
-                    // Divider
-                    const Divider(),
-
-                    const SizedBox(height: 24),
+                    // Google Sign-In Button (only for applicants)
+                    if (_selectedRole == 'applicant') ...[
+                      Consumer<AuthProvider>(
+                        builder: (context, authProvider, _) {
+                          return OutlinedButton.icon(
+                            onPressed: authProvider.isLoading
+                                ? null
+                                : () async {
+                                    final success = await authProvider.signInWithGoogle();
+                                    if (success && mounted) {
+                                      context.push(AppConstants.routeDashboard);
+                                    } else if (mounted && authProvider.errorMessage != null) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text(authProvider.errorMessage!),
+                                          backgroundColor: AppColors.error,
+                                        ),
+                                      );
+                                    }
+                                  },
+                            icon: authProvider.isLoading
+                                ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                  )
+                                : Image.network(
+                                    'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg',
+                                    height: 20,
+                                    width: 20,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return const Icon(Icons.login, size: 20);
+                                    },
+                                  ),
+                            label: const Text('Sign in with Google'),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              side: BorderSide(color: AppColors.primary),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 24),
+                      // Divider
+                      const Row(
+                        children: [
+                          Expanded(child: Divider()),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 16),
+                            child: Text(
+                              'OR',
+                              style: TextStyle(
+                                color: AppColors.textTertiary,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                          Expanded(child: Divider()),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                    ] else ...[
+                      // Divider for officer/admin
+                      const Divider(),
+                      const SizedBox(height: 24),
+                    ],
 
                     // Register Link
                     const Text(
