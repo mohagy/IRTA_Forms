@@ -1,9 +1,17 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import '../firebase_options.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  
+  // Initialize GoogleSignIn with clientId for web
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    // For web, the clientId should be set in index.html meta tag
+    // But we can also set it here as a fallback
+    scopes: ['email', 'profile'],
+  );
 
   // Get current user
   User? get currentUser => _auth.currentUser;
