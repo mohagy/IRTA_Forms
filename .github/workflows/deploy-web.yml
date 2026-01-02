@@ -25,12 +25,17 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'
+          flutter-version: '3.27.0'
           channel: 'stable'
+          cache: true
 
       - name: Get dependencies
         working-directory: irta_forms_app
         run: flutter pub get
+
+      - name: Verify Flutter setup
+        working-directory: irta_forms_app
+        run: flutter doctor -v
 
       - name: Build web
         working-directory: irta_forms_app
