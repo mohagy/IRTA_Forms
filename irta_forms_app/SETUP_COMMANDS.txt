@@ -1,0 +1,28 @@
+Firebase Setup Commands
+=======================
+
+Run these commands in PowerShell (one at a time):
+
+1. Add paths and navigate to project:
+   $env:Path += ";$env:APPDATA\npm;C:\Users\Administrator\AppData\Local\Pub\Cache\bin"
+   cd C:\xampp2\htdocs\IRTA_Forms\irta_forms_app
+
+2. Login to Firebase (opens browser):
+   firebase login
+
+3. Configure FlutterFire (after login completes):
+   flutterfire configure
+
+4. After flutterfire configure completes, update lib/main.dart:
+   - Uncomment: import 'firebase_options.dart';
+   - Uncomment: await Firebase.initializeApp(...);
+
+5. Enable services in Firebase Console:
+   - Authentication > Sign-in method > Enable Email/Password
+   - Firestore Database > Create database > Test mode
+   - Storage > Get started > Test mode
+
+Alternative: If you want to run the script, first run:
+   Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process
+   Then run: .\setup_firebase.ps1
+

@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IRTA Forms Management System - Complete Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #1e293b;
+            background: #f8fafc;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .toc {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .toc h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #1e293b;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 12px;
+        }
+
+        .toc ul {
+            list-style: none;
+        }
+
+        .toc ul li {
+            margin-bottom: 12px;
+        }
+
+        .toc ul li a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-size: 16px;
+            transition: color 0.2s;
+        }
+
+        .toc ul li a:hover {
+            color: #1e40af;
+            text-decoration: underline;
+        }
+
+        .toc ul ul {
+            margin-left: 24px;
+            margin-top: 8px;
+        }
+
+        .toc ul ul li {
+            margin-bottom: 8px;
+        }
+
+        .toc ul ul li a {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        section {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        section h2 {
+            font-size: 32px;
+            color: #1e293b;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #3b82f6;
+        }
+
+        section h3 {
+            font-size: 24px;
+            color: #1e293b;
+            margin-top: 32px;
+            margin-bottom: 16px;
+        }
+
+        section h4 {
+            font-size: 20px;
+            color: #475569;
+            margin-top: 24px;
+            margin-bottom: 12px;
+        }
+
+        section p {
+            margin-bottom: 16px;
+            color: #475569;
+            font-size: 16px;
+        }
+
+        section ul, section ol {
+            margin-left: 32px;
+            margin-bottom: 16px;
+        }
+
+        section ul li, section ol li {
+            margin-bottom: 8px;
+            color: #475569;
+            font-size: 16px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .feature-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 24px;
+        }
+
+        .feature-card h4 {
+            color: #1e293b;
+            margin-top: 0;
+            margin-bottom: 12px;
+        }
+
+        .feature-card p {
+            margin-bottom: 0;
+        }
+
+        .role-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        .role-table th,
+        .role-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .role-table th {
+            background: #f1f5f9;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .role-table td {
+            color: #475569;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        .badge-admin {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-officer {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-applicant {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 16px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        .info-box {
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: 16px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .warning-box {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 16px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .success-box {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            padding: 16px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .workflow-list {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .workflow-list li {
+            padding: 12px;
+            margin-bottom: 12px;
+            background: #f8fafc;
+            border-left: 4px solid #3b82f6;
+            border-radius: 4px;
+        }
+
+        .workflow-list li strong {
+            color: #1e293b;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .workflow-list li span {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .nav-top {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #3b82f6;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .nav-top:hover {
+            background: #2563eb;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+
+        @media print {
+            .nav-top {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="#top" class="nav-top">↑ Back to Top</a>
+
+    <header id="top">
+        <h1>IRTA Forms Management System</h1>
+        <p>Complete Documentation & User Guide</p>
+        <p style="margin-top: 12px; font-size: 14px;">Version 1.1 | Last Updated: December 2024</p>
+    </header>
+
+    <div class="container">
+        <!-- Table of Contents -->
+        <section class="toc">
+            <h2>Table of Contents</h2>
+            <ul>
+                <li><a href="#overview">1. Overview</a></li>
+                <li><a href="#features">2. Features & Functionality</a>
+                    <ul>
+                        <li><a href="#features-applicant">2.1 Applicant Features</a></li>
+                        <li><a href="#features-officer">2.2 Officer/Admin Features</a></li>
+                    </ul>
+                </li>
+                <li><a href="#user-roles">3. User Roles & Permissions</a></li>
+                <li><a href="#getting-started">4. Getting Started</a>
+                    <ul>
+                        <li><a href="#landing-page">4.1 Landing Page</a></li>
+                        <li><a href="#registration">4.2 Registration</a></li>
+                        <li><a href="#login">4.3 Login</a></li>
+                        <li><a href="#dashboard">4.4 Dashboard Overview</a></li>
+                    </ul>
+                </li>
+                <li><a href="#applicant-guide">5. Applicant Guide</a>
+                    <ul>
+                        <li><a href="#view-applications">5.1 Viewing Applications</a></li>
+                        <li><a href="#new-application">5.2 Creating New Application</a></li>
+                        <li><a href="#application-steps">5.3 Application Steps</a></li>
+                    </ul>
+                </li>
+                <li><a href="#officer-guide">6. Officer/Admin Guide</a>
+                    <ul>
+                        <li><a href="#dashboard-management">6.1 Dashboard Management</a></li>
+                        <li><a href="#application-review">6.2 Application Review</a></li>
+                        <li><a href="#vehicle-approval">6.3 Vehicle Approval</a></li>
+                        <li><a href="#user-management">6.4 User Management</a></li>
+                        <li><a href="#system-config">6.5 System Configuration</a></li>
+                    </ul>
+                </li>
+                <li><a href="#workflows">7. Workflows</a></li>
+                <li><a href="#form-types">8. Form Types</a></li>
+                <li><a href="#technical">9. Technical Details</a>
+                    <ul>
+                        <li><a href="#architecture">9.1 System Architecture</a></li>
+                        <li><a href="#security">9.2 Security</a></li>
+                        <li><a href="#data-storage">9.3 Data Storage</a></li>
+                    </ul>
+                </li>
+                <li><a href="#faq">10. Frequently Asked Questions</a></li>
+                <li><a href="#support">11. Support & Contact</a></li>
+            </ul>
+        </section>
+
+        <!-- Overview -->
+        <section id="overview">
+            <h2>1. Overview</h2>
+            <p>
+                The <strong>IRTA Forms Management System</strong> is a comprehensive digital platform designed to streamline 
+                the management of International Road Transport Agreement (IRTA) applications between the Cooperative Republic 
+                of Guyana and the Federative Republic of Brazil.
+            </p>
+            <p>
+                This system enables applicants to submit, track, and manage their IRTA applications digitally, while providing 
+                officers and administrators with tools to review, verify, approve, and manage the entire application lifecycle.
+            </p>
+
+            <h3>Key Objectives</h3>
+            <ul>
+                <li>Standardize IRTA forms across digital and manual workflows</li>
+                <li>Improve data accuracy, completeness, and validation</li>
+                <li>Reduce processing time and manual handling</li>
+                <li>Enable secure submission, review, approval, and tracking</li>
+                <li>Support reporting, auditing, and compliance requirements</li>
+            </ul>
+
+            <h3>System Benefits</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>For Applicants</h4>
+                    <p>Easy online submission, real-time status tracking, document management, and draft saving capabilities.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>For Officers</h4>
+                    <p>Streamlined review process, workflow management, bulk operations, and comprehensive reporting tools.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>For Administrators</h4>
+                    <p>Complete system control, user management, configuration options, and audit trail capabilities.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features -->
+        <section id="features">
+            <h2>2. Features & Functionality</h2>
+
+            <h3 id="features-applicant">2.1 Applicant Features</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>My Applications Dashboard</h4>
+                    <p>View all your submitted applications, drafts, and their current status at a glance.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>New Application Wizard</h4>
+                    <p>Step-by-step guided process for creating new IRTA applications with validation and save-as-draft functionality.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Application Tracking</h4>
+                    <p>Real-time status updates and timeline view of your application progress through the workflow.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Document Management</h4>
+                    <p>Upload, view, and manage all required documents for your application.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Draft Management</h4>
+                    <p>Save incomplete applications as drafts and resume editing at any time.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Application Details View</h4>
+                    <p>Comprehensive view of all application details organized in tabbed sections (Introduction, Representative, Organization, Transportation, Declarations, Status).</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Landing Page</h4>
+                    <p>Public-facing landing page with system information, features overview, and quick access to registration and login.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>User Registration</h4>
+                    <p>Self-service registration process for new applicants to create accounts and start submitting applications.</p>
+                </div>
+            </div>
+
+            <h3 id="features-officer">2.2 Officer/Admin Features</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Applications Dashboard</h4>
+                    <p>Overview of all applications with filtering, sorting, and search capabilities.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Application Review</h4>
+                    <p>Detailed review interface with approval, rejection, and reassignment capabilities.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Vehicle Approval</h4>
+                    <p>Dedicated workflow for reviewing and approving vehicles submitted with applications.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Workflow Management</h4>
+                    <p>Move applications through stages: Reception Review → Verification → Issuing Decision → Completed.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Reports & Analytics</h4>
+                    <p>Generate reports, export data to Excel, and view application statistics.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>User Management</h4>
+                    <p>Create, edit, and manage system users with role-based access control.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Roles & Permissions</h4>
+                    <p>Configure roles and assign granular permissions to control system access.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Form Configuration</h4>
+                    <p>Customize form fields, validation rules, and form layouts for different application types.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>System Configuration</h4>
+                    <p>Configure system settings, email/SMS notifications, security policies, and backup schedules.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Database Access</h4>
+                    <p>Direct database access for IT administrators (backup, restore, query execution).</p>
+                </div>
+                <div class="feature-card">
+                    <h4>System Logs</h4>
+                    <p>View comprehensive audit logs of all system activities, user actions, and system events.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- User Roles -->
+        <section id="user-roles">
+            <h2>3. User Roles & Permissions</h2>
+            <p>
+                The system uses role-based access control (RBAC) to manage user permissions. Each user can have one or more 
+                roles, and each role defines specific permissions for accessing system features.
+            </p>
+
+            <h3>Available Roles</h3>
+            <table class="role-table">
+                <thead>
+                    <tr>
+                        <th>Role</th>
+                        <th>Description</th>
+                        <th>Key Permissions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="badge badge-applicant">Applicant</span></td>
+                        <td>Standard user role for individuals and businesses submitting IRTA applications</td>
+                        <td>
+                            <ul style="margin: 0; list-style: disc;">
+                                <li>View own applications</li>
+                                <li>Create new applications</li>
+                                <li>Edit draft applications</li>
+                                <li>View application status</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-officer">Reception Staff</span></td>
+                        <td>Front desk personnel responsible for initial application review</td>
+                        <td>
+                            <ul style="margin: 0; list-style: disc;">
+                                <li>View all applications</li>
+                                <li>Review applications</li>
+                                <li>Assign applications</li>
+                                <li>Return applications for correction</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-officer">Verification Officer</span></td>
+                        <td>Officers responsible for verifying application details and documents</td>
+                        <td>
+                            <ul style="margin: 0; list-style: disc;">
+                                <li>View assigned applications</li>
+                                <li>Verify application data</li>
+                                <li>Request additional information</li>
+                                <li>Forward to next stage</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-officer">Issuing Officer</span></td>
+                        <td>Officers with authority to make final approval/rejection decisions</td>
+                        <td>
+                            <ul style="margin: 0; list-style: disc;">
+                                <li>Approve/Reject applications</li>
+                                <li>Generate IRTA documents</li>
+                                <li>Review vehicle approvals</li>
+                                <li>View all applications</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-admin">IRTA Admin</span></td>
+                        <td>Administrators with full system access</td>
+                        <td>
+                            <ul style="margin: 0; list-style: disc;">
+                                <li>All officer permissions</li>
+                                <li>User management</li>
+                                <li>Roles & permissions management</li>
+                                <li>Form configuration</li>
+                                <li>Reports access</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-admin">IT Admin</span></td>
+                        <td>Technical administrators for system maintenance</td>
+                        <td>
+                            <ul style="margin: 0; list-style: disc;">
+                                <li>System configuration</li>
+                                <li>Database access</li>
+                                <li>System logs viewing</li>
+                                <li>Backup & restore</li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="info-box">
+                <strong>Note:</strong> Permissions can be customized per role through the Roles & Permissions management interface. 
+                Contact your system administrator if you need access to additional features.
+            </div>
+        </section>
+
+        <!-- Getting Started -->
+        <section id="getting-started">
+            <h2>4. Getting Started</h2>
+
+            <h3 id="landing-page">4.1 Landing Page</h3>
+            <p>
+                When you first visit the IRTA Forms Management System, you will see the landing page. This page provides an 
+                introduction to the system and its key features.
+            </p>
+            <p>The landing page includes:</p>
+            <ul>
+                <li><strong>Hero Section:</strong> Welcome message and system title</li>
+                <li><strong>About IRTA:</strong> Information about the International Road Transport Agreement between Guyana and Brazil</li>
+                <li><strong>Feature Cards:</strong> Highlights of key system features including:
+                    <ul>
+                        <li>Easy Application Submission</li>
+                        <li>Real-time Status Tracking</li>
+                        <li>Secure & Safe Data Protection</li>
+                    </ul>
+                </li>
+                <li><strong>Call-to-Action:</strong> Quick links to Register or Login</li>
+            </ul>
+            <p>
+                From the landing page, you can navigate to the Registration page to create a new account, or to the Login page 
+                if you already have an account.
+            </p>
+
+            <h3 id="registration">4.2 Registration</h3>
+            <p>
+                New users must register before they can submit IRTA applications. To register as an applicant:
+            </p>
+            <ol>
+                <li>Navigate to the Registration page (accessible from the Landing Page or sidebar)</li>
+                <li>Fill out the registration form with the following required information:
+                    <ul>
+                        <li><strong>Full Name:</strong> Your complete legal name</li>
+                        <li><strong>Email Address:</strong> This will be used as your login username</li>
+                        <li><strong>Password:</strong> Minimum 8 characters (must be confirmed)</li>
+                        <li><strong>Phone Number:</strong> Contact phone number with country code</li>
+                        <li><strong>Nationality:</strong> Your nationality</li>
+                        <li><strong>Date of Birth:</strong> Your date of birth</li>
+                        <li><strong>ID Type:</strong> Type of identification (Passport or National ID)</li>
+                        <li><strong>ID Number:</strong> Your identification number</li>
+                        <li><strong>Address:</strong> Your residential address</li>
+                    </ul>
+                </li>
+                <li>Read and agree to the Terms of Service and Privacy Policy</li>
+                <li>Click "Register" to create your account</li>
+                <li>After successful registration, you will be redirected to the Login page</li>
+            </ol>
+
+            <div class="info-box">
+                <strong>Note:</strong> Your email address will be used for login and all system notifications. 
+                Ensure you provide a valid and accessible email address.
+            </div>
+
+            <div class="warning-box">
+                <strong>Password Requirements:</strong> Your password must be at least 8 characters long. 
+                Choose a strong password that combines letters, numbers, and special characters for better security.
+            </div>
+
+            <h3 id="login">4.3 Login</h3>
+            <p>To access the IRTA Forms Management System after registration:</p>
+            <ol>
+                <li>Navigate to the Login page (accessible from the Landing Page, Registration page, or sidebar)</li>
+                <li>Select your user type:
+                    <ul>
+                        <li><strong>Officer/Admin:</strong> For staff members (Reception Staff, Verification Officers, Issuing Officers, Administrators)</li>
+                        <li><strong>Applicant:</strong> For individual users submitting IRTA applications</li>
+                    </ul>
+                </li>
+                <li>Enter your email address and password</li>
+                <li>Click "Sign In" to access the system</li>
+                <li>The system will automatically redirect you to the appropriate dashboard based on your role</li>
+            </ol>
+
+            <div class="warning-box">
+                <strong>Security Reminder:</strong> Always log out when you finish using the system, especially on shared computers. 
+                The system will automatically log you out after a period of inactivity.
+            </div>
+
+            <h3 id="dashboard">4.4 Dashboard Overview</h3>
+            <p>The dashboard is the main interface of the system and varies based on your user role:</p>
+
+            <h4>Applicant Dashboard</h4>
+            <ul>
+                <li><strong>My IRTA Applications:</strong> View all your submitted and draft applications</li>
+                <li><strong>Statistics Cards:</strong> Quick overview of your applications by status (Draft, Submitted, Completed)</li>
+                <li><strong>New Application Button:</strong> Start creating a new IRTA application</li>
+                <li><strong>Search & Filter:</strong> Search and filter your applications by status</li>
+            </ul>
+
+            <h4>Officer/Admin Dashboard</h4>
+            <ul>
+                <li><strong>Applications Dashboard:</strong> View all applications in the system</li>
+                <li><strong>Statistics Cards:</strong> Overview of total applications, pending reviews, verifications, and completions</li>
+                <li><strong>Navigation Sidebar:</strong> Access to all system modules</li>
+                <li><strong>Filtering Options:</strong> Filter by form type, status, date range, and assigned officer</li>
+                <li><strong>Export & Reporting:</strong> Export data to Excel and generate reports</li>
+            </ul>
+        </section>
+
+        <!-- Applicant Guide -->
+        <section id="applicant-guide">
+            <h2>5. Applicant Guide</h2>
+
+            <h3 id="view-applications">5.1 Viewing Your Applications</h3>
+            <p>To view your applications:</p>
+            <ol>
+                <li>Log in to the system</li>
+                <li>You will be taken to "My IRTA Applications" dashboard</li>
+                <li>View the list of all your applications with their current status</li>
+                <li>Click "View" on any application to see detailed information</li>
+            </ol>
+
+            <h4>Application Status Indicators</h4>
+            <ul>
+                <li><strong>Draft:</strong> Application not yet submitted, can still be edited</li>
+                <li><strong>Submitted:</strong> Application submitted and awaiting review</li>
+                <li><strong>Reception Review:</strong> Application being reviewed by reception staff</li>
+                <li><strong>Verification:</strong> Application data being verified by officers</li>
+                <li><strong>Issuing Decision:</strong> Final decision being made</li>
+                <li><strong>Completed:</strong> Application approved and document issued</li>
+            </ul>
+
+            <h3 id="new-application">5.2 Creating a New Application</h3>
+            <p>To create a new IRTA application:</p>
+            <ol>
+                <li>Click the "New Application" button in the top right of your dashboard</li>
+                <li>You will be taken to the application wizard</li>
+                <li>Follow the step-by-step process through all sections</li>
+                <li>Use "Save Draft" to save your progress and continue later</li>
+                <li>Review all information before submitting</li>
+                <li>Click "Submit Application" when ready</li>
+            </ol>
+
+            <h3 id="application-steps">5.3 Application Steps</h3>
+            <p>The new application wizard consists of the following steps:</p>
+
+            <h4>Step 1: Introduction</h4>
+            <ul>
+                <li>Read the application overview and requirements</li>
+                <li>Select application type (Individual IRTA or Business IRTA)</li>
+                <li>Provide applicant information (Name, Nationality, Date of Birth, ID details, Contact information)</li>
+            </ul>
+
+            <h4>Step 2: Representative</h4>
+            <ul>
+                <li>Provide details of the firm's legal representative</li>
+                <li>Enter representative's full name, email, phone number</li>
+                <li>Provide National ID/Passport number and Date of Birth</li>
+                <li>Enter residential address</li>
+                <li>Upload Public Proxy Instrument document (if applicable)</li>
+            </ul>
+
+            <h4>Step 3: Organization</h4>
+            <ul>
+                <li>Enter firm name and legal address</li>
+                <li>Provide legal representative in country of origin</li>
+                <li>Enter Tax Identification Number (TIN) and Company Registration Number</li>
+                <li>Provide contact details (Telephone, Fax)</li>
+                <li>Upload Company Registration Certificate</li>
+            </ul>
+
+            <h4>Step 4: Transportation</h4>
+            <ul>
+                <li>Specify nature of transport (Goods, Passenger, or Both)</li>
+                <li>Select modality of traffic</li>
+                <li>Specify origin and destination countries</li>
+                <li>Add vehicle information (Type, Year, Make, Plate Number, etc.)</li>
+                <li>Upload vehicle documents:
+                    <ul>
+                        <li>Vehicle Registration Certificate</li>
+                        <li>Revenue Licence</li>
+                        <li>Certificate of Fitness</li>
+                        <li>Third Party Insurance</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h4>Step 5: Declarations</h4>
+            <ul>
+                <li>Review all information entered</li>
+                <li>Confirm all declarations</li>
+                <li>Final submission</li>
+            </ul>
+
+            <div class="info-box">
+                <strong>Important:</strong> Once submitted, applications cannot be edited by applicants. 
+                If changes are needed, contact the reviewing officer or submit a new application.
+            </div>
+        </section>
+
+        <!-- Officer Guide -->
+        <section id="officer-guide">
+            <h2>6. Officer/Admin Guide</h2>
+
+            <h3 id="dashboard-management">6.1 Dashboard Management</h3>
+            <p>The main dashboard provides an overview of all applications in the system:</p>
+            <ul>
+                <li><strong>Statistics:</strong> View counts of total applications, pending reviews, verifications, and completions</li>
+                <li><strong>Application Table:</strong> Browse all applications with key information</li>
+                <li><strong>Filtering:</strong> Filter by form type, status, or assigned officer</li>
+                <li><strong>Search:</strong> Search by reference number, applicant name, or ID</li>
+                <li><strong>Actions:</strong> Click "View" to review an application in detail</li>
+            </ul>
+
+            <h3 id="application-review">6.2 Application Review</h3>
+            <p>To review an application:</p>
+            <ol>
+                <li>Click "View" on any application from the dashboard</li>
+                <li>The application detail modal will open with tabbed sections</li>
+                <li>Review all sections: Introduction, Representative, Organization, Transportation, Declarations, Status</li>
+                <li>Take appropriate action based on your role:
+                    <ul>
+                        <li><strong>Approve:</strong> Approve the application and move to next stage</li>
+                        <li><strong>Reject:</strong> Reject the application with comments</li>
+                        <li><strong>Reassign:</strong> Assign to another officer</li>
+                    </ul>
+                </li>
+            </ol>
+
+            <h4>Review Process Stages</h4>
+            <ol>
+                <li><strong>Reception Review:</strong> Initial review for completeness and basic validation</li>
+                <li><strong>Verification:</strong> Detailed verification of information and documents</li>
+                <li><strong>Issuing Decision:</strong> Final approval or rejection decision</li>
+                <li><strong>Completed:</strong> Application approved, document issued, process complete</li>
+            </ol>
+
+            <h3 id="vehicle-approval">6.3 Vehicle Approval</h3>
+            <p>The Vehicle Approval module allows officers to review and approve vehicles submitted with applications:</p>
+            <ol>
+                <li>Navigate to "Vehicle Approval" from the sidebar</li>
+                <li>View the list of vehicles pending approval</li>
+                <li>Click "Review" on any vehicle</li>
+                <li>Review vehicle details and documents</li>
+                <li>Approve or reject the vehicle with comments</li>
+                <li>Approved vehicles are then available for use in IRTA applications</li>
+            </ol>
+
+            <h3 id="user-management">6.4 User Management</h3>
+            <p>User Management allows administrators to manage system users:</p>
+            <ul>
+                <li><strong>Create Users:</strong> Add new users to the system with assigned roles</li>
+                <li><strong>Edit Users:</strong> Update user information and roles</li>
+                <li><strong>Deactivate Users:</strong> Disable user accounts without deleting them</li>
+                <li><strong>Role Assignment:</strong> Assign one or more roles to users</li>
+            </ul>
+
+            <h4>Roles & Permissions Management</h4>
+            <p>Configure roles and their permissions:</p>
+            <ul>
+                <li>View all available roles</li>
+                <li>Create new roles with custom permission sets</li>
+                <li>Edit existing roles and permissions</li>
+                <li>View permissions matrix to understand role capabilities</li>
+                <li>Assign roles to users</li>
+            </ul>
+
+            <h3 id="system-config">6.5 System Configuration</h3>
+            <p>System Configuration (IT Admin only) allows configuration of:</p>
+            <ul>
+                <li><strong>General Settings:</strong> System name, timezone, session timeout, notification preferences</li>
+                <li><strong>Email Configuration:</strong> SMTP server settings for email notifications</li>
+                <li><strong>Security Settings:</strong> Password policies, authentication requirements, failed login limits</li>
+                <li><strong>Backup & Maintenance:</strong> Backup schedules, retention policies, manual backup/restore</li>
+            </ul>
+
+            <h4>Database Access</h4>
+            <p>IT Administrators can:</p>
+            <ul>
+                <li>Execute SQL queries against the database</li>
+                <li>Create database backups</li>
+                <li>Restore from backup files</li>
+                <li>View database tables and structure</li>
+            </ul>
+
+            <h4>System Logs</h4>
+            <p>View comprehensive system logs:</p>
+            <ul>
+                <li>Filter logs by level (Info, Warning, Error, Debug)</li>
+                <li>Filter by type (Login, Form Action, User Management, System)</li>
+                <li>Search logs by keyword</li>
+                <li>Export logs to CSV, Excel, or JSON format</li>
+                <li>View log statistics and trends</li>
+            </ul>
+        </section>
+
+        <!-- Workflows -->
+        <section id="workflows">
+            <h2>7. Workflows</h2>
+            <p>
+                The system implements various workflows to manage different processes. Detailed workflow diagrams are available 
+                in the system's workflow documentation section. Key workflows include:
+            </p>
+
+            <ul class="workflow-list">
+                <li>
+                    <strong>Applicant Workflow</strong>
+                    <span>Complete process from application submission to completion, including all review stages</span>
+                </li>
+                <li>
+                    <strong>Reception Review Workflow</strong>
+                    <span>Initial review process conducted by reception staff</span>
+                </li>
+                <li>
+                    <strong>Verification Workflow</strong>
+                    <span>Detailed verification of application data and documents</span>
+                </li>
+                <li>
+                    <strong>Issuing Decision Workflow</strong>
+                    <span>Final approval/rejection decision-making process</span>
+                </li>
+                <li>
+                    <strong>Completed Workflow</strong>
+                    <span>Post-approval process including document generation and notification</span>
+                </li>
+                <li>
+                    <strong>Renewal Workflow</strong>
+                    <span>Process for renewing existing IRTA documents</span>
+                </li>
+                <li>
+                    <strong>Amendment Workflow</strong>
+                    <span>Process for requesting amendments to approved applications</span>
+                </li>
+                <li>
+                    <strong>Cancellation Workflow</strong>
+                    <span>Process for canceling IRTA documents</span>
+                </li>
+                <li>
+                    <strong>Vehicle Approval Workflow</strong>
+                    <span>Process for reviewing and approving vehicles</span>
+                </li>
+                <li>
+                    <strong>User Management Workflow</strong>
+                    <span>Process for creating and managing system users</span>
+                </li>
+                <li>
+                    <strong>Roles & Permissions Workflow</strong>
+                    <span>Process for configuring roles and permissions</span>
+                </li>
+                <li>
+                    <strong>System Configuration Workflow</strong>
+                    <span>Process for configuring system settings</span>
+                </li>
+                <li>
+                    <strong>Database Access Workflow</strong>
+                    <span>Process for database backup, restore, and query operations</span>
+                </li>
+                <li>
+                    <strong>View All Logs Workflow</strong>
+                    <span>Process for viewing, filtering, and exporting system logs</span>
+                </li>
+            </ul>
+
+            <div class="info-box">
+                <strong>Note:</strong> Detailed visual workflow diagrams are available in the system's workflow documentation section 
+                (<code>applicant_workflow_mockup.html</code>). These diagrams provide comprehensive flowcharts for all system processes, 
+                including decision points, loops, and status transitions. Contact your system administrator to access these diagrams.
+            </div>
+
+            <h3>Workflow Documentation</h3>
+            <p>
+                The system includes comprehensive workflow documentation with detailed flowcharts for each process. These diagrams 
+                illustrate:
+            </p>
+            <ul>
+                <li><strong>Process Flow:</strong> Step-by-step progression through each workflow stage</li>
+                <li><strong>Decision Points:</strong> Conditional branching based on validation results or user choices</li>
+                <li><strong>Status Transitions:</strong> How applications move between different statuses</li>
+                <li><strong>Loop-backs:</strong> Processes that return to previous stages for corrections or additional information</li>
+                <li><strong>Start and End Points:</strong> Clear workflow initiation and completion points</li>
+            </ul>
+            <p>
+                Available workflow diagrams include: Landing Page, Registration, Login, Applicant Workflow, Reception Review, 
+                Verification, Issuing Decision, Completed, Renewal, Amendment, Cancellation, Vehicle Approval, User Management, 
+                Roles & Permissions, System Configuration, Database Access, and View All Logs.
+            </p>
+        </section>
+
+        <!-- Form Types -->
+        <section id="form-types">
+            <h2>8. Form Types</h2>
+            <p>The system supports the following IRTA form types:</p>
+
+            <h3>Individual IRTA Application</h3>
+            <p>
+                For individual applicants seeking IRTA documents for personal purposes such as employment, family reunion, 
+                or other personal reasons.
+            </p>
+            <p><strong>Key Requirements:</strong></p>
+            <ul>
+                <li>Personal identification documents</li>
+                <li>Proof of purpose (employment letter, family documentation, etc.)</li>
+                <li>Contact information</li>
+            </ul>
+
+            <h3>Business IRTA Application</h3>
+            <p>
+                For companies and firms seeking IRTA documents for business operations, including transportation services 
+                between Guyana and Brazil.
+            </p>
+            <p><strong>Key Requirements:</strong></p>
+            <ul>
+                <li>Company registration documents</li>
+                <li>Legal representative information</li>
+                <li>Organization details</li>
+                <li>Transportation information</li>
+                <li>Vehicle documentation</li>
+            </ul>
+
+            <h3>Renewal Application</h3>
+            <p>
+                For renewing existing IRTA documents that are approaching expiration or have recently expired.
+            </p>
+            <p><strong>Key Requirements:</strong></p>
+            <ul>
+                <li>Reference number of existing IRTA document</li>
+                <li>Updated information (if any changes)</li>
+                <li>Current documentation</li>
+            </ul>
+
+            <h3>Amendment Request</h3>
+            <p>
+                For requesting changes to approved IRTA applications, such as updating vehicle information, contact details, 
+                or other permitted modifications.
+            </p>
+            <p><strong>Key Requirements:</strong></p>
+            <ul>
+                <li>Reference number of original application</li>
+                <li>Description of requested changes</li>
+                <li>Supporting documentation for changes</li>
+            </ul>
+
+            <h3>Cancellation Request</h3>
+            <p>
+                For canceling existing IRTA documents when they are no longer needed or required.
+            </p>
+            <p><strong>Key Requirements:</strong></p>
+            <ul>
+                <li>Reference number of IRTA document</li>
+                <li>Reason for cancellation</li>
+                <li>Applicant confirmation</li>
+            </ul>
+        </section>
+
+        <!-- Technical Details -->
+        <section id="technical">
+            <h2>9. Technical Details</h2>
+
+            <h3 id="architecture">9.1 System Architecture</h3>
+            <p>The IRTA Forms Management System is built with:</p>
+            <ul>
+                <li><strong>Frontend:</strong> Modern web-based interface compatible with React frameworks</li>
+                <li><strong>Backend:</strong> RESTful API architecture</li>
+                <li><strong>Database:</strong> Relational database for core data, object storage for documents</li>
+                <li><strong>Authentication:</strong> OAuth2/SSO-ready authentication system</li>
+                <li><strong>Document Storage:</strong> Secure file storage with integrity checking</li>
+            </ul>
+
+            <h3 id="security">9.2 Security</h3>
+            <p>The system implements multiple security measures:</p>
+            <ul>
+                <li><strong>Encryption:</strong> TLS for data in transit, AES-256 for data at rest</li>
+                <li><strong>Authentication:</strong> Strong password policies, optional two-factor authentication</li>
+                <li><strong>Authorization:</strong> Role-based access control at API and UI layers</li>
+                <li><strong>Audit Logging:</strong> Comprehensive logging of all user actions and system events</li>
+                <li><strong>Session Management:</strong> Configurable session timeouts and secure session handling</li>
+                <li><strong>Document Security:</strong> Virus scanning on upload, file integrity verification</li>
+            </ul>
+
+            <h3 id="data-storage">9.3 Data Storage</h3>
+            <p>Data is stored securely with the following structure:</p>
+            <ul>
+                <li><strong>Application Data:</strong> Stored in relational database tables</li>
+                <li><strong>Documents:</strong> Stored in secure object storage with metadata</li>
+                <li><strong>Logs:</strong> Immutable audit logs stored with timestamps and user information</li>
+                <li><strong>Backups:</strong> Regular automated backups with configurable retention policies</li>
+            </ul>
+
+            <h4>Data Retention</h4>
+            <p>
+                The system supports configurable data retention policies. Applications can be archived after a specified 
+                period, with read-only access to archived records. Contact your system administrator for specific retention 
+                policies applicable to your organization.
+            </p>
+        </section>
+
+        <!-- FAQ -->
+        <section id="faq">
+            <h2>10. Frequently Asked Questions</h2>
+
+            <h3>For Applicants</h3>
+
+            <h4>Q: Can I edit my application after submission?</h4>
+            <p>
+                <strong>A:</strong> No, once an application is submitted, it cannot be edited by the applicant. 
+                If you need to make changes, contact the reviewing officer or submit an amendment request if your 
+                application has been approved.
+            </p>
+
+            <h4>Q: How long does it take to process an application?</h4>
+            <p>
+                <strong>A:</strong> Processing times vary depending on the application type and completeness. 
+                You can track the status of your application in real-time through your dashboard. Typical processing 
+                times range from a few days to several weeks.
+            </p>
+
+            <h4>Q: Can I save my application and complete it later?</h4>
+            <p>
+                <strong>A:</strong> Yes, you can save your application as a draft at any time and continue editing 
+                it later. Drafts are saved automatically and can be accessed from your dashboard.
+            </p>
+
+            <h4>Q: What documents do I need to upload?</h4>
+            <p>
+                <strong>A:</strong> Required documents vary by application type. The system will indicate which 
+                documents are required at each step. Generally, you'll need identification documents, proof of 
+                purpose, and for business applications, company registration and vehicle documents.
+            </p>
+
+            <h3>For Officers</h3>
+
+            <h4>Q: How do I assign an application to another officer?</h4>
+            <p>
+                <strong>A:</strong> Open the application detail view and click the "Reassign" button. Select the 
+                officer you want to assign the application to and add any notes if needed.
+            </p>
+
+            <h4>Q: Can I see the history of an application?</h4>
+            <p>
+                <strong>A:</strong> Yes, the Status tab in the application detail view shows the complete timeline 
+                and history of the application, including all status changes, comments, and officer assignments.
+            </p>
+
+            <h4>Q: How do I export application data?</h4>
+            <p>
+                <strong>A:</strong> From the main dashboard, use the "Export to Excel" button to export the currently 
+                filtered application list. You can also generate detailed reports from the Reports section.
+            </p>
+
+            <h3>General Questions</h3>
+
+            <h4>Q: Is the system accessible on mobile devices?</h4>
+            <p>
+                <strong>A:</strong> Yes, the system is designed to be responsive and accessible on tablets and 
+                smartphones, though a desktop or laptop is recommended for the best experience, especially when 
+                uploading documents.
+            </p>
+
+            <h4>Q: What browsers are supported?</h4>
+            <p>
+                <strong>A:</strong> The system works with modern web browsers including Chrome, Firefox, Safari, 
+                and Edge. Ensure you're using an up-to-date browser version for the best experience.
+            </p>
+
+            <h4>Q: How do I create an account?</h4>
+            <p>
+                <strong>A:</strong> Navigate to the Registration page from the Landing Page or sidebar. Fill out the registration form 
+                with your personal information, create a password, and agree to the Terms of Service. After registration, you'll be 
+                redirected to the Login page where you can sign in with your email and password.
+            </p>
+
+            <h4>Q: What should I do if I forget my password?</h4>
+            <p>
+                <strong>A:</strong> Use the "Forgot Password" link on the login page to reset your password. 
+                You'll receive instructions via email to reset your password.
+            </p>
+
+            <h4>Q: How secure is my data?</h4>
+            <p>
+                <strong>A:</strong> The system implements industry-standard security measures including encryption, 
+                secure authentication, role-based access control, and comprehensive audit logging. All data is 
+                stored securely and accessed only by authorized personnel.
+            </p>
+        </section>
+
+        <!-- Support -->
+        <section id="support">
+            <h2>11. Support & Contact</h2>
+
+            <h3>Getting Help</h3>
+            <p>
+                If you need assistance with the IRTA Forms Management System, please use the following resources:
+            </p>
+
+            <ul>
+                <li><strong>System Help:</strong> Use the help icon (?) in the system interface for context-sensitive help</li>
+                <li><strong>Documentation:</strong> Refer to this documentation for detailed information</li>
+                <li><strong>Workflow Diagrams:</strong> Access workflow documentation within the system for visual process guides</li>
+                <li><strong>System Administrator:</strong> Contact your organization's system administrator for access and permission issues</li>
+                <li><strong>IT Support:</strong> Contact IT support for technical issues or system problems</li>
+            </ul>
+
+            <h3>Reporting Issues</h3>
+            <p>
+                If you encounter any issues or bugs in the system:
+            </p>
+            <ol>
+                <li>Note the exact steps that led to the issue</li>
+                <li>Check if the issue is mentioned in the FAQ section</li>
+                <li>Contact your system administrator or IT support</li>
+                <li>Provide as much detail as possible including:
+                    <ul>
+                        <li>What you were trying to do</li>
+                        <li>What happened instead</li>
+                        <li>Any error messages</li>
+                        <li>Your browser and operating system</li>
+                    </ul>
+                </li>
+            </ol>
+
+            <h3>Feature Requests</h3>
+            <p>
+                If you have suggestions for new features or improvements, please contact your system administrator 
+                or submit a feature request through your organization's designated channel.
+            </p>
+
+            <div class="success-box">
+                <strong>Thank you for using the IRTA Forms Management System!</strong><br>
+                This documentation is regularly updated. Check for the latest version periodically or contact 
+                your administrator for updates.
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer style="text-align: center; padding: 40px 20px; color: #64748b; margin-top: 60px;">
+            <p>IRTA Forms Management System Documentation</p>
+            <p style="margin-top: 8px; font-size: 14px;">
+                © 2024 IRTA Administration | All Rights Reserved
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
+
+

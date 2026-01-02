@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "513224798808",
+    "project_id": "irta-forms-app",
+    "storage_bucket": "irta-forms-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:513224798808:android:8f972ef4af1ce32690502d",
+        "android_client_info": {
+          "package_name": "com.example.irta_forms_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBoIQfXqtdkzsiMluJONPK8r1QISNBC2oo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

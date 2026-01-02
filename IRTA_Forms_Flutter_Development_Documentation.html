@@ -1,0 +1,1693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IRTA Forms - Flutter Development Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #1e293b;
+            background: #f8fafc;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .toc {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .toc h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #1e293b;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 12px;
+        }
+
+        .toc ul {
+            list-style: none;
+        }
+
+        .toc ul li {
+            margin-bottom: 12px;
+        }
+
+        .toc ul li a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-size: 16px;
+            transition: color 0.2s;
+        }
+
+        .toc ul li a:hover {
+            color: #1e40af;
+            text-decoration: underline;
+        }
+
+        .toc ul ul {
+            margin-left: 24px;
+            margin-top: 8px;
+        }
+
+        .toc ul ul li {
+            margin-bottom: 8px;
+        }
+
+        .toc ul ul li a {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        section {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        section h2 {
+            font-size: 32px;
+            color: #1e293b;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #3b82f6;
+        }
+
+        section h3 {
+            font-size: 24px;
+            color: #1e293b;
+            margin-top: 32px;
+            margin-bottom: 16px;
+        }
+
+        section h4 {
+            font-size: 20px;
+            color: #475569;
+            margin-top: 24px;
+            margin-bottom: 12px;
+        }
+
+        section p {
+            margin-bottom: 16px;
+            color: #475569;
+            font-size: 16px;
+        }
+
+        section ul, section ol {
+            margin-left: 32px;
+            margin-bottom: 16px;
+        }
+
+        section ul li, section ol li {
+            margin-bottom: 8px;
+            color: #475569;
+            font-size: 16px;
+        }
+
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 16px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .code-block code {
+            color: #e2e8f0;
+        }
+
+        .info-box {
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: 16px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .warning-box {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 16px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .success-box {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            padding: 16px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .comparison-table th {
+            background: #f1f5f9;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .comparison-table td {
+            color: #475569;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        .badge-firebase {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-mysql {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-secure {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .nav-top {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #3b82f6;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .nav-top:hover {
+            background: #2563eb;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .feature-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 24px;
+        }
+
+        .feature-card h4 {
+            color: #1e293b;
+            margin-top: 0;
+            margin-bottom: 12px;
+        }
+
+        .step-list {
+            counter-reset: step-counter;
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .step-list li {
+            counter-increment: step-counter;
+            margin-bottom: 24px;
+            padding-left: 50px;
+            position: relative;
+        }
+
+        .step-list li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: #3b82f6;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        @media print {
+            .nav-top {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="#top" class="nav-top">↑ Back to Top</a>
+
+    <header id="top">
+        <h1>IRTA Forms Management System</h1>
+        <p>Flutter Development Documentation</p>
+        <p style="margin-top: 12px; font-size: 14px;">Version 1.0 | Last Updated: December 2024</p>
+    </header>
+
+    <div class="container">
+        <!-- Table of Contents -->
+        <section class="toc">
+            <h2>Table of Contents</h2>
+            <ul>
+                <li><a href="#overview">1. Overview</a></li>
+                <li><a href="#architecture">2. System Architecture</a>
+                    <ul>
+                        <li><a href="#architecture-flutter">2.1 Flutter Framework</a></li>
+                        <li><a href="#architecture-platforms">2.2 Platform Support</a></li>
+                        <li><a href="#architecture-structure">2.3 Application Structure</a></li>
+                    </ul>
+                </li>
+                <li><a href="#database">3. Database Solutions</a>
+                    <ul>
+                        <li><a href="#database-firebase">3.1 Firebase (Recommended for MVP)</a></li>
+                        <li><a href="#database-mysql">3.2 MySQL (Enterprise Option)</a></li>
+                        <li><a href="#database-comparison">3.3 Database Comparison</a></li>
+                    </ul>
+                </li>
+                <li><a href="#version-control">4. Version Control & GitHub</a>
+                    <ul>
+                        <li><a href="#github-setup">4.1 Repository Setup</a></li>
+                        <li><a href="#github-workflow">4.2 Git Workflow</a></li>
+                        <li><a href="#github-ci-cd">4.3 CI/CD Integration</a></li>
+                    </ul>
+                </li>
+                <li><a href="#security">5. Security Implementation</a>
+                    <ul>
+                        <li><a href="#security-authentication">5.1 Authentication</a></li>
+                        <li><a href="#security-authorization">5.2 Authorization & RBAC</a></li>
+                        <li><a href="#security-data">5.3 Data Security</a></li>
+                        <li><a href="#security-services">5.4 Security Services</a></li>
+                    </ul>
+                </li>
+                <li><a href="#hosting">6. Hosting Solutions</a>
+                    <ul>
+                        <li><a href="#hosting-local">6.1 Local Development (XAMPP/Docker)</a></li>
+                        <li><a href="#hosting-cloud">6.2 Cloud Hosting</a></li>
+                        <li><a href="#hosting-comparison">6.3 Hosting Comparison</a></li>
+                    </ul>
+                </li>
+                <li><a href="#development">7. Development Guide</a>
+                    <ul>
+                        <li><a href="#dev-setup">7.1 Development Setup</a></li>
+                        <li><a href="#dev-packages">7.2 Required Packages</a></li>
+                        <li><a href="#dev-state">7.3 State Management</a></li>
+                        <li><a href="#dev-navigation">7.4 Navigation</a></li>
+                    </ul>
+                </li>
+                <li><a href="#deployment">8. Deployment Guide</a>
+                    <ul>
+                        <li><a href="#deploy-web">8.1 Web Deployment</a></li>
+                        <li><a href="#deploy-mobile">8.2 Mobile Deployment</a></li>
+                        <li><a href="#deploy-windows">8.3 Windows Deployment</a></li>
+                    </ul>
+                </li>
+                <li><a href="#suggestions">9. Additional Suggestions</a></li>
+                <li><a href="#resources">10. Resources & References</a></li>
+            </ul>
+        </section>
+
+        <!-- Overview -->
+        <section id="overview">
+            <h2>1. Overview</h2>
+            <p>
+                This documentation provides comprehensive guidance for developing the IRTA Forms Management System 
+                using Flutter. The application will be built as a cross-platform solution supporting Web, Mobile (iOS/Android), 
+                and Windows desktop platforms.
+            </p>
+
+            <h3>Project Goals</h3>
+            <ul>
+                <li>Build a single codebase for Web, Mobile, and Windows platforms</li>
+                <li>Implement secure authentication and authorization</li>
+                <li>Support multiple database backend options</li>
+                <li>Enable scalable cloud deployment</li>
+                <li>Maintain code quality through version control and CI/CD</li>
+            </ul>
+
+            <h3>Technology Stack</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Frontend</h4>
+                    <ul>
+                        <li>Flutter SDK 3.x</li>
+                        <li>Dart Programming Language</li>
+                        <li>Material Design 3</li>
+                        <li>Responsive UI Framework</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4>Backend Options</h4>
+                    <ul>
+                        <li>Firebase (Firestore, Auth, Storage)</li>
+                        <li>MySQL with REST API</li>
+                        <li>Node.js/Express or PHP/Laravel</li>
+                        <li>GraphQL (optional)</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4>Tools & Services</h4>
+                    <ul>
+                        <li>Git & GitHub</li>
+                        <li>Firebase Security Rules</li>
+                        <li>JWT Authentication</li>
+                        <li>OAuth 2.0 (optional)</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Architecture -->
+        <section id="architecture">
+            <h2>2. System Architecture</h2>
+
+            <h3 id="architecture-flutter">2.1 Flutter Framework</h3>
+            <p>
+                Flutter is Google's UI toolkit for building natively compiled applications for mobile, web, desktop, 
+                and embedded devices from a single codebase. It uses Dart as the programming language and provides 
+                excellent performance with a rich set of widgets.
+            </p>
+
+            <h4>Why Flutter?</h4>
+            <ul>
+                <li><strong>Single Codebase:</strong> Write once, deploy everywhere</li>
+                <li><strong>Performance:</strong> Native compilation for all platforms</li>
+                <li><strong>Hot Reload:</strong> Fast development iteration</li>
+                <li><strong>Rich Ecosystem:</strong> Extensive package library</li>
+                <li><strong>Material & Cupertino:</strong> Platform-adaptive UI</li>
+            </ul>
+
+            <h3 id="architecture-platforms">2.2 Platform Support</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Web</h4>
+                    <ul>
+                        <li>Progressive Web App (PWA)</li>
+                        <li>Responsive design</li>
+                        <li>Browser compatibility</li>
+                        <li>SEO optimization</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4>Mobile (iOS/Android)</h4>
+                    <ul>
+                        <li>Native app experience</li>
+                        <li>App Store & Play Store</li>
+                        <li>Push notifications</li>
+                        <li>Offline support</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4>Windows Desktop</h4>
+                    <ul>
+                        <li>Native Windows application</li>
+                        <li>Window management</li>
+                        <li>File system access</li>
+                        <li>System integration</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 id="architecture-structure">2.3 Application Structure</h3>
+            <p>Recommended Flutter project structure (Clean Architecture pattern):</p>
+            
+            <div style="background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 30px; margin: 24px 0; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.8;">
+                <div style="color: #3b82f6; font-weight: 600; margin-bottom: 12px;">lib/</div>
+                
+                <div style="margin-left: 20px;">
+                    <div style="color: #1e293b;">📄 main.dart</div>
+                    
+                    <div style="margin-top: 12px;">
+                        <div style="color: #10b981; font-weight: 600;">📁 app/</div>
+                        <div style="margin-left: 20px; color: #475569;">
+                            📄 app.dart<br>
+                            📄 routes.dart
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 12px;">
+                        <div style="color: #10b981; font-weight: 600;">📁 core/</div>
+                        <div style="margin-left: 20px; color: #475569;">
+                            📁 constants/<br>
+                            📁 utils/<br>
+                            📁 theme/<br>
+                            📁 security/
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 12px;">
+                        <div style="color: #10b981; font-weight: 600;">📁 data/</div>
+                        <div style="margin-left: 20px; color: #475569;">
+                            📁 models/<br>
+                            📁 repositories/<br>
+                            📁 datasources/
+                            <div style="margin-left: 20px; color: #64748b;">
+                                📁 firebase/<br>
+                                📁 mysql/
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 12px;">
+                        <div style="color: #10b981; font-weight: 600;">📁 domain/</div>
+                        <div style="margin-left: 20px; color: #475569;">
+                            📁 entities/<br>
+                            📁 usecases/
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 12px;">
+                        <div style="color: #10b981; font-weight: 600;">📁 presentation/</div>
+                        <div style="margin-left: 20px; color: #475569;">
+                            📁 pages/
+                            <div style="margin-left: 20px; color: #64748b;">
+                                📁 landing/<br>
+                                📁 registration/<br>
+                                📁 login/<br>
+                                📁 dashboard/<br>
+                                📁 applications/<br>
+                                📁 admin/
+                            </div>
+                            📁 widgets/<br>
+                            📁 providers/
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 12px;">
+                        <div style="color: #10b981; font-weight: 600;">📁 services/</div>
+                        <div style="margin-left: 20px; color: #475569;">
+                            📄 auth_service.dart<br>
+                            📄 storage_service.dart<br>
+                            📄 notification_service.dart<br>
+                            📄 api_service.dart
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Architecture Layers:</strong>
+                <ul style="margin-top: 8px; margin-left: 20px;">
+                    <li><strong>Presentation Layer:</strong> UI components, pages, widgets, and state management (Provider/Riverpod/Bloc)</li>
+                    <li><strong>Domain Layer:</strong> Business logic, entities, and use cases (independent of frameworks)</li>
+                    <li><strong>Data Layer:</strong> Data sources (Firebase/MySQL), repositories, and data models</li>
+                    <li><strong>Core Layer:</strong> Shared utilities, constants, themes, and security implementations</li>
+                    <li><strong>Services Layer:</strong> Application-wide services (authentication, storage, notifications, API)</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Database -->
+        <section id="database">
+            <h2>3. Database Solutions</h2>
+
+            <h3 id="database-firebase">3.1 Firebase (Recommended for MVP)</h3>
+            <p>
+                Firebase provides a comprehensive backend-as-a-service platform that's ideal for rapid development 
+                and prototyping. It offers real-time database, authentication, cloud storage, and serverless functions.
+            </p>
+
+            <h4>Firebase Services to Use</h4>
+            <ul>
+                <li><strong>Firestore:</strong> NoSQL document database for application data</li>
+                <li><strong>Firebase Authentication:</strong> User authentication and management</li>
+                <li><strong>Cloud Storage:</strong> File uploads and document storage</li>
+                <li><strong>Cloud Functions:</strong> Serverless backend logic</li>
+                <li><strong>Security Rules:</strong> Database and storage access control</li>
+            </ul>
+
+            <h4>Firebase Setup Steps</h4>
+            <ol class="step-list">
+                <li>
+                    <strong>Create Firebase Project</strong><br>
+                    Go to Firebase Console (console.firebase.google.com) and create a new project
+                </li>
+                <li>
+                    <strong>Install Firebase CLI</strong><br>
+                    <div class="code-block">npm install -g firebase-tools
+firebase login</div>
+                </li>
+                <li>
+                    <strong>Add Flutter Firebase Plugins</strong><br>
+                    <div class="code-block">flutter pub add firebase_core
+flutter pub add cloud_firestore
+flutter pub add firebase_auth
+flutter pub add firebase_storage
+flutter pub add firebase_analytics</div>
+                </li>
+                <li>
+                    <strong>Configure Firebase for Each Platform</strong><br>
+                    - Web: Add Firebase config to index.html<br>
+                    - Android: Add google-services.json<br>
+                    - iOS: Add GoogleService-Info.plist<br>
+                    - Windows: Configure via Firebase Admin SDK
+                </li>
+                <li>
+                    <strong>Initialize Firebase in Flutter</strong><br>
+                    <div class="code-block">import 'package:firebase_core/firebase_core.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(MyApp());
+}</div>
+                </li>
+            </ol>
+
+            <h4>Firebase Security Rules Example</h4>
+            <div class="code-block">
+// Firestore Security Rules
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users can only read/write their own data
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Applications - users can read their own, officers can read all
+    match /applications/{applicationId} {
+      allow read: if request.auth != null && 
+        (resource.data.userId == request.auth.uid || 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['officer', 'admin']);
+      allow create: if request.auth != null && 
+        request.resource.data.userId == request.auth.uid;
+      allow update: if request.auth != null && 
+        (resource.data.userId == request.auth.uid || 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['officer', 'admin']);
+    }
+  }
+}
+            </div>
+
+            <div class="info-box">
+                <strong>Firebase Advantages:</strong> Quick setup, real-time updates, automatic scaling, 
+                built-in authentication, easy file storage, free tier available.
+            </div>
+
+            <h3 id="database-mysql">3.2 MySQL (Enterprise Option)</h3>
+            <p>
+                MySQL provides a traditional relational database solution that's ideal for complex queries, 
+                data integrity, and enterprise-level requirements.
+            </p>
+
+            <h4>MySQL Setup with REST API</h4>
+            <ol class="step-list">
+                <li>
+                    <strong>Database Schema Design</strong><br>
+                    Create tables for users, applications, documents, roles, permissions, etc.
+                </li>
+                <li>
+                    <strong>Backend API Development</strong><br>
+                    Choose backend framework:
+                    <ul>
+                        <li>Node.js with Express</li>
+                        <li>PHP with Laravel</li>
+                        <li>Python with Django/FastAPI</li>
+                        <li>Java with Spring Boot</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>REST API Endpoints</strong><br>
+                    Design RESTful API for CRUD operations
+                </li>
+                <li>
+                    <strong>Flutter HTTP Client</strong><br>
+                    <div class="code-block">flutter pub add http
+flutter pub add dio</div>
+                </li>
+                <li>
+                    <strong>API Service Implementation</strong><br>
+                    Create service classes to interact with REST API
+                </li>
+            </ol>
+
+            <h4>Example MySQL Schema</h4>
+            <div class="code-block">
+CREATE TABLE users (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    full_name VARCHAR(255) NOT NULL,
+    role ENUM('applicant', 'officer', 'admin') NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE applications (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    reference_number VARCHAR(50) UNIQUE NOT NULL,
+    form_type VARCHAR(50) NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    data JSON NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE documents (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    application_id INT NOT NULL,
+    document_type VARCHAR(100) NOT NULL,
+    file_path VARCHAR(500) NOT NULL,
+    file_name VARCHAR(255) NOT NULL,
+    file_size INT NOT NULL,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (application_id) REFERENCES applications(id)
+);
+            </div>
+
+            <div class="info-box">
+                <strong>MySQL Advantages:</strong> ACID compliance, complex queries, data integrity, 
+                mature ecosystem, full control over database structure.
+            </div>
+
+            <h3 id="database-comparison">3.3 Database Comparison</h3>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Firebase</th>
+                        <th>MySQL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Setup Time</strong></td>
+                        <td>Minutes</td>
+                        <td>Hours/Days</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Scalability</strong></td>
+                        <td>Automatic</td>
+                        <td>Manual configuration</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Real-time Updates</strong></td>
+                        <td>Built-in</td>
+                        <td>Requires WebSockets</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Complex Queries</strong></td>
+                        <td>Limited</td>
+                        <td>Full SQL support</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Cost (Small Scale)</strong></td>
+                        <td>Free tier available</td>
+                        <td>Server costs</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Data Migration</strong></td>
+                        <td>Easy export</td>
+                        <td>Standard SQL dumps</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Best For</strong></td>
+                        <td>MVP, Rapid development</td>
+                        <td>Enterprise, Complex requirements</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="warning-box">
+                <strong>Recommendation:</strong> Start with Firebase for rapid development and MVP, 
+                then migrate to MySQL if you need complex queries, strict data relationships, or 
+                enterprise-level control. Consider a hybrid approach where Firebase handles authentication 
+                and file storage, while MySQL handles complex application data.
+            </div>
+        </section>
+
+        <!-- Version Control -->
+        <section id="version-control">
+            <h2>4. Version Control & GitHub</h2>
+
+            <h3 id="github-setup">4.1 Repository Setup</h3>
+            <ol class="step-list">
+                <li>
+                    <strong>Create GitHub Repository</strong><br>
+                    <ul>
+                        <li>Go to github.com and create a new repository</li>
+                        <li>Repository name: <code>irta-forms-app</code></li>
+                        <li>Visibility: Private (for security)</li>
+                        <li>Initialize with README, .gitignore (Flutter), and license</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Configure .gitignore</strong><br>
+                    <div class="code-block"># Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/
+
+# Firebase
+**/google-services.json
+**/GoogleService-Info.plist
+firebase_options.dart
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# OS
+.DS_Store
+Thumbs.db</div>
+                </li>
+                <li>
+                    <strong>Clone and Initialize</strong><br>
+                    <div class="code-block">git clone https://github.com/yourusername/irta-forms-app.git
+cd irta-forms-app
+flutter create .
+git add .
+git commit -m "Initial Flutter project setup"
+git push origin main</div>
+                </li>
+            </ol>
+
+            <h3 id="github-workflow">4.2 Git Workflow</h3>
+            <h4>Branch Strategy</h4>
+            <ul>
+                <li><strong>main:</strong> Production-ready code</li>
+                <li><strong>develop:</strong> Integration branch for features</li>
+                <li><strong>feature/:</strong> New features (e.g., feature/authentication)</li>
+                <li><strong>bugfix/:</strong> Bug fixes</li>
+                <li><strong>hotfix/:</strong> Critical production fixes</li>
+            </ul>
+
+            <h4>Git Workflow Example</h4>
+            <div class="code-block"># Create feature branch
+git checkout -b feature/user-authentication
+git push -u origin feature/user-authentication
+
+# Make changes and commit
+git add .
+git commit -m "feat: implement user authentication"
+
+# Push to remote
+git push origin feature/user-authentication
+
+# Create Pull Request on GitHub
+# After review and approval, merge to develop
+git checkout develop
+git merge feature/user-authentication
+git push origin develop</div>
+
+            <h3 id="github-ci-cd">4.3 CI/CD Integration</h3>
+            <p>Set up GitHub Actions for automated testing and deployment:</p>
+
+            <h4>GitHub Actions Workflow (.github/workflows/flutter.yml)</h4>
+            <div class="code-block">name: Flutter CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x'
+          channel: 'stable'
+      
+      - name: Install dependencies
+        run: flutter pub get
+      
+      - name: Run tests
+        run: flutter test
+      
+      - name: Analyze code
+        run: flutter analyze
+      
+      - name: Check formatting
+        run: dart format --set-exit-if-changed .
+
+  build-web:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x'
+      
+      - name: Build web
+        run: flutter build web --release
+      
+      - name: Deploy to Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+          channelId: live
+          projectId: your-firebase-project-id</div>
+        </section>
+
+        <!-- Security -->
+        <section id="security">
+            <h2>5. Security Implementation</h2>
+
+            <h3 id="security-authentication">5.1 Authentication</h3>
+            <h4>Firebase Authentication</h4>
+            <div class="code-block">import 'package:firebase_auth/firebase_auth.dart';
+
+class AuthService {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  // Sign in with email and password
+  Future&lt;UserCredential&gt; signIn(String email, String password) async {
+    try {
+      return await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+    } on FirebaseAuthException catch (e) {
+      throw _handleAuthException(e);
+    }
+  }
+
+  // Register new user
+  Future&lt;UserCredential&gt; register(String email, String password) async {
+    try {
+      return await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+    } on FirebaseAuthException catch (e) {
+      throw _handleAuthException(e);
+    }
+  }
+
+  // Sign out
+  Future&lt;void&gt; signOut() async {
+    await _auth.signOut();
+  }
+
+  // Stream of auth state changes
+  Stream&lt;User?&gt; get authStateChanges => _auth.authStateChanges();
+}</div>
+
+            <h4>JWT Authentication (MySQL Backend)</h4>
+            <div class="code-block">import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class AuthService {
+  static const String baseUrl = 'https://api.irta.gov.gy';
+  
+  Future&lt;Map&lt;String, dynamic&gt;&gt; login(String email, String password) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/auth/login'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email, 'password': password}),
+    );
+    
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('token', data['token']);
+      await prefs.setString('refresh_token', data['refresh_token']);
+      return data;
+    } else {
+      throw Exception('Login failed');
+    }
+  }
+  
+  Future&lt;String?&gt; getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+}</div>
+
+            <h3 id="security-authorization">5.2 Authorization & RBAC</h3>
+            <h4>Role-Based Access Control Implementation</h4>
+            <div class="code-block">enum UserRole {
+  applicant,
+  receptionStaff,
+  verificationOfficer,
+  issuingOfficer,
+  admin,
+  itAdmin,
+}
+
+class UserModel {
+  final String id;
+  final String email;
+  final UserRole role;
+  final List&lt;String&gt; permissions;
+
+  UserModel({
+    required this.id,
+    required this.email,
+    required this.role,
+    required this.permissions,
+  });
+
+  bool hasPermission(String permission) {
+    return permissions.contains(permission);
+  }
+
+  bool canViewApplications() {
+    return role == UserRole.applicant || 
+           [UserRole.receptionStaff, UserRole.verificationOfficer, 
+            UserRole.issuingOfficer, UserRole.admin].contains(role);
+  }
+
+  bool canApproveApplications() {
+    return [UserRole.issuingOfficer, UserRole.admin].contains(role);
+  }
+}</div>
+
+            <h3 id="security-data">5.3 Data Security</h3>
+            <h4>Encryption</h4>
+            <ul>
+                <li><strong>Data in Transit:</strong> Always use HTTPS/TLS for API communication</li>
+                <li><strong>Data at Rest:</strong> Encrypt sensitive data before storage</li>
+                <li><strong>Local Storage:</strong> Use secure storage packages for sensitive data</li>
+            </ul>
+
+            <div class="code-block">flutter pub add flutter_secure_storage
+flutter pub add encrypt</div>
+
+            <h4>Secure Storage Example</h4>
+            <div class="code-block">import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+class SecureStorageService {
+  static const _storage = FlutterSecureStorage(
+    aOptions: AndroidOptions(
+      encryptedSharedPreferences: true,
+    ),
+    iOptions: IOSOptions(
+      accessibility: KeychainAccessibility.first_unlock_this_device,
+    ),
+  );
+
+  Future&lt;void&gt; saveToken(String token) async {
+    await _storage.write(key: 'auth_token', value: token);
+  }
+
+  Future&lt;String?&gt; getToken() async {
+    return await _storage.read(key: 'auth_token');
+  }
+
+  Future&lt;void&gt; deleteToken() async {
+    await _storage.delete(key: 'auth_token');
+  }
+}</div>
+
+            <h3 id="security-services">5.4 Security Services</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Firebase App Check</h4>
+                    <p>Protect your backend resources from abuse by verifying requests come from your app.</p>
+                    <div class="code-block">flutter pub add firebase_app_check</div>
+                </div>
+                <div class="feature-card">
+                    <h4>OWASP Mobile Top 10</h4>
+                    <p>Follow OWASP security guidelines for mobile applications.</p>
+                    <ul>
+                        <li>Secure data storage</li>
+                        <li>Cryptography implementation</li>
+                        <li>Authentication and session management</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4>Certificate Pinning</h4>
+                    <p>Prevent man-in-the-middle attacks by pinning SSL certificates.</p>
+                    <div class="code-block">flutter pub add certificate_pinning</div>
+                </div>
+                <div class="feature-card">
+                    <h4>Biometric Authentication</h4>
+                    <p>Add fingerprint/face recognition for mobile apps.</p>
+                    <div class="code-block">flutter pub add local_auth</div>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <strong>Security Best Practices:</strong>
+                <ul>
+                    <li>Never store passwords in plain text</li>
+                    <li>Use secure HTTP connections (HTTPS) only</li>
+                    <li>Implement token refresh mechanisms</li>
+                    <li>Validate all user inputs</li>
+                    <li>Implement rate limiting on API endpoints</li>
+                    <li>Regular security audits and penetration testing</li>
+                    <li>Keep dependencies updated</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Hosting -->
+        <section id="hosting">
+            <h2>6. Hosting Solutions</h2>
+
+            <h3 id="hosting-local">6.1 Local Development</h3>
+            
+            <h4>XAMPP Setup</h4>
+            <ol class="step-list">
+                <li>
+                    <strong>Download and Install XAMPP</strong><br>
+                    Download from apachefriends.org and install on your system
+                </li>
+                <li>
+                    <strong>Start Services</strong><br>
+                    Start Apache and MySQL from XAMPP Control Panel
+                </li>
+                <li>
+                    <strong>Create Database</strong><br>
+                    Access phpMyAdmin at http://localhost/phpmyadmin and create your database
+                </li>
+                <li>
+                    <strong>Configure Backend</strong><br>
+                    Place your PHP/Laravel backend in htdocs directory
+                </li>
+                <li>
+                    <strong>Update Flutter API Base URL</strong><br>
+                    <div class="code-block">// For local development
+const String apiBaseUrl = 'http://localhost/api';
+
+// For testing on mobile device (use your computer's IP)
+const String apiBaseUrl = 'http://192.168.1.100/api';</div>
+                </li>
+            </ol>
+
+            <h4>Docker Setup</h4>
+            <p>Create a docker-compose.yml for local development:</p>
+            <div class="code-block">version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: irta-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: irta_forms
+      MYSQL_USER: irta_user
+      MYSQL_PASSWORD: irta_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: irta-phpmyadmin
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+
+  backend:
+    build: ./backend
+    container_name: irta-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/var/www/html
+    depends_on:
+      - mysql
+
+volumes:
+  mysql_data:</div>
+
+            <div class="code-block"># Run Docker containers
+docker-compose up -d
+
+# Access phpMyAdmin
+# http://localhost:8080
+
+# Access backend API
+# http://localhost:8000</div>
+
+            <h3 id="hosting-cloud">6.2 Cloud Hosting</h3>
+
+            <h4>DigitalOcean</h4>
+            <div class="feature-card">
+                <h4>Setup Steps</h4>
+                <ol>
+                    <li>Create DigitalOcean account</li>
+                    <li>Create a Droplet (Ubuntu 22.04 LTS recommended)</li>
+                    <li>Install LAMP/LEMP stack or Docker</li>
+                    <li>Configure domain name and SSL (Let's Encrypt)</li>
+                    <li>Deploy backend application</li>
+                    <li>Configure firewall and security</li>
+                </ol>
+                <p><strong>Pricing:</strong> Starting at $4/month for basic droplet</p>
+                <p><strong>Best For:</strong> Custom backend deployments, full control</p>
+            </div>
+
+            <h4>Bluehost</h4>
+            <div class="feature-card">
+                <h4>Setup Steps</h4>
+                <ol>
+                    <li>Purchase hosting plan (Shared, VPS, or Dedicated)</li>
+                    <li>Configure domain name</li>
+                    <li>Install WordPress or set up custom PHP environment</li>
+                    <li>Create MySQL database via cPanel</li>
+                    <li>Upload backend files via FTP/cPanel File Manager</li>
+                    <li>Configure SSL certificate</li>
+                </ol>
+                <p><strong>Pricing:</strong> Starting at $2.95/month (shared hosting)</p>
+                <p><strong>Best For:</strong> PHP/Laravel applications, shared hosting needs</p>
+            </div>
+
+            <h4>Firebase Hosting (For Web App)</h4>
+            <div class="feature-card">
+                <h4>Setup Steps</h4>
+                <ol>
+                    <li>Install Firebase CLI: <code>npm install -g firebase-tools</code></li>
+                    <li>Login: <code>firebase login</code></li>
+                    <li>Initialize: <code>firebase init hosting</code></li>
+                    <li>Build Flutter web: <code>flutter build web</code></li>
+                    <li>Deploy: <code>firebase deploy --only hosting</code></li>
+                </ol>
+                <p><strong>Pricing:</strong> Free tier: 10 GB storage, 360 MB/day transfer</p>
+                <p><strong>Best For:</strong> Static web hosting, CDN distribution</p>
+            </div>
+
+            <h4>Other Cloud Hosting Options</h4>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Provider</th>
+                        <th>Best For</th>
+                        <th>Starting Price</th>
+                        <th>Key Features</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>AWS (Amazon Web Services)</strong></td>
+                        <td>Enterprise, Scalable</td>
+                        <td>Pay-as-you-go</td>
+                        <td>EC2, RDS, S3, Lambda, CloudFront</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Google Cloud Platform</strong></td>
+                        <td>Firebase integration, ML</td>
+                        <td>Pay-as-you-go</td>
+                        <td>Compute Engine, Cloud SQL, Storage</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Azure</strong></td>
+                        <td>Microsoft ecosystem</td>
+                        <td>Pay-as-you-go</td>
+                        <td>App Service, SQL Database, Storage</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Heroku</strong></td>
+                        <td>Rapid deployment</td>
+                        <td>$7/month</td>
+                        <td>Easy deployment, Add-ons</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Vercel</strong></td>
+                        <td>Frontend hosting</td>
+                        <td>Free tier</td>
+                        <td>Next.js, Static sites, Edge functions</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Netlify</strong></td>
+                        <td>Static sites, JAMstack</td>
+                        <td>Free tier</td>
+                        <td>CI/CD, Forms, Functions</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 id="hosting-comparison">6.3 Hosting Comparison</h3>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Factor</th>
+                        <th>Local (XAMPP/Docker)</th>
+                        <th>Shared Hosting</th>
+                        <th>VPS/Cloud</th>
+                        <th>PaaS (Firebase/Heroku)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Cost</strong></td>
+                        <td>Free</td>
+                        <td>$2-10/month</td>
+                        <td>$5-50/month</td>
+                        <td>Free tier - $25+/month</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Control</strong></td>
+                        <td>Full</td>
+                        <td>Limited</td>
+                        <td>Full</td>
+                        <td>Limited</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Scalability</strong></td>
+                        <td>None</td>
+                        <td>Limited</td>
+                        <td>Manual</td>
+                        <td>Automatic</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Setup Complexity</strong></td>
+                        <td>Low</td>
+                        <td>Low</td>
+                        <td>Medium-High</td>
+                        <td>Low</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Best For</strong></td>
+                        <td>Development</td>
+                        <td>Small apps</td>
+                        <td>Custom needs</td>
+                        <td>Rapid deployment</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Development Guide -->
+        <section id="development">
+            <h2>7. Development Guide</h2>
+
+            <h3 id="dev-setup">7.1 Development Setup</h3>
+            <ol class="step-list">
+                <li>
+                    <strong>Install Flutter SDK</strong><br>
+                    Download from flutter.dev and add to PATH
+                </li>
+                <li>
+                    <strong>Install IDE</strong><br>
+                    VS Code or Android Studio with Flutter/Dart plugins
+                </li>
+                <li>
+                    <strong>Verify Installation</strong><br>
+                    <div class="code-block">flutter doctor</div>
+                </li>
+                <li>
+                    <strong>Create Flutter Project</strong><br>
+                    <div class="code-block">flutter create irta_forms_app
+cd irta_forms_app</div>
+                </li>
+            </ol>
+
+            <h3 id="dev-packages">7.2 Required Packages</h3>
+            <div class="code-block"># State Management
+flutter pub add provider
+# or
+flutter pub add riverpod
+# or
+flutter pub add bloc
+
+# HTTP & API
+flutter pub add http
+flutter pub add dio
+
+# Firebase
+flutter pub add firebase_core
+flutter pub add firebase_auth
+flutter pub add cloud_firestore
+flutter pub add firebase_storage
+
+# Local Storage
+flutter pub add shared_preferences
+flutter pub add flutter_secure_storage
+
+# Navigation
+flutter pub add go_router
+# or
+flutter pub add auto_route
+
+# UI Components
+flutter pub add flutter_svg
+flutter pub add cached_network_image
+flutter pub add flutter_pdfview
+flutter pub add image_picker
+flutter pub add file_picker
+
+# Forms & Validation
+flutter pub add flutter_form_builder
+flutter pub add formz
+
+# Utilities
+flutter pub add intl
+flutter pub add uuid
+flutter pub add url_launcher
+flutter pub add connectivity_plus
+
+# PDF Generation
+flutter pub add pdf
+flutter pub add printing</div>
+
+            <h3 id="dev-state">7.3 State Management</h3>
+            <p>Recommended: Provider or Riverpod for state management</p>
+
+            <h4>Provider Example</h4>
+            <div class="code-block">import 'package:provider/provider.dart';
+
+class AuthProvider extends ChangeNotifier {
+  User? _user;
+  bool _isLoading = false;
+
+  User? get user => _user;
+  bool get isLoading => _isLoading;
+
+  Future&lt;void&gt; login(String email, String password) async {
+    _isLoading = true;
+    notifyListeners();
+    
+    try {
+      _user = await AuthService.signIn(email, password);
+    } catch (e) {
+      // Handle error
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+}
+
+// In main.dart
+MultiProvider(
+  providers: [
+    ChangeNotifierProvider(create: (_) => AuthProvider()),
+    ChangeNotifierProvider(create: (_) => ApplicationProvider()),
+  ],
+  child: MyApp(),
+)</div>
+
+            <h3 id="dev-navigation">7.4 Navigation</h3>
+            <h4>GoRouter Example</h4>
+            <div class="code-block">import 'package:go_router/go_router.dart';
+
+final router = GoRouter(
+  routes: [
+    GoRoute(
+      path: '/',
+      builder: (context, state) => LandingPage(),
+    ),
+    GoRoute(
+      path: '/login',
+      builder: (context, state) => LoginPage(),
+    ),
+    GoRoute(
+      path: '/dashboard',
+      builder: (context, state) => DashboardPage(),
+      redirect: (context, state) {
+        final authProvider = context.read&lt;AuthProvider&gt;();
+        if (!authProvider.isAuthenticated) {
+          return '/login';
+        }
+        return null;
+      },
+    ),
+  ],
+);</div>
+        </section>
+
+        <!-- Deployment -->
+        <section id="deployment">
+            <h2>8. Deployment Guide</h2>
+
+            <h3 id="deploy-web">8.1 Web Deployment</h3>
+            <ol class="step-list">
+                <li>
+                    <strong>Build Web App</strong><br>
+                    <div class="code-block">flutter build web --release</div>
+                </li>
+                <li>
+                    <strong>Test Locally</strong><br>
+                    <div class="code-block">flutter run -d chrome --release</div>
+                </li>
+                <li>
+                    <strong>Deploy to Firebase Hosting</strong><br>
+                    <div class="code-block">firebase deploy --only hosting</div>
+                </li>
+                <li>
+                    <strong>Configure Custom Domain (Optional)</strong><br>
+                    Add domain in Firebase Console → Hosting → Add custom domain
+                </li>
+            </ol>
+
+            <h3 id="deploy-mobile">8.2 Mobile Deployment</h3>
+            <h4>Android</h4>
+            <ol class="step-list">
+                <li>
+                    <strong>Generate Keystore</strong><br>
+                    <div class="code-block">keytool -genkey -v -keystore ~/upload-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload</div>
+                </li>
+                <li>
+                    <strong>Configure key.properties</strong><br>
+                    Create android/key.properties file
+                </li>
+                <li>
+                    <strong>Build APK/AAB</strong><br>
+                    <div class="code-block">flutter build apk --release
+# or for Play Store
+flutter build appbundle --release</div>
+                </li>
+                <li>
+                    <strong>Upload to Play Store</strong><br>
+                    Use Google Play Console to upload and publish
+                </li>
+            </ol>
+
+            <h4>iOS</h4>
+            <ol class="step-list">
+                <li>
+                    <strong>Configure Xcode</strong><br>
+                    Open ios/Runner.xcworkspace in Xcode
+                </li>
+                <li>
+                    <strong>Set Bundle Identifier</strong><br>
+                    Configure in Xcode project settings
+                </li>
+                <li>
+                    <strong>Archive and Upload</strong><br>
+                    Product → Archive → Distribute App
+                </li>
+                <li>
+                    <strong>Submit to App Store</strong><br>
+                    Use App Store Connect
+                </li>
+            </ol>
+
+            <h3 id="deploy-windows">8.3 Windows Deployment</h3>
+            <ol class="step-list">
+                <li>
+                    <strong>Enable Windows Desktop</strong><br>
+                    <div class="code-block">flutter config --enable-windows-desktop</div>
+                </li>
+                <li>
+                    <strong>Build Windows App</strong><br>
+                    <div class="code-block">flutter build windows --release</div>
+                </li>
+                <li>
+                    <strong>Package for Distribution</strong><br>
+                    Use Inno Setup or NSIS to create installer
+                </li>
+                <li>
+                    <strong>Code Signing (Recommended)</strong><br>
+                    Sign executable with code signing certificate
+                </li>
+            </ol>
+        </section>
+
+        <!-- Suggestions -->
+        <section id="suggestions">
+            <h2>9. Additional Suggestions</h2>
+
+            <h3>Performance Optimization</h3>
+            <ul>
+                <li>Implement lazy loading for large lists</li>
+                <li>Use image caching for document thumbnails</li>
+                <li>Implement pagination for data-heavy screens</li>
+                <li>Optimize asset sizes and use WebP format</li>
+                <li>Implement code splitting for web builds</li>
+            </ul>
+
+            <h3>User Experience Enhancements</h3>
+            <ul>
+                <li>Add offline mode with local database (Hive/SQLite)</li>
+                <li>Implement pull-to-refresh functionality</li>
+                <li>Add skeleton loaders for better perceived performance</li>
+                <li>Implement dark mode support</li>
+                <li>Add accessibility features (screen reader support)</li>
+                <li>Implement multi-language support (i18n)</li>
+            </ul>
+
+            <h3>Analytics & Monitoring</h3>
+            <ul>
+                <li>Firebase Analytics for user behavior tracking</li>
+                <li>Crashlytics for error reporting</li>
+                <li>Performance monitoring</li>
+                <li>User feedback system</li>
+            </ul>
+
+            <h3>Testing Strategy</h3>
+            <ul>
+                <li>Unit tests for business logic</li>
+                <li>Widget tests for UI components</li>
+                <li>Integration tests for user flows</li>
+                <li>E2E tests for critical paths</li>
+            </ul>
+
+            <h3>Documentation</h3>
+            <ul>
+                <li>Code documentation with dartdoc</li>
+                <li>API documentation (Swagger/OpenAPI)</li>
+                <li>User manuals and guides</li>
+                <li>Developer onboarding documentation</li>
+            </ul>
+
+            <h3>DevOps Recommendations</h3>
+            <ul>
+                <li>Set up automated testing in CI/CD</li>
+                <li>Implement staging environment</li>
+                <li>Use feature flags for gradual rollouts</li>
+                <li>Set up error tracking (Sentry)</li>
+                <li>Implement log aggregation</li>
+            </ul>
+        </section>
+
+        <!-- Resources -->
+        <section id="resources">
+            <h2>10. Resources & References</h2>
+
+            <h3>Official Documentation</h3>
+            <ul>
+                <li><a href="https://flutter.dev/docs" target="_blank">Flutter Documentation</a></li>
+                <li><a href="https://firebase.google.com/docs" target="_blank">Firebase Documentation</a></li>
+                <li><a href="https://dart.dev/guides" target="_blank">Dart Language Guide</a></li>
+                <li><a href="https://pub.dev/" target="_blank">Pub.dev Package Repository</a></li>
+            </ul>
+
+            <h3>Learning Resources</h3>
+            <ul>
+                <li>Flutter YouTube Channel</li>
+                <li>Flutter Community Blog</li>
+                <li>Medium Flutter Articles</li>
+                <li>Flutter Discord Community</li>
+            </ul>
+
+            <h3>Security Resources</h3>
+            <ul>
+                <li><a href="https://owasp.org/www-project-mobile-top-10/" target="_blank">OWASP Mobile Top 10</a></li>
+                <li><a href="https://cheatsheetseries.owasp.org/" target="_blank">OWASP Cheat Sheet Series</a></li>
+                <li>Flutter Security Best Practices</li>
+            </ul>
+
+            <h3>Hosting Resources</h3>
+            <ul>
+                <li>DigitalOcean Community Tutorials</li>
+                <li>Firebase Hosting Guide</li>
+                <li>Docker Documentation</li>
+                <li>SSL/TLS Setup Guides</li>
+            </ul>
+
+            <div class="success-box">
+                <strong>Ready to Start?</strong><br>
+                Begin with setting up your development environment, then choose your database solution, 
+                set up version control, and start building your first feature. Remember to implement 
+                security from the start and test thoroughly before deployment.
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer style="text-align: center; padding: 40px 20px; color: #64748b; margin-top: 60px;">
+            <p>IRTA Forms Management System - Flutter Development Documentation</p>
+            <p style="margin-top: 8px; font-size: 14px;">
+                © 2024 IRTA Administration | All Rights Reserved
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
+
