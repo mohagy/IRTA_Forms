@@ -113,6 +113,101 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
     }
   }
 
+  Future<void> _saveDraft(BuildContext context, AuthProvider authProvider, ApplicationProvider appProvider) async {
+    final user = authProvider.user;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('You must be logged in to save a draft'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
+    // Collect all form data
+    final applicationData = {
+      'formType': 'Business IRTA', // Default, could be made configurable
+      'applicantName': _representativeNameController.text.isNotEmpty 
+          ? _representativeNameController.text 
+          : user.displayName ?? user.email ?? 'Unknown',
+      'nationality': null, // Not in current form
+      'purpose': null, // Could be added later
+      
+      // Representative information
+      'representative': {
+        'name': _representativeNameController.text,
+        'email': _representativeEmailController.text,
+        'phone': _representativePhoneController.text,
+        'idNumber': _representativeIdController.text,
+        'address': _representativeAddressController.text,
+        'dateOfBirth': _representativeDob?.toIso8601String(),
+        'publicProxyInstrumentFileName': _publicProxyInstrumentFile?.name,
+      },
+      
+      // Organization information
+      'organization': {
+        'firmName': _firmNameController.text,
+        'firmAddress': _firmAddressController.text,
+        'legalRepresentative': _legalRepresentativeController.text,
+        'tin': _tinController.text,
+        'companyRegistrationNumber': _companyRegController.text,
+        'telephone': _telephoneController.text,
+        'fax': _faxController.text,
+        'companyRegistrationFileName': _companyRegistrationFile?.name,
+      },
+      
+      // Transportation information
+      'transportation': {
+        'natureOfTransport': _natureOfTransport,
+        'modalityOfTraffic': _modalityOfTraffic,
+        'origin': _origin,
+        'destination': _destination,
+        'vehiclePlate': _vehiclePlateController.text,
+      },
+      
+      // Metadata
+      'currentStep': _currentStep,
+      'declarationAgreed': _declarationAgreed,
+      'savedAt': DateTime.now().toIso8601String(),
+    };
+
+    try {
+      final applicationId = await appProvider.createApplication(
+        userId: user.uid,
+        applicationData: applicationData,
+      );
+
+      if (applicationId != null && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Draft saved successfully!'),
+            backgroundColor: AppColors.statusCompleted,
+            duration: Duration(seconds: 2),
+          ),
+        );
+        // Optionally navigate back to dashboard
+        // context.go(AppConstants.routeDashboard);
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to save draft. Please try again.'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error saving draft: ${e.toString()}'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -308,11 +403,21 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
                 AppHeader(
                   title: 'New IRTA Application',
                   actions: [
-                    TextButton(
-                      onPressed: () {
-                        // Save draft functionality
+                    Consumer<ApplicationProvider>(
+                      builder: (context, appProvider, _) {
+                        return TextButton(
+                          onPressed: appProvider.isLoading 
+                              ? null 
+                              : () => _saveDraft(context, authProvider, appProvider),
+                          child: appProvider.isLoading 
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              : const Text('Save Draft'),
+                        );
                       },
-                      child: const Text('Save Draft'),
                     ),
                     const SizedBox(width: 12),
                     TextButton(
@@ -429,11 +534,21 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
                       Row(
                         children: [
                           if (_currentStep < 4) ...[
-                            TextButton(
-                              onPressed: () {
-                                // Save draft
+                            Consumer<ApplicationProvider>(
+                              builder: (context, appProvider, _) {
+                                return TextButton(
+                                  onPressed: appProvider.isLoading 
+                                      ? null 
+                                      : () => _saveDraft(context, authProvider, appProvider),
+                                  child: appProvider.isLoading 
+                                      ? const SizedBox(
+                                          width: 16,
+                                          height: 16,
+                                          child: CircularProgressIndicator(strokeWidth: 2),
+                                        )
+                                      : const Text('Save Draft'),
+                                );
                               },
-                              child: const Text('Save Draft'),
                             ),
                             const SizedBox(width: 12),
                             ElevatedButton(
