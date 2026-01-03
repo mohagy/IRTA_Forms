@@ -10,7 +10,7 @@ class ApplicationProvider with ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
   StreamSubscription<List<ApplicationModel>>? _applicationsSubscription;
-  bool _hasInitializedLoad = false; // Track if we've initiated loading
+  String? _currentUserId; // Track which user's applications are loaded
 
   List<ApplicationModel> get applications => _applications;
   bool get isLoading => _isLoading;
@@ -29,14 +29,14 @@ class ApplicationProvider with ChangeNotifier {
 
   // Load applications for a specific user (applicant view)
   void loadUserApplications(String userId) {
-    // Prevent multiple simultaneous loads
-    if (_applicationsSubscription != null && _isLoading) {
+    // Prevent loading if already loading for the same user
+    if (_currentUserId == userId && _applicationsSubscription != null) {
       return;
     }
 
+    _currentUserId = userId;
     _isLoading = true;
     _errorMessage = null;
-    _hasInitializedLoad = true;
     notifyListeners();
 
     _applicationsSubscription?.cancel();
@@ -58,14 +58,14 @@ class ApplicationProvider with ChangeNotifier {
 
   // Load all applications (admin/officer view)
   void loadAllApplications() {
-    // Prevent multiple simultaneous loads
-    if (_applicationsSubscription != null && _isLoading) {
+    // Prevent loading if already loading all applications
+    if (_currentUserId == null && _applicationsSubscription != null) {
       return;
     }
 
+    _currentUserId = null; // null means loading all applications
     _isLoading = true;
     _errorMessage = null;
-    _hasInitializedLoad = true;
     notifyListeners();
 
     _applicationsSubscription?.cancel();
