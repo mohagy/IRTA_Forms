@@ -10,7 +10,8 @@ class AuthService {
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     // For web, the clientId should be set in index.html meta tag
     // But we can also set it here as a fallback
-    scopes: ['email', 'profile'],
+    // Include 'openid' scope to ensure idToken is returned
+    scopes: ['email', 'profile', 'openid'],
   );
 
   // Get current user
