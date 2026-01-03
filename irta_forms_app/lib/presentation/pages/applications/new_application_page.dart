@@ -759,6 +759,24 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
                 ],
               ),
             ),
+            const SizedBox(height: 24),
+            TextButton.icon(
+              onPressed: () {
+                // TODO: Implement add another representative functionality
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Adding multiple representatives will be available soon'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.add, size: 20),
+              label: const Text('Add Another Representative'),
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.textSecondary,
+                padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+              ),
+            ),
           ],
         ),
       ),
