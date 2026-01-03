@@ -94,3 +94,4 @@ After creating the admin user:
 2. The dashboard should show admin view
 3. You should see all applications (not just your own)
 
+

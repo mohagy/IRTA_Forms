@@ -57,6 +57,26 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
   String _origin = '';
   String _destination = '';
   final _vehiclePlateController = TextEditingController();
+  final _vehicleYearController = TextEditingController();
+  final _vehicleBodyTypeController = TextEditingController();
+  final _vehicleChassisController = TextEditingController();
+  final _vehicleAxlesController = TextEditingController();
+  final _vehicleMtcController = TextEditingController();
+  final _vehicleNwcController = TextEditingController();
+  final _vehicleTareController = TextEditingController();
+  
+  String? _vehicleType;
+  String? _vehicleMake;
+  
+  PlatformFile? _vehicleRegistrationFile;
+  PlatformFile? _revenueLicenceFile;
+  PlatformFile? _fitnessCertificateFile;
+  PlatformFile? _insuranceDocumentFile;
+  
+  bool _isUploadingRegistration = false;
+  bool _isUploadingLicence = false;
+  bool _isUploadingFitness = false;
+  bool _isUploadingInsurance = false;
   
   // Declarations
   bool _declarationAgreed = false;
@@ -77,6 +97,13 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
     _telephoneController.dispose();
     _faxController.dispose();
     _vehiclePlateController.dispose();
+    _vehicleYearController.dispose();
+    _vehicleBodyTypeController.dispose();
+    _vehicleChassisController.dispose();
+    _vehicleAxlesController.dispose();
+    _vehicleMtcController.dispose();
+    _vehicleNwcController.dispose();
+    _vehicleTareController.dispose();
     super.dispose();
   }
 
@@ -164,6 +191,19 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
         'origin': _origin,
         'destination': _destination,
         'vehiclePlate': _vehiclePlateController.text,
+        'vehicleType': _vehicleType,
+        'vehicleYear': _vehicleYearController.text,
+        'vehicleMake': _vehicleMake,
+        'vehicleBodyType': _vehicleBodyTypeController.text,
+        'vehicleChassis': _vehicleChassisController.text,
+        'vehicleAxles': _vehicleAxlesController.text,
+        'vehicleMtc': _vehicleMtcController.text,
+        'vehicleNwc': _vehicleNwcController.text,
+        'vehicleTare': _vehicleTareController.text,
+        'vehicleRegistrationFileName': _vehicleRegistrationFile?.name,
+        'revenueLicenceFileName': _revenueLicenceFile?.name,
+        'fitnessCertificateFileName': _fitnessCertificateFile?.name,
+        'thirdPartyInsuranceFileName': _insuranceDocumentFile?.name,
       },
       
       // Metadata
@@ -306,6 +346,138 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
     }
   }
 
+  Future<void> _pickVehicleRegistrationFile() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+      );
+
+      if (result != null && result.files.isNotEmpty) {
+        final file = result.files.single;
+        if (file.size > 0 && (file.size / (1024 * 1024)) > 10.0) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('File size must be less than 10MB'),
+                backgroundColor: AppColors.error,
+              ),
+            );
+          }
+          return;
+        }
+        setState(() {
+          _vehicleRegistrationFile = file;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error selecting file: $e'), backgroundColor: AppColors.error),
+        );
+      }
+    }
+  }
+
+  Future<void> _pickRevenueLicenceFile() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+      );
+
+      if (result != null && result.files.isNotEmpty) {
+        final file = result.files.single;
+        if (file.size > 0 && (file.size / (1024 * 1024)) > 10.0) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('File size must be less than 10MB'),
+                backgroundColor: AppColors.error,
+              ),
+            );
+          }
+          return;
+        }
+        setState(() {
+          _revenueLicenceFile = file;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error selecting file: $e'), backgroundColor: AppColors.error),
+        );
+      }
+    }
+  }
+
+  Future<void> _pickFitnessCertificateFile() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+      );
+
+      if (result != null && result.files.isNotEmpty) {
+        final file = result.files.single;
+        if (file.size > 0 && (file.size / (1024 * 1024)) > 10.0) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('File size must be less than 10MB'),
+                backgroundColor: AppColors.error,
+              ),
+            );
+          }
+          return;
+        }
+        setState(() {
+          _fitnessCertificateFile = file;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error selecting file: $e'), backgroundColor: AppColors.error),
+        );
+      }
+    }
+  }
+
+  Future<void> _pickInsuranceDocumentFile() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+      );
+
+      if (result != null && result.files.isNotEmpty) {
+        final file = result.files.single;
+        if (file.size > 0 && (file.size / (1024 * 1024)) > 10.0) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('File size must be less than 10MB'),
+                backgroundColor: AppColors.error,
+              ),
+            );
+          }
+          return;
+        }
+        setState(() {
+          _insuranceDocumentFile = file;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error selecting file: $e'), backgroundColor: AppColors.error),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(
@@ -374,15 +546,16 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
   }
 
   Widget _buildNewApplicationForm(BuildContext context, AuthProvider authProvider, user, String userName, String userEmail, String userRole) {
-    // Pre-fill representative info from user profile
-        if (_representativeNameController.text.isEmpty && userName != 'User') {
-          _representativeNameController.text = userName;
-        }
-        if (_representativeEmailController.text.isEmpty && userEmail.isNotEmpty) {
-          _representativeEmailController.text = userEmail;
-        }
 
-        return MainLayout(
+        // Pre-fill representative info from user profile
+    if (_representativeNameController.text.isEmpty && userName != 'User') {
+      _representativeNameController.text = userName;
+    }
+    if (_representativeEmailController.text.isEmpty && userEmail.isNotEmpty) {
+      _representativeEmailController.text = userEmail;
+    }
+
+    return MainLayout(
           currentRoute: AppConstants.routeNewApplication,
           onNavigate: (route) => context.go(route),
           userRole: userRole,
@@ -585,8 +758,6 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
             ),
           ),
         );
-      },
-    );
   }
 
   Widget _buildIntroductionStep() {
@@ -1530,22 +1701,109 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
                             color: AppColors.textPrimary,
                           ),
                         ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _vehiclePlateController,
-                          decoration: const InputDecoration(
-                            labelText: 'Plate Number / Placa *',
-                            hintText: 'Enter license plate',
-                          ),
+                        const SizedBox(height: 20),
+                        GridView.count(
+                          crossAxisCount: 2,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          crossAxisSpacing: 20,
+                          mainAxisSpacing: 20,
+                          childAspectRatio: 2.5,
+                          children: [
+                            DropdownButtonFormField<String>(
+                              decoration: const InputDecoration(labelText: 'Vehicle Type *'),
+                              value: _vehicleType,
+                              items: ['Bus', 'Truck', 'Van', 'Other']
+                                  .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                                  .toList(),
+                              onChanged: (v) => setState(() => _vehicleType = v),
+                            ),
+                            TextFormField(
+                              controller: _vehicleYearController,
+                              decoration: const InputDecoration(labelText: 'Year', hintText: 'e.g., 2020'),
+                              keyboardType: TextInputType.number,
+                            ),
+                            DropdownButtonFormField<String>(
+                              decoration: const InputDecoration(labelText: 'Make'),
+                              value: _vehicleMake,
+                              items: ['VW', 'Mercedes', 'Toyota', 'Ford', 'Other']
+                                  .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                                  .toList(),
+                              onChanged: (v) => setState(() => _vehicleMake = v),
+                            ),
+                            TextFormField(
+                              controller: _vehicleBodyTypeController,
+                              decoration: const InputDecoration(labelText: 'Body Type', hintText: 'e.g., Flatbed'),
+                            ),
+                            TextFormField(
+                              controller: _vehicleChassisController,
+                              decoration: const InputDecoration(labelText: 'Chassis Number'),
+                            ),
+                            TextFormField(
+                              controller: _vehicleAxlesController,
+                              decoration: const InputDecoration(labelText: 'Axles / Eixos'),
+                              keyboardType: TextInputType.number,
+                            ),
+                            TextFormField(
+                              controller: _vehicleMtcController,
+                              decoration: const InputDecoration(
+                                labelText: 'MTC (Maximum Total Capacity) / CMT',
+                                hintText: 'MTC in tons',
+                              ),
+                            ),
+                            TextFormField(
+                              controller: _vehicleNwcController,
+                              decoration: const InputDecoration(
+                                labelText: 'NWC (Net Weight Capacity) / CCU',
+                                hintText: 'NWC in tons',
+                              ),
+                            ),
+                            TextFormField(
+                              controller: _vehicleTareController,
+                              decoration: const InputDecoration(
+                                labelText: 'Tare Weight / TARA',
+                                hintText: 'Tare in tons',
+                              ),
+                            ),
+                            TextFormField(
+                              controller: _vehiclePlateController,
+                              decoration: const InputDecoration(labelText: 'Plate Number / Placa *'),
+                              validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 32),
+                        const Text(
+                          'Vehicle Documents',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                         ),
                         const SizedBox(height: 16),
-                        const Text(
-                          'Note: Full vehicle details and document uploads will be implemented in the next phase.',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.textTertiary,
-                            fontStyle: FontStyle.italic,
-                          ),
+                        _buildFileUploader(
+                          label: '1. Vehicle Registration Certificate *',
+                          file: _vehicleRegistrationFile,
+                          onTap: _pickVehicleRegistrationFile,
+                          isUploading: _isUploadingRegistration,
+                        ),
+                        const SizedBox(height: 12),
+                        _buildFileUploader(
+                          label: '2. Revenue Licence *',
+                          file: _revenueLicenceFile,
+                          onTap: _pickRevenueLicenceFile,
+                          isUploading: _isUploadingLicence,
+                        ),
+                        const SizedBox(height: 12),
+                        _buildFileUploader(
+                          label: '3. Certificate of Fitness *',
+                          file: _fitnessCertificateFile,
+                          onTap: _pickFitnessCertificateFile,
+                          isUploading: _isUploadingFitness,
+                        ),
+                        const SizedBox(height: 12),
+                        _buildFileUploader(
+                          label: '4. Third Party Insurance *',
+                          file: _insuranceDocumentFile,
+                          onTap: _pickInsuranceDocumentFile,
+                          isUploading: _isUploadingInsurance,
                         ),
                       ],
                     ),
@@ -1556,6 +1814,65 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildFileUploader({
+    required String label,
+    required PlatformFile? file,
+    required VoidCallback onTap,
+    required bool isUploading,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.textPrimary)),
+        const SizedBox(height: 8),
+        InkWell(
+          onTap: isUploading ? null : onTap,
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              border: Border.all(color: file != null ? AppColors.primary : AppColors.border, style: BorderStyle.solid),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.cloud_upload_outlined, color: file != null ? AppColors.primary : AppColors.textTertiary),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (isUploading)
+                        const LinearProgressIndicator()
+                      else if (file != null)
+                        Text(file.name, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500))
+                      else
+                        const Text('Click to upload document',
+                            style: TextStyle(fontSize: 14, color: AppColors.textTertiary)),
+                      if (file != null)
+                        Text('${(file.size / (1024 * 1024)).toStringAsFixed(2)} MB',
+                            style: const TextStyle(fontSize: 12, color: AppColors.textTertiary)),
+                    ],
+                  ),
+                ),
+                if (file != null)
+                  IconButton(
+                    icon: const Icon(Icons.close, size: 20),
+                    onPressed: () => setState(() {
+                      if (label.contains('Registration')) _vehicleRegistrationFile = null;
+                      if (label.contains('Licence')) _revenueLicenceFile = null;
+                      if (label.contains('Fitness')) _fitnessCertificateFile = null;
+                      if (label.contains('Insurance')) _insuranceDocumentFile = null;
+                    }),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 

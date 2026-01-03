@@ -79,3 +79,4 @@ To test different role views:
 - Check Firestore to verify the role was saved correctly
 - Default behavior is `applicant` if role can't be found
 
+

@@ -158,3 +158,4 @@ User redirected to Dashboard
 
 **Next Step**: Enable Google Sign-In in Firebase Console (Step 1 above), then test the feature!
 
+

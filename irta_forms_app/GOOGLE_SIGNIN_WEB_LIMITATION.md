@@ -56,3 +56,4 @@ To verify this is the issue:
 
 When the `google_sign_in` package is updated to properly support web with idToken, or when Firebase Auth Flutter package adds better web support, we can re-enable Google Sign-In for web.
 
+

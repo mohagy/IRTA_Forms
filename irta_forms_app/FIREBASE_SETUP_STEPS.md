@@ -74,3 +74,4 @@ flutter run
 
 If everything is configured correctly, the app should start without Firebase errors.
 
+

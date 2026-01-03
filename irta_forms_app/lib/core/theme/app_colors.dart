@@ -79,3 +79,4 @@ class AppColors {
   static const Color shadowMedium = Color(0x14000000); // rgba(0,0,0,0.08)
 }
 
+

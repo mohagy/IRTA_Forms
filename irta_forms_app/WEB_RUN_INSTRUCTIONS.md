@@ -94,3 +94,4 @@ Make sure `firebase_options.dart` exists and is configured for web platform.
 - Use Chrome DevTools (F12) for debugging
 - Check browser console for any errors
 
+

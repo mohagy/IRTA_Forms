@@ -55,3 +55,4 @@ The User Management page reads from this Firestore collection, so users need bot
 1. ✅ Firebase Auth account (for login)
 2. ✅ Firestore document (for User Management page)
 
+

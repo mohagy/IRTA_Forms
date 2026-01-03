@@ -32,3 +32,4 @@ Write-Host ""
 Write-Host "Setup complete!" -ForegroundColor Green
 Write-Host "Next: Update lib/main.dart to uncomment Firebase initialization" -ForegroundColor Yellow
 
+

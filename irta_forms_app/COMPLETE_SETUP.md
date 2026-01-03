@@ -34,3 +34,4 @@ flutter run
 
 The app should start without Firebase errors and authentication will be ready to use!
 
+

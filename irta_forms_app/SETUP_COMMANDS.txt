@@ -26,3 +26,4 @@ Alternative: If you want to run the script, first run:
    Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process
    Then run: .\setup_firebase.ps1
 
+

@@ -14,3 +14,4 @@ if (Test-Path lib/firebase_options.dart) {
     Write-Host "Run: flutterfire configure" -ForegroundColor Yellow
 }
 
+

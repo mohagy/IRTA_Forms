@@ -90,3 +90,4 @@ If you encounter issues, check:
 - `lib/firebase_options.dart` file exists after running `flutterfire configure`
 - All Firebase services are enabled in the Firebase Console
 
+

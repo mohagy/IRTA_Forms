@@ -157,3 +157,4 @@ If you encounter issues:
 - Ensure `firebase_options.dart` is generated correctly
 - Check Flutter and Firebase package versions are compatible
 
+

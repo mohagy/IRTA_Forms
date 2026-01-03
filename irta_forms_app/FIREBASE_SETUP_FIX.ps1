@@ -43,3 +43,4 @@ Write-Host "Next steps:" -ForegroundColor Cyan
 Write-Host "1. Update lib/main.dart to uncomment Firebase initialization" -ForegroundColor Yellow
 Write-Host "2. Enable Authentication and Firestore in Firebase Console" -ForegroundColor Yellow
 
+

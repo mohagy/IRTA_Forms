@@ -45,3 +45,4 @@ A "Sync Users" feature could be added to automatically create Firestore document
 - ✅ Password reset emails can be sent from the User Management page
 - ✅ User roles can be edited and are integrated with Roles & Permissions
 
+

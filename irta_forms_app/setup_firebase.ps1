@@ -58,3 +58,4 @@ Write-Host "Next steps:" -ForegroundColor Cyan
 Write-Host "1. Update lib/main.dart to uncomment Firebase initialization" -ForegroundColor Yellow
 Write-Host "2. The firebase_options.dart file should now be generated" -ForegroundColor Yellow
 
+

@@ -49,3 +49,4 @@ This is marked as TODO in `lib/presentation/providers/auth_provider.dart` line 2
 
 Since roles aren't fully implemented, all users will see the applicant view. The admin dashboard logic exists in the code but won't activate until the role is properly fetched from Firestore.
 
+
