@@ -253,14 +253,24 @@ class _ApplicantDashboardWidgetState extends State<_ApplicantDashboardWidget> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    // Navigate to new application
-                    context.push(AppConstants.routeNewApplication);
-                  },
-                  icon: const Icon(Icons.add, size: 18),
-                  label: const Text('New Application'),
-                ),
+                if (applications.isEmpty)
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      // Navigate to new application
+                      context.push(AppConstants.routeNewApplication);
+                    },
+                    icon: const Icon(Icons.add, size: 18),
+                    label: const Text('New Application'),
+                  )
+                else
+                  Tooltip(
+                    message: 'You can only have one application. Please manage your existing application.',
+                    child: ElevatedButton.icon(
+                      onPressed: null, // Disabled
+                      icon: const Icon(Icons.add, size: 18),
+                      label: const Text('New Application'),
+                    ),
+                  ),
               ],
             ),
 

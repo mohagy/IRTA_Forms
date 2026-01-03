@@ -8,6 +8,7 @@ import '../../../core/constants/app_constants.dart';
 import '../../widgets/main_layout.dart';
 import '../../widgets/app_header.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/application_provider.dart';
 import '../../../services/storage_service.dart';
 import 'package:file_picker/file_picker.dart';
 
@@ -181,6 +182,57 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
         final userName = user?.displayName ?? 'User';
         final userEmail = user?.email ?? '';
         final userRole = authProvider.userRole;
+
+        // For applicants, check if they already have an application
+        if (userRole == AppConstants.roleApplicant && user != null) {
+          return Consumer<ApplicationProvider>(
+            builder: (context, appProvider, _) {
+              // Load applications to check if user already has one
+              if (appProvider.applications.isEmpty && !appProvider.isLoading) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  appProvider.loadUserApplications(user.uid);
+                });
+              }
+
+              // If user already has an application, redirect to dashboard
+              if (!appProvider.isLoading && appProvider.applications.isNotEmpty) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('You can only have one application. Please manage your existing application.'),
+                        backgroundColor: AppColors.error,
+                        duration: Duration(seconds: 3),
+                      ),
+                    );
+                    context.go(AppConstants.routeDashboard);
+                  }
+                });
+                return const Scaffold(
+                  body: Center(child: CircularProgressIndicator()),
+                );
+              }
+
+              // Show loading while checking
+              if (appProvider.isLoading) {
+                return const Scaffold(
+                  body: Center(child: CircularProgressIndicator()),
+                );
+              }
+
+              // Continue with normal new application form
+              return _buildNewApplicationForm(context, authProvider, user, userName, userEmail, userRole);
+            },
+          );
+        }
+
+        // For non-applicants (admin/officer), allow multiple applications
+        return _buildNewApplicationForm(context, authProvider, user, userName, userEmail, userRole);
+      },
+    );
+  }
+
+  Widget _buildNewApplicationForm(BuildContext context, AuthProvider authProvider, user, String userName, String userEmail, String userRole) {
 
         // Pre-fill representative info from user profile
         if (_representativeNameController.text.isEmpty && userName != 'User') {
