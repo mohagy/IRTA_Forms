@@ -18,13 +18,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _idNumberController = TextEditingController();
-  final _addressController = TextEditingController();
 
-  String _nationality = '';
-  DateTime? _dateOfBirth;
-  String _idType = '';
   bool _acceptTerms = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
@@ -35,24 +29,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
-    _phoneController.dispose();
-    _idNumberController.dispose();
-    _addressController.dispose();
     super.dispose();
-  }
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now().subtract(const Duration(days: 365 * 21)),
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-    );
-    if (picked != null) {
-      setState(() {
-        _dateOfBirth = picked;
-      });
-    }
   }
 
   Future<void> _handleRegistration() async {
@@ -67,24 +44,17 @@ class _RegistrationPageState extends State<RegistrationPage> {
       return;
     }
 
-    if (_dateOfBirth == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select your date of birth')),
-      );
-      return;
-    }
-
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final success = await authProvider.signUp(
       email: _emailController.text.trim(),
       password: _passwordController.text,
       fullName: _fullNameController.text.trim(),
-      phoneNumber: _phoneController.text.trim(),
-      nationality: _nationality,
-      dateOfBirth: _dateOfBirth!,
-      idType: _idType,
-      idNumber: _idNumberController.text.trim(),
-      address: _addressController.text.trim(),
+      phoneNumber: '',
+      nationality: '',
+      dateOfBirth: DateTime.now(),
+      idType: '',
+      idNumber: '',
+      address: '',
     );
 
     if (success && mounted) {
@@ -309,138 +279,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
                           ),
                         ),
                       ],
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Phone Number
-                    TextFormField(
-                      controller: _phoneController,
-                      decoration: const InputDecoration(
-                        labelText: 'Phone Number *',
-                        hintText: '+592 XXX XXXX',
-                      ),
-                      keyboardType: TextInputType.phone,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your phone number';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Nationality and Date of Birth
-                    Row(
-                      children: [
-                        Expanded(
-                          child: DropdownButtonFormField<String>(
-                            decoration: const InputDecoration(
-                              labelText: 'Nationality *',
-                            ),
-                            value: _nationality.isEmpty ? null : _nationality,
-                            items: const [
-                              DropdownMenuItem(value: 'Guyanese', child: Text('Guyanese')),
-                              DropdownMenuItem(value: 'Brazilian', child: Text('Brazilian')),
-                              DropdownMenuItem(value: 'Other', child: Text('Other')),
-                            ],
-                            onChanged: (value) {
-                              setState(() {
-                                _nationality = value ?? '';
-                              });
-                            },
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please select nationality';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: InkWell(
-                            onTap: () => _selectDate(context),
-                            child: InputDecorator(
-                              decoration: const InputDecoration(
-                                labelText: 'Date of Birth *',
-                              ),
-                              child: Text(
-                                _dateOfBirth == null
-                                    ? 'Select date'
-                                    : '${_dateOfBirth!.day}/${_dateOfBirth!.month}/${_dateOfBirth!.year}',
-                                style: TextStyle(
-                                  color: _dateOfBirth == null
-                                      ? AppColors.textLight
-                                      : AppColors.textPrimary,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-
-                    // ID Type and ID Number
-                    Row(
-                      children: [
-                        Expanded(
-                          child: DropdownButtonFormField<String>(
-                            decoration: const InputDecoration(
-                              labelText: 'ID Type *',
-                            ),
-                            value: _idType.isEmpty ? null : _idType,
-                            items: const [
-                              DropdownMenuItem(value: 'Passport', child: Text('Passport')),
-                              DropdownMenuItem(value: 'National ID', child: Text('National ID')),
-                            ],
-                            onChanged: (value) {
-                              setState(() {
-                                _idType = value ?? '';
-                              });
-                            },
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please select ID type';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: TextFormField(
-                            controller: _idNumberController,
-                            decoration: const InputDecoration(
-                              labelText: 'ID Number *',
-                              hintText: 'Enter ID number',
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter ID number';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Address
-                    TextFormField(
-                      controller: _addressController,
-                      decoration: const InputDecoration(
-                        labelText: 'Address *',
-                        hintText: 'Enter your full address',
-                      ),
-                      maxLines: 3,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your address';
-                        }
-                        return null;
-                      },
                     ),
                     const SizedBox(height: 24),
 
