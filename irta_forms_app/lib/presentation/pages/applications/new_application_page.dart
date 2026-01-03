@@ -759,7 +759,7 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
             TextButton.icon(
               onPressed: () {
                 // TODO: Implement add another representative functionality
@@ -771,10 +771,17 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
                 );
               },
               icon: const Icon(Icons.add, size: 20),
-              label: const Text('Add Another Representative'),
+              label: const Text(
+                'Add Another Representative',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
               style: TextButton.styleFrom(
                 foregroundColor: AppColors.textSecondary,
                 padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+                alignment: Alignment.centerLeft,
               ),
             ),
           ],
