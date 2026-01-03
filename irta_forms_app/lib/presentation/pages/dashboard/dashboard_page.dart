@@ -190,11 +190,14 @@ class DashboardPage extends StatelessWidget {
   Widget _buildApplicantDashboard(BuildContext context, AuthProvider authProvider) {
     return Consumer<ApplicationProvider>(
       builder: (context, appProvider, _) {
-        // Load applications on first build
+        // Load applications on first build only
         final user = authProvider.user;
         if (user != null && appProvider.applications.isEmpty && !appProvider.isLoading) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            appProvider.loadUserApplications(user.uid);
+            // Only load if we have a user and no applications are loaded
+            if (appProvider.applications.isEmpty && !appProvider.isLoading) {
+              appProvider.loadUserApplications(user.uid);
+            }
           });
         }
 
