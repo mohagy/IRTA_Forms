@@ -374,8 +374,7 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
   }
 
   Widget _buildNewApplicationForm(BuildContext context, AuthProvider authProvider, user, String userName, String userEmail, String userRole) {
-
-        // Pre-fill representative info from user profile
+    // Pre-fill representative info from user profile
         if (_representativeNameController.text.isEmpty && userName != 'User') {
           _representativeNameController.text = userName;
         }
