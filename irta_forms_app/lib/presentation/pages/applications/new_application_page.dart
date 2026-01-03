@@ -802,29 +802,48 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
               ),
             ),
             const SizedBox(height: 32),
-            TextButton.icon(
-              onPressed: () {
-                // TODO: Implement add another representative functionality
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Adding multiple representatives will be available soon'),
-                    duration: Duration(seconds: 2),
+            Builder(
+              builder: (BuildContext context) {
+                return TextButton.icon(
+                  onPressed: () {
+                    // Show dialog for adding another representative
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text('Add Another Representative'),
+                          content: const Text(
+                            'The ability to add multiple representatives is currently being developed. '
+                            'For now, you can proceed with a single representative. '
+                            'Multiple representatives will be available in a future update.',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  icon: const Icon(Icons.add, size: 20),
+                  label: const Text(
+                    'Add Another Representative',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.textSecondary,
+                    padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+                    alignment: Alignment.centerLeft,
                   ),
                 );
               },
-              icon: const Icon(Icons.add, size: 20),
-              label: const Text(
-                'Add Another Representative',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.textSecondary,
-                padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
-                alignment: Alignment.centerLeft,
-              ),
             ),
           ],
         ),
