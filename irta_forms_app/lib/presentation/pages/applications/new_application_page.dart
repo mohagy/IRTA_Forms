@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'dart:io';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../widgets/main_layout.dart';
 import '../../widgets/app_header.dart';
 import '../../providers/auth_provider.dart';
+import '../../../services/storage_service.dart';
+import 'package:file_picker/file_picker.dart';
 
 class NewApplicationPage extends StatefulWidget {
   const NewApplicationPage({super.key});
@@ -28,6 +32,11 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
   final _representativeIdController = TextEditingController();
   final _representativeAddressController = TextEditingController();
   DateTime? _representativeDob;
+  File? _publicProxyInstrumentFile;
+  String? _publicProxyInstrumentFileName;
+  bool _isUploadingFile = false;
+  
+  final StorageService _storageService = StorageService();
   
   // Organization fields
   final _firmNameController = TextEditingController();
@@ -620,52 +629,133 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
                     },
                   ),
                   const SizedBox(height: 24),
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: AppColors.background,
-                      border: Border.all(color: AppColors.border, style: BorderStyle.solid, width: 2),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Column(
-                      children: [
-                        const Icon(Icons.cloud_upload, size: 48, color: AppColors.textTertiary),
-                        const SizedBox(height: 12),
-                        const Text(
-                          'Click to upload or drag and drop',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.textSecondary,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Public Proxy Instrument',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      InkWell(
+                        onTap: _isUploadingFile ? null : _pickPublicProxyInstrument,
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: AppColors.background,
+                            border: Border.all(
+                              color: _publicProxyInstrumentFile != null
+                                  ? AppColors.primary
+                                  : AppColors.border,
+                              width: 2,
+                              style: BorderStyle.solid,
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Column(
+                            children: [
+                              if (_isUploadingFile)
+                                const Column(
+                                  children: [
+                                    CircularProgressIndicator(),
+                                    SizedBox(height: 12),
+                                    Text(
+                                      'Uploading...',
+                                      style: TextStyle(
+                                        color: AppColors.textSecondary,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              else if (_publicProxyInstrumentFile != null)
+                                Column(
+                                  children: [
+                                    const Icon(
+                                      Icons.check_circle,
+                                      color: AppColors.success,
+                                      size: 48,
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      _publicProxyInstrumentFile!.name,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        color: AppColors.textPrimary,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    if (_publicProxyInstrumentFile!.size > 0)
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 4),
+                                        child: Text(
+                                          '${(_publicProxyInstrumentFile!.size / (1024 * 1024)).toStringAsFixed(2)} MB',
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: AppColors.textTertiary,
+                                          ),
+                                        ),
+                                      ),
+                                    const SizedBox(height: 8),
+                                    TextButton.icon(
+                                      onPressed: () {
+                                        setState(() {
+                                          _publicProxyInstrumentFile = null;
+                                        });
+                                      },
+                                      icon: const Icon(Icons.delete_outline, size: 18),
+                                      label: const Text('Remove'),
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: AppColors.error,
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              else
+                                Column(
+                                  children: [
+                                    const Icon(
+                                      Icons.cloud_upload,
+                                      size: 48,
+                                      color: AppColors.textTertiary,
+                                    ),
+                                    const SizedBox(height: 12),
+                                    const Text(
+                                      'Click to upload or drag and drop',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        color: AppColors.textSecondary,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    const Text(
+                                      'PDF or Image (Max 10MB)',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: AppColors.textTertiary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                            ],
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        const Text(
-                          'PDF or Image (Max 10MB)',
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.only(top: 8, left: 4),
+                        child: Text(
+                          'Upload Public Proxy Instrument granting legal Representative in Brazil full powers (English & Portuguese)',
                           style: TextStyle(
-                            fontSize: 13,
+                            fontSize: 12,
                             color: AppColors.textTertiary,
                           ),
                         ),
-                        const SizedBox(height: 16),
-                        OutlinedButton.icon(
-                          onPressed: () {
-                            // File upload functionality
-                          },
-                          icon: const Icon(Icons.upload_file),
-                          label: const Text('Upload Public Proxy Instrument'),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(top: 8, left: 12),
-                    child: Text(
-                      'Upload Public Proxy Instrument granting legal Representative in Brazil full powers (English & Portuguese)',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.textTertiary,
                       ),
-                    ),
+                    ],
                   ),
                 ],
               ),
