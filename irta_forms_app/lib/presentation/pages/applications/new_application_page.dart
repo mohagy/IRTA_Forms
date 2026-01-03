@@ -1805,6 +1805,16 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
                           onTap: _pickInsuranceDocumentFile,
                           isUploading: _isUploadingInsurance,
                         ),
+                        const SizedBox(height: 24),
+                        TextButton.icon(
+                          onPressed: null, // Disabled as per mockup
+                          icon: const Icon(Icons.add, size: 20),
+                          label: const Text('Add Another Vehicle'),
+                          style: TextButton.styleFrom(
+                            foregroundColor: AppColors.textTertiary,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                        ),
                       ],
                     ),
                   ),
