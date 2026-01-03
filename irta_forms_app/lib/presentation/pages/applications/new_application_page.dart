@@ -36,6 +36,10 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
   PlatformFile? _publicProxyInstrumentFile;
   bool _isUploadingFile = false;
   
+  // Organization file upload
+  PlatformFile? _companyRegistrationFile;
+  bool _isUploadingCompanyFile = false;
+  
   final StorageService _storageService = StorageService();
   
   // Organization fields
@@ -151,6 +155,48 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
 
         setState(() {
           _publicProxyInstrumentFile = file;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error selecting file: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _pickCompanyRegistrationFile() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+      );
+
+      if (result != null && result.files.isNotEmpty) {
+        final file = result.files.single;
+        
+        // Validate file size
+        if (file.size > 0) {
+          final fileSizeMB = file.size / (1024 * 1024);
+          if (fileSizeMB > 10.0) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('File size must be less than 10MB'),
+                  backgroundColor: AppColors.error,
+                ),
+              );
+            }
+            return;
+          }
+        }
+
+        setState(() {
+          _companyRegistrationFile = file;
         });
       }
     } catch (e) {
