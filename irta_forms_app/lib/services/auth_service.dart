@@ -116,20 +116,19 @@ class AuthService {
         throw Exception('Failed to get authentication from Google account: $e');
       }
 
-      // Check if we have the required tokens
-      if (googleAuth.accessToken == null || googleAuth.idToken == null) {
-        // Provide more detailed error information
-        final errorDetails = 'AccessToken: ${googleAuth.accessToken != null ? "present" : "null"}, '
-            'IdToken: ${googleAuth.idToken != null ? "present" : "null"}';
-        throw Exception('Failed to get authentication tokens from Google. $errorDetails. '
+      // Check if we have the access token (required)
+      if (googleAuth.accessToken == null) {
+        throw Exception('Failed to get access token from Google. '
             'This may be due to OAuth configuration issues or browser security policies. '
             'Please check: 1) OAuth redirect URIs in Google Cloud Console, 2) People API is enabled, 3) Browser allows popups.');
       }
 
-      // Create a new credential
+      // Note: idToken may be null on web due to deprecated signIn() method
+      // Firebase Auth's GoogleAuthProvider.credential can work with just accessToken
+      // Create a new credential (idToken is optional for GoogleAuthProvider)
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
+        idToken: googleAuth.idToken, // May be null on web, but Firebase can handle it
       );
 
       // Sign in to Firebase with the Google credential
