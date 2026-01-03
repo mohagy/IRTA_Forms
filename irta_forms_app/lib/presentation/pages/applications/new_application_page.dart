@@ -1067,42 +1067,129 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
                     ],
                   ),
                   const SizedBox(height: 24),
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: AppColors.background,
-                      border: Border.all(color: AppColors.border, style: BorderStyle.solid, width: 2),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Column(
-                      children: [
-                        const Icon(Icons.cloud_upload, size: 48, color: AppColors.textTertiary),
-                        const SizedBox(height: 12),
-                        const Text(
-                          'Click to upload or drag and drop',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.textSecondary,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Company Registration Certificate',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      InkWell(
+                        onTap: _isUploadingCompanyFile ? null : _pickCompanyRegistrationFile,
+                        child: Container(
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: AppColors.background,
+                            border: Border.all(
+                              color: _companyRegistrationFile != null
+                                  ? AppColors.primary
+                                  : AppColors.border,
+                              width: 2,
+                              style: BorderStyle.solid,
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Column(
+                            children: [
+                              if (_isUploadingCompanyFile)
+                                const Column(
+                                  children: [
+                                    CircularProgressIndicator(),
+                                    SizedBox(height: 12),
+                                    Text(
+                                      'Uploading...',
+                                      style: TextStyle(
+                                        color: AppColors.textSecondary,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              else if (_companyRegistrationFile != null)
+                                Column(
+                                  children: [
+                                    const Icon(
+                                      Icons.check_circle,
+                                      color: AppColors.success,
+                                      size: 48,
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      _companyRegistrationFile!.name,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        color: AppColors.textPrimary,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    if (_companyRegistrationFile!.size > 0)
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 4),
+                                        child: Text(
+                                          '${(_companyRegistrationFile!.size / (1024 * 1024)).toStringAsFixed(2)} MB',
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: AppColors.textTertiary,
+                                          ),
+                                        ),
+                                      ),
+                                    const SizedBox(height: 8),
+                                    TextButton.icon(
+                                      onPressed: () {
+                                        setState(() {
+                                          _companyRegistrationFile = null;
+                                        });
+                                      },
+                                      icon: const Icon(Icons.delete_outline, size: 18),
+                                      label: const Text('Remove'),
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: AppColors.error,
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              else
+                                Column(
+                                  children: [
+                                    const Icon(Icons.cloud_upload, size: 48, color: AppColors.textTertiary),
+                                    const SizedBox(height: 12),
+                                    const Text(
+                                      'Click to upload or drag and drop',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        color: AppColors.textSecondary,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    const Text(
+                                      'PDF or Image (Max 10MB)',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: AppColors.textTertiary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                            ],
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        const Text(
-                          'PDF or Image (Max 10MB)',
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.only(top: 8, left: 4),
+                        child: Text(
+                          'Upload Company Registration Certificate (Required)',
                           style: TextStyle(
-                            fontSize: 13,
+                            fontSize: 12,
                             color: AppColors.textTertiary,
                           ),
                         ),
-                        const SizedBox(height: 16),
-                        OutlinedButton.icon(
-                          onPressed: () {
-                            // File upload functionality
-                          },
-                          icon: const Icon(Icons.upload_file),
-                          label: const Text('Upload Company Registration Certificate *'),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ],
               ),
