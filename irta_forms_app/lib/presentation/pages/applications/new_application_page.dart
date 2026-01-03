@@ -32,8 +32,7 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
   final _representativeIdController = TextEditingController();
   final _representativeAddressController = TextEditingController();
   DateTime? _representativeDob;
-  File? _publicProxyInstrumentFile;
-  String? _publicProxyInstrumentFileName;
+  PlatformFile? _publicProxyInstrumentFile;
   bool _isUploadingFile = false;
   
   final StorageService _storageService = StorageService();
