@@ -108,12 +108,21 @@ class AuthService {
       }
 
       // Obtain the auth details from the request
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+      GoogleSignInAuthentication googleAuth;
+      try {
+        googleAuth = await googleUser.authentication;
+      } catch (e) {
+        throw Exception('Failed to get authentication from Google account: $e');
+      }
 
       // Check if we have the required tokens
       if (googleAuth.accessToken == null || googleAuth.idToken == null) {
-        throw Exception('Failed to get authentication tokens from Google');
+        // Provide more detailed error information
+        final errorDetails = 'AccessToken: ${googleAuth.accessToken != null ? "present" : "null"}, '
+            'IdToken: ${googleAuth.idToken != null ? "present" : "null"}';
+        throw Exception('Failed to get authentication tokens from Google. $errorDetails. '
+            'This may be due to OAuth configuration issues or browser security policies. '
+            'Please check: 1) OAuth redirect URIs in Google Cloud Console, 2) People API is enabled, 3) Browser allows popups.');
       }
 
       // Create a new credential
@@ -130,6 +139,17 @@ class AuthService {
     } on FirebaseAuthException catch (e) {
       throw _handleAuthException(e);
     } catch (e) {
+      // Provide more context in the error message
+      final errorMessage = e.toString();
+      if (errorMessage.contains('Failed to get authentication tokens')) {
+        throw Exception('Google Sign-In failed: Authentication tokens were not returned. '
+            'This is often caused by:\n'
+            '1. OAuth redirect URIs not properly configured\n'
+            '2. People API not enabled\n'
+            '3. Browser blocking popup communication (COOP policy)\n'
+            '4. OAuth consent screen not fully configured\n\n'
+            'Please check the troubleshooting guide for detailed steps.');
+      }
       throw Exception('Google Sign-In failed: $e');
     }
   }
