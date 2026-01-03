@@ -188,19 +188,40 @@ class DashboardPage extends StatelessWidget {
   }
 
   Widget _buildApplicantDashboard(BuildContext context, AuthProvider authProvider) {
+    return _ApplicantDashboardWidget(authProvider: authProvider);
+  }
+}
+
+// Separate StatefulWidget to handle one-time initialization
+class _ApplicantDashboardWidget extends StatefulWidget {
+  final AuthProvider authProvider;
+
+  const _ApplicantDashboardWidget({required this.authProvider});
+
+  @override
+  State<_ApplicantDashboardWidget> createState() => _ApplicantDashboardWidgetState();
+}
+
+class _ApplicantDashboardWidgetState extends State<_ApplicantDashboardWidget> {
+  bool _hasInitialized = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_hasInitialized) {
+      final user = widget.authProvider.user;
+      if (user != null) {
+        final appProvider = Provider.of<ApplicationProvider>(context, listen: false);
+        appProvider.loadUserApplications(user.uid);
+        _hasInitialized = true;
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Consumer<ApplicationProvider>(
       builder: (context, appProvider, _) {
-        // Load applications - the provider checks if already loaded for this user
-        final user = authProvider.user;
-        if (user != null && appProvider.applications.isEmpty && !appProvider.isLoading) {
-          // Use a one-time callback to load applications
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (user != null && !appProvider.isLoading) {
-              appProvider.loadUserApplications(user.uid);
-            }
-          });
-        }
-
         final applications = appProvider.applications;
 
         // Calculate stats dynamically
