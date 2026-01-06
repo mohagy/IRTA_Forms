@@ -201,7 +201,176 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
       return false;
     }
 
-    // Collect all form data
+    // Upload files to Firebase Storage and get URLs
+    final applicationId = _draftId ?? 'temp_${DateTime.now().millisecondsSinceEpoch}';
+    final basePath = 'applications/${user.uid}/$applicationId';
+
+    // Upload representative files
+    final List<Map<String, dynamic>> representativesData = [];
+    for (int i = 0; i < _representatives.length; i++) {
+      final rep = _representatives[i];
+      String? fileUrl;
+      
+      if (rep.publicProxyInstrumentFile != null) {
+        try {
+          final fileName = 'representative_${i}_proxy_${rep.publicProxyInstrumentFile!.name}';
+          fileUrl = await _storageService.uploadPlatformFile(
+            path: '$basePath/$fileName',
+            platformFile: rep.publicProxyInstrumentFile!,
+          );
+        } catch (e) {
+          if (!silent && mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Failed to upload file: ${rep.publicProxyInstrumentFile!.name}'),
+                backgroundColor: AppColors.error,
+              ),
+            );
+          }
+        }
+      }
+
+      representativesData.add({
+        'name': rep.nameController.text,
+        'email': rep.emailController.text,
+        'phone': rep.phoneController.text,
+        'idNumber': rep.idController.text,
+        'address': rep.addressController.text,
+        'dateOfBirth': rep.dob?.toIso8601String(),
+        'publicProxyInstrumentFileName': rep.publicProxyInstrumentFile?.name,
+        'publicProxyInstrumentFileUrl': fileUrl,
+      });
+    }
+
+    // Upload organization file
+    String? companyRegFileUrl;
+    if (_companyRegistrationFile != null) {
+      try {
+        final fileName = 'company_registration_${_companyRegistrationFile!.name}';
+        companyRegFileUrl = await _storageService.uploadPlatformFile(
+          path: '$basePath/$fileName',
+          platformFile: _companyRegistrationFile!,
+        );
+      } catch (e) {
+        if (!silent && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to upload company registration file'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      }
+    }
+
+    // Upload vehicle files
+    final List<Map<String, dynamic>> vehiclesData = [];
+    for (int i = 0; i < _vehicles.length; i++) {
+      final v = _vehicles[i];
+      String? registrationUrl;
+      String? revenueLicenceUrl;
+      String? fitnessUrl;
+      String? insuranceUrl;
+
+      if (v.registrationFile != null) {
+        try {
+          final fileName = 'vehicle_${i}_registration_${v.registrationFile!.name}';
+          registrationUrl = await _storageService.uploadPlatformFile(
+            path: '$basePath/$fileName',
+            platformFile: v.registrationFile!,
+          );
+        } catch (e) {
+          if (!silent && mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Failed to upload registration file for vehicle ${i + 1}'),
+                backgroundColor: AppColors.error,
+              ),
+            );
+          }
+        }
+      }
+
+      if (v.revenueLicenceFile != null) {
+        try {
+          final fileName = 'vehicle_${i}_revenue_licence_${v.revenueLicenceFile!.name}';
+          revenueLicenceUrl = await _storageService.uploadPlatformFile(
+            path: '$basePath/$fileName',
+            platformFile: v.revenueLicenceFile!,
+          );
+        } catch (e) {
+          if (!silent && mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Failed to upload revenue licence file for vehicle ${i + 1}'),
+                backgroundColor: AppColors.error,
+              ),
+            );
+          }
+        }
+      }
+
+      if (v.fitnessCertificateFile != null) {
+        try {
+          final fileName = 'vehicle_${i}_fitness_${v.fitnessCertificateFile!.name}';
+          fitnessUrl = await _storageService.uploadPlatformFile(
+            path: '$basePath/$fileName',
+            platformFile: v.fitnessCertificateFile!,
+          );
+        } catch (e) {
+          if (!silent && mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Failed to upload fitness certificate file for vehicle ${i + 1}'),
+                backgroundColor: AppColors.error,
+              ),
+            );
+          }
+        }
+      }
+
+      if (v.insuranceDocumentFile != null) {
+        try {
+          final fileName = 'vehicle_${i}_insurance_${v.insuranceDocumentFile!.name}';
+          insuranceUrl = await _storageService.uploadPlatformFile(
+            path: '$basePath/$fileName',
+            platformFile: v.insuranceDocumentFile!,
+          );
+        } catch (e) {
+          if (!silent && mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Failed to upload insurance file for vehicle ${i + 1}'),
+                backgroundColor: AppColors.error,
+              ),
+            );
+          }
+        }
+      }
+
+      vehiclesData.add({
+        'vehiclePlate': v.plateController.text,
+        'vehicleType': v.type,
+        'vehicleYear': v.yearController.text,
+        'vehicleMake': v.make,
+        'vehicleBodyType': v.bodyTypeController.text,
+        'vehicleChassis': v.chassisController.text,
+        'vehicleAxles': v.axlesController.text,
+        'vehicleMtc': v.mtcController.text,
+        'vehicleNwc': v.nwcController.text,
+        'vehicleTare': v.tareController.text,
+        'vehicleRegistrationFileName': v.registrationFile?.name,
+        'vehicleRegistrationFileUrl': registrationUrl,
+        'revenueLicenceFileName': v.revenueLicenceFile?.name,
+        'revenueLicenceFileUrl': revenueLicenceUrl,
+        'fitnessCertificateFileName': v.fitnessCertificateFile?.name,
+        'fitnessCertificateFileUrl': fitnessUrl,
+        'thirdPartyInsuranceFileName': v.insuranceDocumentFile?.name,
+        'thirdPartyInsuranceFileUrl': insuranceUrl,
+      });
+    }
+
+    // Collect all form data with file URLs
     final applicationData = {
       'formType': AppConstants.appTypeBusiness,
       'applicantName': _representatives.isNotEmpty && _representatives[0].nameController.text.isNotEmpty 
@@ -210,18 +379,10 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
       'nationality': null, // Not in current form
       'purpose': null, // Could be added later
       
-      // Representative information
-      'representatives': _representatives.map((rep) => {
-        'name': rep.nameController.text,
-        'email': rep.emailController.text,
-        'phone': rep.phoneController.text,
-        'idNumber': rep.idController.text,
-        'address': rep.addressController.text,
-        'dateOfBirth': rep.dob?.toIso8601String(),
-        'publicProxyInstrumentFileName': rep.publicProxyInstrumentFile?.name,
-      }).toList(),
+      // Representative information with file URLs
+      'representatives': representativesData,
       
-      // Organization information
+      // Organization information with file URL
       'organization': {
         'firmName': _firmNameController.text,
         'firmAddress': _firmAddressController.text,
@@ -231,30 +392,16 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
         'telephone': _telephoneController.text,
         'fax': _faxController.text,
         'companyRegistrationFileName': _companyRegistrationFile?.name,
+        'companyRegistrationFileUrl': companyRegFileUrl,
       },
       
-      // Transportation information
+      // Transportation information with file URLs
       'transportation': {
         'natureOfTransport': _natureOfTransport,
         'modalityOfTraffic': _modalityOfTraffic,
         'origin': _origin,
         'destination': _destination,
-        'vehicles': _vehicles.map((v) => {
-          'vehiclePlate': v.plateController.text,
-          'vehicleType': v.type,
-          'vehicleYear': v.yearController.text,
-          'vehicleMake': v.make,
-          'vehicleBodyType': v.bodyTypeController.text,
-          'vehicleChassis': v.chassisController.text,
-          'vehicleAxles': v.axlesController.text,
-          'vehicleMtc': v.mtcController.text,
-          'vehicleNwc': v.nwcController.text,
-          'vehicleTare': v.tareController.text,
-          'vehicleRegistrationFileName': v.registrationFile?.name,
-          'revenueLicenceFileName': v.revenueLicenceFile?.name,
-          'fitnessCertificateFileName': v.fitnessCertificateFile?.name,
-          'thirdPartyInsuranceFileName': v.insuranceDocumentFile?.name,
-        }).toList(),
+        'vehicles': vehiclesData,
       },
       
       // Metadata
@@ -265,8 +412,12 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
 
     try {
       if (_draftId != null) {
-        // Update existing draft
-        final success = await appProvider.updateApplication(_draftId!, applicationData);
+        // Update existing draft - wrap in applicationData field
+        final updates = {
+          'applicationData': applicationData,
+          'applicantName': applicationData['applicantName'],
+        };
+        final success = await appProvider.updateApplication(_draftId!, updates);
         
         if (success && mounted) {
           if (!silent) {

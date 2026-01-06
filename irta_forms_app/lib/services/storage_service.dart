@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class StorageService {
   final FirebaseStorage _storage = FirebaseStorage.instance;
@@ -18,6 +19,63 @@ class StorageService {
         file,
         SettableMetadata(contentType: contentType),
       );
+
+      final snapshot = await uploadTask;
+      final downloadUrl = await snapshot.ref.getDownloadURL();
+      return downloadUrl;
+    } catch (e) {
+      throw Exception('Failed to upload file: $e');
+    }
+  }
+
+  // Upload a PlatformFile to Firebase Storage (handles web and mobile)
+  Future<String?> uploadPlatformFile({
+    required String path,
+    required PlatformFile platformFile,
+    String? contentType,
+  }) async {
+    try {
+      final ref = _storage.ref().child(path);
+      
+      // Determine content type from file extension if not provided
+      String? finalContentType = contentType;
+      if (finalContentType == null && platformFile.name.isNotEmpty) {
+        final extension = platformFile.name.split('.').last.toLowerCase();
+        switch (extension) {
+          case 'pdf':
+            finalContentType = 'application/pdf';
+            break;
+          case 'jpg':
+          case 'jpeg':
+            finalContentType = 'image/jpeg';
+            break;
+          case 'png':
+            finalContentType = 'image/png';
+            break;
+          default:
+            finalContentType = 'application/octet-stream';
+        }
+      }
+
+      UploadTask uploadTask;
+      
+      // Handle web (uses bytes) vs mobile (uses path)
+      if (platformFile.path != null) {
+        // Mobile/Desktop - use file path
+        final file = File(platformFile.path!);
+        uploadTask = ref.putFile(
+          file,
+          SettableMetadata(contentType: finalContentType),
+        );
+      } else if (platformFile.bytes != null) {
+        // Web - use bytes
+        uploadTask = ref.putData(
+          platformFile.bytes!,
+          SettableMetadata(contentType: finalContentType),
+        );
+      } else {
+        throw Exception('PlatformFile has neither path nor bytes');
+      }
 
       final snapshot = await uploadTask;
       final downloadUrl = await snapshot.ref.getDownloadURL();
