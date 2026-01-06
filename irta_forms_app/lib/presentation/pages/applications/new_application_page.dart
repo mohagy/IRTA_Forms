@@ -611,11 +611,13 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
   void _populateFormFromDraft(ApplicationModel draft) {
     setState(() {
       _draftId = draft.id;
-      _currentStep = draft.applicationData['currentStep'] ?? 0;
-      _declarationAgreed = draft.applicationData['declarationAgreed'] ?? false;
+      final data = draft.applicationData ?? {};
+      
+      _currentStep = data['currentStep'] ?? 0;
+      _declarationAgreed = data['declarationAgreed'] ?? false;
       
       // Organization Info
-      final org = draft.applicationData['organization'] ?? {};
+      final org = data['organization'] ?? {};
       _firmNameController.text = org['firmName'] ?? '';
       _firmAddressController.text = org['firmAddress'] ?? '';
       _legalRepresentativeController.text = org['legalRepresentative'] ?? '';
@@ -625,14 +627,14 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
       _faxController.text = org['fax'] ?? '';
       
       // Transportation Info
-      final trans = draft.applicationData['transportation'] ?? {};
+      final trans = data['transportation'] ?? {};
       _natureOfTransport = trans['natureOfTransport'] ?? '';
       _modalityOfTraffic = trans['modalityOfTraffic'] ?? '';
       _origin = trans['origin'] ?? '';
       _destination = trans['destination'] ?? '';
       
       // Representatives
-      final reps = draft.applicationData['representatives'] as List?;
+      final reps = data['representatives'] as List?;
       if (reps != null && reps.isNotEmpty) {
         // Clear existing and rebuild
         for (var r in _representatives) r.dispose();
