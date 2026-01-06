@@ -29,6 +29,7 @@ class AppConstants {
   
   // Application Types
   static const String appTypeIndividual = 'Individual IRTA';
+  static const String appTypeBusiness = 'Business IRTA';
   
   // Routes
   static const String routeLanding = '/';

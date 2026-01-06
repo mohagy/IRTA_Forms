@@ -10,8 +10,22 @@ import '../../providers/auth_provider.dart';
 import '../../providers/application_provider.dart';
 import 'package:go_router/go_router.dart';
 
-class IndividualIRTAPage extends StatelessWidget {
+class IndividualIRTAPage extends StatefulWidget {
   const IndividualIRTAPage({super.key});
+
+  @override
+  State<IndividualIRTAPage> createState() => _IndividualIRTAPageState();
+}
+
+class _IndividualIRTAPageState extends State<IndividualIRTAPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Load applications when page initializes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ApplicationProvider>().loadAllApplications();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,10 +75,11 @@ class IndividualIRTAPage extends StatelessWidget {
   Widget _buildContent(BuildContext context) {
     return Consumer<ApplicationProvider>(
       builder: (context, appProvider, _) {
-        // Filter applications to only show Individual IRTA
+        // Filter applications to show both Individual and Business IRTA
         final allApplications = appProvider.applications;
         final individualIRTAApplications = allApplications.where((app) => 
-          app.formType == AppConstants.appTypeIndividual
+          app.formType == AppConstants.appTypeIndividual || 
+          app.formType == AppConstants.appTypeBusiness
         ).toList();
 
         // Calculate stats dynamically

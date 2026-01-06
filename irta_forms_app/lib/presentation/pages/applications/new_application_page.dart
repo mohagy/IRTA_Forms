@@ -107,6 +107,9 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
   
   // Declarations
   bool _declarationAgreed = false;
+  
+  // Draft Management
+  String? _draftId;
 
   @override
   void dispose() {
@@ -174,7 +177,7 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
 
     // Collect all form data
     final applicationData = {
-      'formType': 'Business IRTA', // Default, could be made configurable
+      'formType': AppConstants.appTypeBusiness,
       'applicantName': _representatives.isNotEmpty && _representatives[0].nameController.text.isNotEmpty 
           ? _representatives[0].nameController.text 
           : user.displayName ?? user.email ?? 'Unknown',
@@ -235,28 +238,43 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
     };
 
     try {
-      final applicationId = await appProvider.createApplication(
-        userId: user.uid,
-        applicationData: applicationData,
-      );
+      if (_draftId != null) {
+        // Update existing draft
+        final success = await appProvider.updateApplication(_draftId!, applicationData);
+        
+        if (success && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Draft updated successfully!'),
+              backgroundColor: AppColors.statusCompleted,
+              duration: Duration(seconds: 2),
+            ),
+          );
+        } else if (mounted) {
+          throw Exception('Failed to update draft');
+        }
+      } else {
+        // Create new draft
+        final applicationId = await appProvider.createApplication(
+          userId: user.uid,
+          applicationData: applicationData,
+        );
 
-      if (applicationId != null && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Draft saved successfully!'),
-            backgroundColor: AppColors.statusCompleted,
-            duration: Duration(seconds: 2),
-          ),
-        );
-        // Optionally navigate back to dashboard
-        // context.go(AppConstants.routeDashboard);
-      } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to save draft. Please try again.'),
-            backgroundColor: AppColors.error,
-          ),
-        );
+        if (applicationId != null && mounted) {
+          setState(() {
+            _draftId = applicationId;
+          });
+          
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Draft saved successfully!'),
+              backgroundColor: AppColors.statusCompleted,
+              duration: Duration(seconds: 2),
+            ),
+          );
+        } else if (mounted) {
+          throw Exception('Failed to create draft');
+        }
       }
     } catch (e) {
       if (mounted) {
