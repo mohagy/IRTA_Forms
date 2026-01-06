@@ -208,6 +208,66 @@ class ApplicationProvider with ChangeNotifier {
       return null;
     }
   }
+
+  // Update application status (for workflow actions)
+  Future<bool> updateApplicationStatus(String applicationId, String newStatus, {String? comment, String? updatedBy}) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      await _repository.updateApplicationStatus(applicationId, newStatus, comment: comment, updatedBy: updatedBy);
+
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  // Assign application to officer
+  Future<bool> assignToOfficer(String applicationId, String officerId, String officerName) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      await _repository.assignToOfficer(applicationId, officerId, officerName);
+
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  // Request additional information
+  Future<bool> requestAdditionalInfo(String applicationId, String comment, String requestedBy) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      await _repository.requestAdditionalInfo(applicationId, comment, requestedBy);
+
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
 }
 
 

@@ -155,6 +155,55 @@ class ApplicationRepository {
       return null;
     }
   }
+
+  // Update application status
+  Future<void> updateApplicationStatus(String applicationId, String newStatus, {String? comment, String? updatedBy}) async {
+    try {
+      final updates = {
+        'status': newStatus,
+        'updatedAt': FieldValue.serverTimestamp(),
+      };
+      
+      if (comment != null && comment.isNotEmpty) {
+        updates['lastComment'] = comment;
+        updates['lastCommentBy'] = updatedBy;
+        updates['lastCommentAt'] = FieldValue.serverTimestamp();
+      }
+      
+      await _firestore.collection(_collection).doc(applicationId).update(updates);
+    } catch (e) {
+      throw Exception('Failed to update application status: $e');
+    }
+  }
+
+  // Assign application to officer
+  Future<void> assignToOfficer(String applicationId, String officerId, String officerName) async {
+    try {
+      await _firestore.collection(_collection).doc(applicationId).update({
+        'assignedOfficer': officerName,
+        'assignedOfficerId': officerId,
+        'assignedAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      throw Exception('Failed to assign application: $e');
+    }
+  }
+
+  // Request additional information
+  Future<void> requestAdditionalInfo(String applicationId, String comment, String requestedBy) async {
+    try {
+      await _firestore.collection(_collection).doc(applicationId).update({
+        'status': 'Additional Info Requested',
+        'lastComment': comment,
+        'lastCommentBy': requestedBy,
+        'lastCommentAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      throw Exception('Failed to request additional info: $e');
+    }
+  }
 }
 
 
