@@ -972,50 +972,51 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
                       else
                         const SizedBox(),
                       Row(
-                        children: [
-                          if (_currentStep < 4) ...[
-                            Consumer<ApplicationProvider>(
-                              builder: (context, appProvider, _) {
-                                return TextButton(
-                                  onPressed: appProvider.isLoading 
-                                      ? null 
-                                      : () => _saveDraft(context, authProvider, appProvider),
-                                  child: appProvider.isLoading 
-                                      ? const SizedBox(
-                                          width: 16,
-                                          height: 16,
-                                          child: CircularProgressIndicator(strokeWidth: 2),
-                                        )
-                                      : const Text('Save Draft'),
-                                );
-                              },
-                            ),
-                            const SizedBox(width: 12),
-                            ElevatedButton(
-                              onPressed: _nextStep,
-                              child: const Text('Next'),
-                            ),
-                          ] else
-                            Consumer<ApplicationProvider>(
-                              builder: (context, appProvider, _) {
-                                return ElevatedButton(
-                                  onPressed: appProvider.isLoading
-                                      ? null
-                                      : () => _submitApplication(context, authProvider, appProvider),
-                                  child: appProvider.isLoading
-                                      ? const SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            color: Colors.white,
-                                          ),
-                                        )
-                                      : const Text('Submit Application'),
-                                );
-                              },
-                            ),
-                        ],
+                        children: _currentStep < 4
+                            ? [
+                                Consumer<ApplicationProvider>(
+                                  builder: (context, appProvider, _) {
+                                    return TextButton(
+                                      onPressed: appProvider.isLoading 
+                                          ? null 
+                                          : () => _saveDraft(context, authProvider, appProvider),
+                                      child: appProvider.isLoading 
+                                          ? const SizedBox(
+                                              width: 16,
+                                              height: 16,
+                                              child: CircularProgressIndicator(strokeWidth: 2),
+                                            )
+                                          : const Text('Save Draft'),
+                                    );
+                                  },
+                                ),
+                                const SizedBox(width: 12),
+                                ElevatedButton(
+                                  onPressed: _nextStep,
+                                  child: const Text('Next'),
+                                ),
+                              ]
+                            : [
+                                Consumer<ApplicationProvider>(
+                                  builder: (context, appProvider, _) {
+                                    return ElevatedButton(
+                                      onPressed: appProvider.isLoading
+                                          ? null
+                                          : () => _submitApplication(context, authProvider, appProvider),
+                                      child: appProvider.isLoading
+                                          ? const SizedBox(
+                                              width: 20,
+                                              height: 20,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                color: Colors.white,
+                                              ),
+                                            )
+                                          : const Text('Submit Application'),
+                                    );
+                                  },
+                                ),
+                              ],
                       ),
                     ],
                   ),

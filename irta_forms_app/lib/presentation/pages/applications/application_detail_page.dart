@@ -312,16 +312,12 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
               if (rep['phone'] != null) _buildInfoRow('Phone', rep['phone']),
               if (rep['idNumber'] != null) _buildInfoRow('ID Number', rep['idNumber']),
               if (rep['address'] != null) _buildInfoRow('Address', rep['address']),
-            ];
-            
-            if (rep['dateOfBirth'] != null) {
-              repChildren.add(
+              if (rep['dateOfBirth'] != null)
                 _buildInfoRow(
                   'Date of Birth',
                   DateFormat('yyyy-MM-dd').format(DateTime.parse(rep['dateOfBirth'])),
                 ),
-              );
-            }
+            ];
             
             return _buildSubSection(
               'Representative ${index + 1}',
@@ -368,23 +364,22 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
       // Add vehicles if they exist
       if (transport['vehicles'] != null) {
         final vehicles = transport['vehicles'] as List;
-        transportChildren.addAll(
-          vehicles.asMap().entries.map((entry) {
-            final index = entry.key;
-            final vehicle = entry.value as Map<String, dynamic>;
-            return _buildSubSection(
-              'Vehicle ${index + 1}',
-              [
-                if (vehicle['plateNumber'] != null)
-                  _buildInfoRow('Plate Number', vehicle['plateNumber']),
-                if (vehicle['make'] != null) _buildInfoRow('Make', vehicle['make']),
-                if (vehicle['type'] != null) _buildInfoRow('Type', vehicle['type']),
-                if (vehicle['year'] != null) _buildInfoRow('Year', vehicle['year']),
-                if (vehicle['bodyType'] != null) _buildInfoRow('Body Type', vehicle['bodyType']),
-              ],
-            );
-          }),
-        );
+        final vehicleWidgets = vehicles.asMap().entries.map((entry) {
+          final index = entry.key;
+          final vehicle = entry.value as Map<String, dynamic>;
+          return _buildSubSection(
+            'Vehicle ${index + 1}',
+            [
+              if (vehicle['vehiclePlate'] != null)
+                _buildInfoRow('Plate Number', vehicle['vehiclePlate']),
+              if (vehicle['vehicleMake'] != null) _buildInfoRow('Make', vehicle['vehicleMake']),
+              if (vehicle['vehicleType'] != null) _buildInfoRow('Type', vehicle['vehicleType']),
+              if (vehicle['vehicleYear'] != null) _buildInfoRow('Year', vehicle['vehicleYear']),
+              if (vehicle['vehicleBodyType'] != null) _buildInfoRow('Body Type', vehicle['vehicleBodyType']),
+            ],
+          );
+        }).toList();
+        transportChildren.addAll(vehicleWidgets);
       }
       
       sections.add(
