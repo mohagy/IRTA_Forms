@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../widgets/main_layout.dart';
@@ -342,6 +343,8 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
                   'Date of Birth',
                   DateFormat('yyyy-MM-dd').format(DateTime.parse(rep['dateOfBirth'])),
                 ),
+              if (rep['publicProxyInstrumentFileName'] != null)
+                _buildFileRow('Public Proxy Instrument', rep['publicProxyInstrumentFileName'], rep['publicProxyInstrumentFileUrl']),
             ];
             
             return _buildSubSection(
@@ -369,6 +372,8 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
               _buildInfoRow('Company Registration Number', org['companyRegistrationNumber']),
             if (org['telephone'] != null) _buildInfoRow('Telephone', org['telephone']),
             if (org['fax'] != null) _buildInfoRow('Fax', org['fax']),
+            if (org['companyRegistrationFileName'] != null)
+              _buildFileRow('Company Registration Certificate', org['companyRegistrationFileName'], org['companyRegistrationFileUrl']),
           ],
         ),
       );
@@ -392,16 +397,31 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
         final vehicleWidgets = vehicles.asMap().entries.map((entry) {
           final index = entry.key;
           final vehicle = entry.value as Map<String, dynamic>;
+          final List<Widget> vehicleChildren = [
+            if (vehicle['vehiclePlate'] != null)
+              _buildInfoRow('Plate Number', vehicle['vehiclePlate']),
+            if (vehicle['vehicleMake'] != null) _buildInfoRow('Make', vehicle['vehicleMake']),
+            if (vehicle['vehicleType'] != null) _buildInfoRow('Type', vehicle['vehicleType']),
+            if (vehicle['vehicleYear'] != null) _buildInfoRow('Year', vehicle['vehicleYear']),
+            if (vehicle['vehicleBodyType'] != null) _buildInfoRow('Body Type', vehicle['vehicleBodyType']),
+            if (vehicle['vehicleChassis'] != null) _buildInfoRow('Chassis Number', vehicle['vehicleChassis']),
+            if (vehicle['vehicleAxles'] != null) _buildInfoRow('Axles', vehicle['vehicleAxles']),
+            if (vehicle['vehicleMtc'] != null) _buildInfoRow('MTC', vehicle['vehicleMtc']),
+            if (vehicle['vehicleNwc'] != null) _buildInfoRow('NWC', vehicle['vehicleNwc']),
+            if (vehicle['vehicleTare'] != null) _buildInfoRow('Tare Weight', vehicle['vehicleTare']),
+            if (vehicle['vehicleRegistrationFileName'] != null)
+              _buildFileRow('Vehicle Registration', vehicle['vehicleRegistrationFileName'], vehicle['vehicleRegistrationFileUrl']),
+            if (vehicle['revenueLicenceFileName'] != null)
+              _buildFileRow('Revenue Licence', vehicle['revenueLicenceFileName'], vehicle['revenueLicenceFileUrl']),
+            if (vehicle['fitnessCertificateFileName'] != null)
+              _buildFileRow('Fitness Certificate', vehicle['fitnessCertificateFileName'], vehicle['fitnessCertificateFileUrl']),
+            if (vehicle['thirdPartyInsuranceFileName'] != null)
+              _buildFileRow('Third Party Insurance', vehicle['thirdPartyInsuranceFileName'], vehicle['thirdPartyInsuranceFileUrl']),
+          ];
+          
           return _buildSubSection(
             'Vehicle ${index + 1}',
-            [
-              if (vehicle['vehiclePlate'] != null)
-                _buildInfoRow('Plate Number', vehicle['vehiclePlate']),
-              if (vehicle['vehicleMake'] != null) _buildInfoRow('Make', vehicle['vehicleMake']),
-              if (vehicle['vehicleType'] != null) _buildInfoRow('Type', vehicle['vehicleType']),
-              if (vehicle['vehicleYear'] != null) _buildInfoRow('Year', vehicle['vehicleYear']),
-              if (vehicle['vehicleBodyType'] != null) _buildInfoRow('Body Type', vehicle['vehicleBodyType']),
-            ],
+            vehicleChildren,
           );
         }).toList();
         transportChildren.addAll(vehicleWidgets);
@@ -434,6 +454,83 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
           ),
           const SizedBox(height: 8),
           ...children,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFileRow(String label, String fileName, String? fileUrl) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 180,
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Row(
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.attach_file, size: 18, color: AppColors.textSecondary),
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          fileName,
+                          style: const TextStyle(
+                            color: AppColors.textPrimary,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (fileUrl != null && fileUrl.isNotEmpty)
+                  IconButton(
+                    icon: const Icon(Icons.open_in_new, size: 18),
+                    color: AppColors.primary,
+                    tooltip: 'View/Download',
+                    onPressed: () async {
+                      final uri = Uri.parse(fileUrl);
+                      if (await canLaunchUrl(uri)) {
+                        await launchUrl(uri, mode: LaunchMode.externalApplication);
+                      } else {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Unable to open file'),
+                              backgroundColor: AppColors.error,
+                            ),
+                          );
+                        }
+                      }
+                    },
+                  )
+                else
+                  const Padding(
+                    padding: EdgeInsets.only(left: 8),
+                    child: Text(
+                      '(File not uploaded)',
+                      style: TextStyle(
+                        color: AppColors.textTertiary,
+                        fontSize: 12,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
         ],
       ),
     );
