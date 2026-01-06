@@ -19,6 +19,20 @@ class FormConfigRepository {
     }, SetOptions(merge: true));
   }
 
+  Future<Map<String, dynamic>?> getFormConfig(String formType) async {
+    try {
+      final docRef = _firestore.collection(_collection).doc(formType);
+      final snapshot = await docRef.get();
+      if (!snapshot.exists) {
+        return null;
+      }
+      final data = snapshot.data()!;
+      return data['config'] as Map<String, dynamic>?;
+    } catch (e) {
+      throw Exception('Failed to get form config: $e');
+    }
+  }
+
   Future<void> publishFormConfig({
     required String formType,
     String? publishedBy,
