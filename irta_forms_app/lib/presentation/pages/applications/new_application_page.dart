@@ -1827,6 +1827,7 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
                       file: vehicle.registrationFile,
                       onTap: () => _pickVehicleRegistrationFile(index),
                       isUploading: vehicle.isUploadingRegistration,
+                      onClear: () => setState(() => vehicle.registrationFile = null),
                     ),
                     const SizedBox(height: 12),
                     _buildFileUploader(
@@ -1834,6 +1835,7 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
                       file: vehicle.revenueLicenceFile,
                       onTap: () => _pickRevenueLicenceFile(index),
                       isUploading: vehicle.isUploadingLicence,
+                      onClear: () => setState(() => vehicle.revenueLicenceFile = null),
                     ),
                     const SizedBox(height: 12),
                     _buildFileUploader(
@@ -1841,6 +1843,7 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
                       file: vehicle.fitnessCertificateFile,
                       onTap: () => _pickFitnessCertificateFile(index),
                       isUploading: vehicle.isUploadingFitness,
+                      onClear: () => setState(() => vehicle.fitnessCertificateFile = null),
                     ),
                     const SizedBox(height: 12),
                     _buildFileUploader(
@@ -1848,6 +1851,7 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
                       file: vehicle.insuranceDocumentFile,
                       onTap: () => _pickInsuranceDocumentFile(index),
                       isUploading: vehicle.isUploadingInsurance,
+                      onClear: () => setState(() => vehicle.insuranceDocumentFile = null),
                     ),
                   ],
                 ),
@@ -1884,19 +1888,30 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
     required PlatformFile? file,
     required VoidCallback onTap,
     required bool isUploading,
+    required VoidCallback onClear,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.textPrimary)),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: AppColors.textPrimary,
+          ),
+        ),
         const SizedBox(height: 8),
         InkWell(
           onTap: isUploading ? null : onTap,
           child: Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.surface,
-              border: Border.all(color: file != null ? AppColors.primary : AppColors.border, style: BorderStyle.solid),
+              color: AppColors.background,
+              border: Border.all(
+                color: file != null ? AppColors.primary : AppColors.border,
+                width: 1,
+              ),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
@@ -1923,12 +1938,7 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
                 if (file != null)
                   IconButton(
                     icon: const Icon(Icons.close, size: 20),
-                    onPressed: () => setState(() {
-                      if (label.contains('Registration')) _vehicleRegistrationFile = null;
-                      if (label.contains('Licence')) _revenueLicenceFile = null;
-                      if (label.contains('Fitness')) _fitnessCertificateFile = null;
-                      if (label.contains('Insurance')) _insuranceDocumentFile = null;
-                    }),
+                    onPressed: onClear,
                   ),
               ],
             ),
@@ -1983,7 +1993,7 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  _buildSummaryRow('Representative Name', _representativeNameController.text),
+                  _buildSummaryRow('Representative Name', _representatives.isNotEmpty ? _representatives[0].nameController.text : ''),
                   _buildSummaryRow('Firm Name', _firmNameController.text),
                   _buildSummaryRow('Nature of Transport', _natureOfTransport.isEmpty ? 'Not selected' : _natureOfTransport),
                   _buildSummaryRow('Origin', _origin.isEmpty ? 'Not selected' : _origin),
