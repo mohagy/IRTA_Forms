@@ -188,7 +188,11 @@ class ApplicationsTable extends StatelessWidget {
         _buildCell(Text(app.assignedOfficer ?? '-')),
         _buildCell(
           TextButton(
-            onPressed: () => onRowTap?.call(app),
+            onPressed: () {
+              if (onRowTap != null) {
+                onRowTap!(app);
+              }
+            },
             child: const Text('View'),
           ),
         ),
