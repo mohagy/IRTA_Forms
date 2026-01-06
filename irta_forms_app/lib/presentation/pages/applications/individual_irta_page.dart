@@ -177,7 +177,7 @@ class _IndividualIRTAPageState extends State<IndividualIRTAPage> {
                   applications: individualIRTAApplications,
                   onRowTap: (app) {
                     // Navigate to application detail
-                    // context.push('/applications/${app.id}');
+                    context.push('/applications/${app.id}');
                   },
                   isApplicantView: false,
                 ),

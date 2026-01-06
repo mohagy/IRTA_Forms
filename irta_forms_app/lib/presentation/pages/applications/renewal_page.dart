@@ -162,7 +162,7 @@ class RenewalPage extends StatelessWidget {
                   applications: renewalApplications,
                   onRowTap: (app) {
                     // Navigate to application detail
-                    // context.push('/applications/${app.id}');
+                    context.push('/applications/${app.id}');
                   },
                   isApplicantView: false,
                 ),
@@ -174,6 +174,7 @@ class RenewalPage extends StatelessWidget {
     );
   }
 }
+
 
 
 
