@@ -1,15 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../widgets/app_header.dart';
 import '../../widgets/main_layout.dart';
 import '../../widgets/stat_card.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/application_provider.dart';
 import 'package:go_router/go_router.dart';
 
-class VehicleApprovalPage extends StatelessWidget {
+class VehicleApprovalPage extends StatefulWidget {
   const VehicleApprovalPage({super.key});
+
+  @override
+  State<VehicleApprovalPage> createState() => _VehicleApprovalPageState();
+}
+
+class _VehicleApprovalPageState extends State<VehicleApprovalPage> {
+  String _searchQuery = '';
+  String? _statusFilter;
+  String? _typeFilter;
+
+  @override
+  void initState() {
+    super.initState();
+    // Load all applications when page initializes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ApplicationProvider>().loadAllApplications();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,14 +77,19 @@ class VehicleApprovalPage extends StatelessWidget {
   }
 
   Widget _buildContent(BuildContext context) {
-    // TODO: Replace with actual vehicle data from Firestore
-    final vehicles = <Map<String, dynamic>>[];
+    return Consumer<ApplicationProvider>(
+      builder: (context, appProvider, _) {
+        // Extract vehicles from all applications
+        final vehicles = _extractVehiclesFromApplications(appProvider.applications);
+        
+        // Apply filters
+        final filteredVehicles = _applyFilters(vehicles);
 
-    // Calculate stats dynamically
-    final pending = vehicles.where((v) => v['status'] == 'Pending').length;
-    final approved = vehicles.where((v) => v['status'] == 'Approved').length;
-    final rejected = vehicles.where((v) => v['status'] == 'Rejected').length;
-    final total = vehicles.length;
+        // Calculate stats dynamically
+        final pending = vehicles.where((v) => (v['vehicleApprovalStatus'] ?? 'Pending') == 'Pending').length;
+        final approved = vehicles.where((v) => (v['vehicleApprovalStatus'] ?? 'Pending') == 'Approved').length;
+        final rejected = vehicles.where((v) => (v['vehicleApprovalStatus'] ?? 'Pending') == 'Rejected').length;
+        final total = vehicles.length;
 
     return Column(
       children: [
@@ -80,6 +105,11 @@ class VehicleApprovalPage extends StatelessWidget {
                   prefixIcon: const Icon(Icons.search, size: 20),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
+                onChanged: (value) {
+                  setState(() {
+                    _searchQuery = value.toLowerCase();
+                  });
+                },
               ),
             ),
             const SizedBox(width: 12),
@@ -172,7 +202,7 @@ class VehicleApprovalPage extends StatelessWidget {
                             SizedBox(
                               width: 150,
                               child: DropdownButtonFormField<String>(
-                                value: null,
+                                value: _statusFilter,
                                 decoration: InputDecoration(
                                   contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                   border: OutlineInputBorder(
@@ -182,18 +212,23 @@ class VehicleApprovalPage extends StatelessWidget {
                                 ),
                                 hint: const Text('All Statuses', style: TextStyle(fontSize: 14)),
                                 items: const [
+                                  DropdownMenuItem(value: null, child: Text('All Statuses')),
                                   DropdownMenuItem(value: 'Pending', child: Text('Pending')),
                                   DropdownMenuItem(value: 'Approved', child: Text('Approved')),
                                   DropdownMenuItem(value: 'Rejected', child: Text('Rejected')),
                                 ],
-                                onChanged: (value) {},
+                                onChanged: (value) {
+                                  setState(() {
+                                    _statusFilter = value;
+                                  });
+                                },
                               ),
                             ),
                             const SizedBox(width: 8),
                             SizedBox(
                               width: 120,
                               child: DropdownButtonFormField<String>(
-                                value: null,
+                                value: _typeFilter,
                                 decoration: InputDecoration(
                                   contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                   border: OutlineInputBorder(
@@ -203,17 +238,24 @@ class VehicleApprovalPage extends StatelessWidget {
                                 ),
                                 hint: const Text('All Types', style: TextStyle(fontSize: 14)),
                                 items: const [
+                                  DropdownMenuItem(value: null, child: Text('All Types')),
                                   DropdownMenuItem(value: 'Bus', child: Text('Bus')),
                                   DropdownMenuItem(value: 'Truck', child: Text('Truck')),
                                   DropdownMenuItem(value: 'Van', child: Text('Van')),
                                   DropdownMenuItem(value: 'Other', child: Text('Other')),
                                 ],
-                                onChanged: (value) {},
+                                onChanged: (value) {
+                                  setState(() {
+                                    _typeFilter = value;
+                                  });
+                                },
                               ),
                             ),
                             const SizedBox(width: 8),
                             TextButton.icon(
-                              onPressed: () {},
+                              onPressed: () {
+                                appProvider.loadAllApplications();
+                              },
                               icon: const Icon(Icons.refresh, size: 18),
                               label: const Text('Refresh'),
                             ),
@@ -225,39 +267,43 @@ class VehicleApprovalPage extends StatelessWidget {
 
                   // Table Content
                   Expanded(
-                    child: vehicles.isEmpty
-                        ? Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.directions_car_outlined,
-                                  size: 64,
-                                  color: AppColors.textTertiary,
+                    child: appProvider.isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : filteredVehicles.isEmpty
+                            ? Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.directions_car_outlined,
+                                      size: 64,
+                                      color: AppColors.textTertiary,
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      vehicles.isEmpty ? 'No vehicles found' : 'No vehicles match your filters',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w500,
+                                        color: AppColors.textSecondary,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      vehicles.isEmpty
+                                          ? 'Vehicles will appear here once they are submitted for approval'
+                                          : 'Try adjusting your search or filter criteria',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: AppColors.textTertiary,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  'No vehicles found',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w500,
-                                    color: AppColors.textSecondary,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Vehicles will appear here once they are submitted for approval',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: AppColors.textTertiary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        : SingleChildScrollView(
-                            child: _buildVehiclesTable(context, vehicles),
-                          ),
+                              )
+                            : SingleChildScrollView(
+                                child: _buildVehiclesTable(context, filteredVehicles, appProvider),
+                              ),
                   ),
                 ],
               ),
@@ -266,9 +312,94 @@ class VehicleApprovalPage extends StatelessWidget {
         ),
       ],
     );
+      },
+    );
   }
 
-  Widget _buildVehiclesTable(BuildContext context, List<Map<String, dynamic>> vehicles) {
+  // Extract vehicles from applications and flatten them
+  List<Map<String, dynamic>> _extractVehiclesFromApplications(List applications) {
+    final List<Map<String, dynamic>> vehicles = [];
+    final dateFormat = DateFormat('yyyy-MM-dd HH:mm');
+
+    for (final app in applications) {
+      final appData = app.applicationData;
+      if (appData == null) continue;
+
+      final transportation = appData['transportation'] as Map<String, dynamic>?;
+      if (transportation == null) continue;
+
+      final vehiclesList = transportation['vehicles'] as List?;
+      if (vehiclesList == null || vehiclesList.isEmpty) continue;
+
+      for (int i = 0; i < vehiclesList.length; i++) {
+        final vehicle = vehiclesList[i] as Map<String, dynamic>;
+        
+        // Get vehicle approval status (stored in vehicle data or default to 'Pending')
+        final approvalStatus = vehicle['vehicleApprovalStatus'] ?? 'Pending';
+        
+        vehicles.add({
+          'applicationId': app.id,
+          'applicationRef': app.irtaRef,
+          'applicantName': app.applicantName,
+          'submissionDate': dateFormat.format(app.submissionDate),
+          'plateNumber': vehicle['vehiclePlate'] ?? '-',
+          'vehicleType': vehicle['vehicleType'] ?? '-',
+          'make': vehicle['vehicleMake'] ?? '',
+          'model': vehicle['vehicleBodyType'] ?? '', // Using bodyType as model
+          'year': vehicle['vehicleYear'] ?? '-',
+          'owner': app.applicantName, // Owner is the applicant
+          'chassisNumber': vehicle['vehicleChassis'] ?? '-',
+          'vehicleIndex': i,
+          'vehicleData': vehicle, // Store full vehicle data for details
+          'vehicleApprovalStatus': approvalStatus,
+          'vehicleApprovalComment': vehicle['vehicleApprovalComment'],
+          'vehicleApprovedBy': vehicle['vehicleApprovedBy'],
+          'vehicleApprovedAt': vehicle['vehicleApprovedAt'],
+        });
+      }
+    }
+
+    return vehicles;
+  }
+
+  // Apply search and filter criteria
+  List<Map<String, dynamic>> _applyFilters(List<Map<String, dynamic>> vehicles) {
+    var filtered = vehicles;
+
+    // Apply search filter
+    if (_searchQuery.isNotEmpty) {
+      filtered = filtered.where((v) {
+        final plate = (v['plateNumber'] ?? '').toString().toLowerCase();
+        final chassis = (v['chassisNumber'] ?? '').toString().toLowerCase();
+        final owner = (v['owner'] ?? '').toString().toLowerCase();
+        final applicant = (v['applicantName'] ?? '').toString().toLowerCase();
+        return plate.contains(_searchQuery) ||
+            chassis.contains(_searchQuery) ||
+            owner.contains(_searchQuery) ||
+            applicant.contains(_searchQuery);
+      }).toList();
+    }
+
+    // Apply status filter
+    if (_statusFilter != null) {
+      filtered = filtered.where((v) {
+        final status = (v['vehicleApprovalStatus'] ?? 'Pending').toString();
+        return status == _statusFilter;
+      }).toList();
+    }
+
+    // Apply type filter
+    if (_typeFilter != null) {
+      filtered = filtered.where((v) {
+        final type = (v['vehicleType'] ?? '').toString();
+        return type == _typeFilter;
+      }).toList();
+    }
+
+    return filtered;
+  }
+
+  Widget _buildVehiclesTable(BuildContext context, List<Map<String, dynamic>> vehicles, ApplicationProvider appProvider) {
     return Table(
       columnWidths: const {
         0: FlexColumnWidth(1.2), // Plate Number
@@ -321,17 +452,36 @@ class VehicleApprovalPage extends StatelessWidget {
               _TableCell(Text(vehicle['owner'] ?? '-')),
               _TableCell(Text(vehicle['chassisNumber'] ?? '-')),
               _TableCell(Text(vehicle['submissionDate']?.toString() ?? '-')),
-              _TableCell(_buildStatusBadge(vehicle['status'] ?? 'Pending')),
+              _TableCell(_buildStatusBadge(vehicle['vehicleApprovalStatus'] ?? 'Pending')),
               _TableCell(
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     TextButton(
                       onPressed: () {
-                        // View/Approve vehicle
+                        // Navigate to application detail page
+                        context.push('/applications/${vehicle['applicationId']}');
                       },
                       child: const Text('View'),
                     ),
+                    if ((vehicle['vehicleApprovalStatus'] ?? 'Pending') == 'Pending') ...[
+                      const SizedBox(width: 8),
+                      TextButton(
+                        onPressed: () => _approveVehicle(context, vehicle, appProvider),
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppColors.statusCompleted,
+                        ),
+                        child: const Text('Approve'),
+                      ),
+                      const SizedBox(width: 8),
+                      TextButton(
+                        onPressed: () => _rejectVehicle(context, vehicle, appProvider),
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppColors.error,
+                        ),
+                        child: const Text('Reject'),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -374,6 +524,129 @@ class VehicleApprovalPage extends StatelessWidget {
       ),
     );
   }
+
+  Future<void> _approveVehicle(BuildContext context, Map<String, dynamic> vehicle, ApplicationProvider appProvider) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Approve Vehicle'),
+        content: Text('Are you sure you want to approve vehicle ${vehicle['plateNumber']}?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.statusCompleted,
+            ),
+            child: const Text('Approve'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      try {
+        // Update vehicle approval status in application
+        await appProvider.updateVehicleApprovalStatus(
+          vehicle['applicationId'],
+          vehicle['vehicleIndex'],
+          'Approved',
+          approvedBy: context.read<AuthProvider>().user?.email ?? 'Unknown',
+        );
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Vehicle ${vehicle['plateNumber']} approved successfully'),
+              backgroundColor: AppColors.statusCompleted,
+            ),
+          );
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error approving vehicle: ${e.toString()}'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _rejectVehicle(BuildContext context, Map<String, dynamic> vehicle, ApplicationProvider appProvider) async {
+    final commentController = TextEditingController();
+    
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Reject Vehicle'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Are you sure you want to reject vehicle ${vehicle['plateNumber']}?'),
+            const SizedBox(height: 16),
+            TextField(
+              controller: commentController,
+              decoration: const InputDecoration(
+                labelText: 'Rejection Reason (Optional)',
+                hintText: 'Enter reason for rejection...',
+              ),
+              maxLines: 3,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.error,
+            ),
+            child: const Text('Reject'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      try {
+        // Update vehicle approval status in application
+        await appProvider.updateVehicleApprovalStatus(
+          vehicle['applicationId'],
+          vehicle['vehicleIndex'],
+          'Rejected',
+          comment: commentController.text.isNotEmpty ? commentController.text : null,
+          approvedBy: context.read<AuthProvider>().user?.email ?? 'Unknown',
+        );
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Vehicle ${vehicle['plateNumber']} rejected'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error rejecting vehicle: ${e.toString()}'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      }
+    }
+  }
 }
 
 class _TableHeaderCell extends StatelessWidget {
@@ -410,6 +683,7 @@ class _TableCell extends StatelessWidget {
     );
   }
 }
+
 
 
 

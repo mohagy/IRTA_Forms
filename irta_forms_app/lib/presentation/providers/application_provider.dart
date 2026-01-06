@@ -268,6 +268,41 @@ class ApplicationProvider with ChangeNotifier {
       return false;
     }
   }
+
+  // Update vehicle approval status
+  Future<bool> updateVehicleApprovalStatus(
+    String applicationId,
+    int vehicleIndex,
+    String status, {
+    String? comment,
+    String? approvedBy,
+  }) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      await _repository.updateVehicleApprovalStatus(
+        applicationId,
+        vehicleIndex,
+        status,
+        comment: comment,
+        approvedBy: approvedBy,
+      );
+
+      // Reload applications to reflect the change
+      await loadAllApplications();
+
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
 }
 
 

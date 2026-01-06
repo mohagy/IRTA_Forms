@@ -210,6 +210,59 @@ class ApplicationRepository {
       throw Exception('Failed to request additional info: $e');
     }
   }
+
+  // Update vehicle approval status
+  Future<void> updateVehicleApprovalStatus(
+    String applicationId,
+    int vehicleIndex,
+    String status, {
+    String? comment,
+    String? approvedBy,
+  }) async {
+    try {
+      // Get the application document
+      final doc = await _firestore.collection(_collection).doc(applicationId).get();
+      if (!doc.exists) {
+        throw Exception('Application not found');
+      }
+
+      final data = doc.data()!;
+      final applicationData = data['applicationData'] as Map<String, dynamic>?;
+      
+      if (applicationData == null) {
+        throw Exception('Application data not found');
+      }
+
+      final transportation = applicationData['transportation'] as Map<String, dynamic>?;
+      if (transportation == null) {
+        throw Exception('Transportation data not found');
+      }
+
+      final vehicles = transportation['vehicles'] as List?;
+      if (vehicles == null || vehicleIndex >= vehicles.length) {
+        throw Exception('Vehicle not found at index $vehicleIndex');
+      }
+
+      // Update the specific vehicle's approval status
+      final vehicle = vehicles[vehicleIndex] as Map<String, dynamic>;
+      vehicle['vehicleApprovalStatus'] = status;
+      if (comment != null && comment.isNotEmpty) {
+        vehicle['vehicleApprovalComment'] = comment;
+      }
+      if (approvedBy != null && approvedBy.isNotEmpty) {
+        vehicle['vehicleApprovedBy'] = approvedBy;
+        vehicle['vehicleApprovedAt'] = FieldValue.serverTimestamp();
+      }
+
+      // Save the updated application data back to Firestore
+      await _firestore.collection(_collection).doc(applicationId).update({
+        'applicationData': applicationData,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      throw Exception('Failed to update vehicle approval status: $e');
+    }
+  }
 }
 
 
