@@ -164,16 +164,18 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
     }
   }
 
-  Future<void> _saveDraft(BuildContext context, AuthProvider authProvider, ApplicationProvider appProvider) async {
+  Future<bool> _saveDraft(BuildContext context, AuthProvider authProvider, ApplicationProvider appProvider, {bool silent = false}) async {
     final user = authProvider.user;
     if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('You must be logged in to save a draft'),
-          backgroundColor: AppColors.error,
-        ),
-      );
-      return;
+      if (!silent) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('You must be logged in to save a draft'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+      return false;
     }
 
     // Collect all form data
@@ -244,13 +246,16 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
         final success = await appProvider.updateApplication(_draftId!, applicationData);
         
         if (success && mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Draft updated successfully!'),
-              backgroundColor: AppColors.statusCompleted,
-              duration: Duration(seconds: 2),
-            ),
-          );
+          if (!silent) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Draft updated successfully!'),
+                backgroundColor: AppColors.statusCompleted,
+                duration: Duration(seconds: 2),
+              ),
+            );
+          }
+          return true;
         } else if (mounted) {
           throw Exception('Failed to update draft');
         }
@@ -266,19 +271,22 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
             _draftId = applicationId;
           });
           
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Draft saved successfully!'),
-              backgroundColor: AppColors.statusCompleted,
-              duration: Duration(seconds: 2),
-            ),
-          );
+          if (!silent) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Draft saved successfully!'),
+                backgroundColor: AppColors.statusCompleted,
+                duration: Duration(seconds: 2),
+              ),
+            );
+          }
+          return true;
         } else if (mounted) {
           throw Exception('Failed to create draft');
         }
       }
     } catch (e) {
-      if (mounted) {
+      if (mounted && !silent) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error saving draft: ${e.toString()}'),
@@ -286,6 +294,44 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
           ),
         );
       }
+      return false;
+    }
+    return false;
+  }
+
+  Future<void> _submitApplication(BuildContext context, AuthProvider authProvider, ApplicationProvider appProvider) async {
+    if (_formKey.currentState!.validate() && _declarationAgreed) {
+      // Save draft first (silently)
+      final success = await _saveDraft(context, authProvider, appProvider, silent: true);
+      
+      if (success && _draftId != null && mounted) {
+        // Submit application
+        final submitted = await appProvider.submitApplication(_draftId!);
+        
+        if (submitted && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Application submitted successfully!'),
+              backgroundColor: AppColors.statusCompleted,
+            ),
+          );
+          context.go(AppConstants.routeDashboard);
+        } else if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Failed to submit application. Please try again.'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      }
+    } else if (!_declarationAgreed) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please agree to the declarations'),
+          backgroundColor: AppColors.error,
+        ),
+      );
     }
   }
 
@@ -873,25 +919,19 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
                             ),
                           ] else
                             ElevatedButton(
-                              onPressed: () {
-                                if (_formKey.currentState!.validate() && _declarationAgreed) {
-                                  // Submit application
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Application submitted successfully!'),
-                                    ),
-                                  );
-                                  context.go(AppConstants.routeDashboard);
-                                } else if (!_declarationAgreed) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Please agree to the declarations'),
-                                      backgroundColor: AppColors.error,
-                                    ),
-                                  );
-                                }
-                              },
-                              child: const Text('Submit Application'),
+                              onPressed: appProvider.isLoading
+                                  ? null
+                                  : () => _submitApplication(context, authProvider, appProvider),
+                              child: appProvider.isLoading
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : const Text('Submit Application'),
                             ),
                         ],
                       ),

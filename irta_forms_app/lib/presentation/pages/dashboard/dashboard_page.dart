@@ -165,6 +165,34 @@ class DashboardPage extends StatelessWidget {
               ),
             ),
 
+            // Error Message
+            if (appProvider.errorMessage != null)
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.error.withOpacity(0.1),
+                  border: Border.all(color: AppColors.error),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.error_outline, color: AppColors.error),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        appProvider.errorMessage!,
+                        style: const TextStyle(color: AppColors.error),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.refresh, color: AppColors.error),
+                      onPressed: () => appProvider.loadAllApplications(),
+                    ),
+                  ],
+                ),
+              ),
+
             // Applications Table
             Expanded(
               child: Padding(
@@ -312,6 +340,39 @@ class _ApplicantDashboardWidgetState extends State<_ApplicantDashboardWidget> {
                 ],
               ),
             ),
+
+            // Error Message
+            if (appProvider.errorMessage != null)
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.error.withOpacity(0.1),
+                  border: Border.all(color: AppColors.error),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.error_outline, color: AppColors.error),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        appProvider.errorMessage!,
+                        style: const TextStyle(color: AppColors.error),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.refresh, color: AppColors.error),
+                      onPressed: () {
+                        final user = authProvider.user;
+                        if (user != null) {
+                          appProvider.loadUserApplications(user.uid);
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
 
             // Applications Table
             Expanded(
