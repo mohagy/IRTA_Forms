@@ -112,3 +112,4 @@ This allows Firebase Auth to work on your GitHub Pages site.
 **Note:** The first build may take longer. Subsequent builds are faster. The app will be automatically updated every time you push to the `main` branch.
 
 
+

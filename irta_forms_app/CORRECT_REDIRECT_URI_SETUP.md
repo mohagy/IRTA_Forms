@@ -64,3 +64,4 @@ http://localhost/__/auth/handler
 **If you don't see "Authorized redirect URIs" section, scroll down - it should be below the JavaScript origins section!**
 
 
+

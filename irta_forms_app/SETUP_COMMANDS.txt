@@ -27,3 +27,4 @@ Alternative: If you want to run the script, first run:
    Then run: .\setup_firebase.ps1
 
 
+

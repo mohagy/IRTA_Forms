@@ -70,3 +70,4 @@ The document will have:
 This links the Firebase Auth user to the Firestore users collection, making them visible in the User Management page.
 
 
+

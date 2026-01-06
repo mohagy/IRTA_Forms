@@ -12,6 +12,60 @@ import '../../providers/application_provider.dart';
 import '../../../services/storage_service.dart';
 import 'package:file_picker/file_picker.dart';
 
+class RepresentativeData {
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController idController = TextEditingController();
+  final TextEditingController addressController = TextEditingController();
+  DateTime? dob;
+  PlatformFile? publicProxyInstrumentFile;
+  bool isUploadingFile = false;
+
+  void dispose() {
+    nameController.dispose();
+    emailController.dispose();
+    phoneController.dispose();
+    idController.dispose();
+    addressController.dispose();
+  }
+}
+
+class VehicleData {
+  final TextEditingController plateController = TextEditingController();
+  final TextEditingController yearController = TextEditingController();
+  final TextEditingController bodyTypeController = TextEditingController();
+  final TextEditingController chassisController = TextEditingController();
+  final TextEditingController axlesController = TextEditingController();
+  final TextEditingController mtcController = TextEditingController();
+  final TextEditingController nwcController = TextEditingController();
+  final TextEditingController tareController = TextEditingController();
+  
+  String? type;
+  String? make;
+  
+  PlatformFile? registrationFile;
+  PlatformFile? revenueLicenceFile;
+  PlatformFile? fitnessCertificateFile;
+  PlatformFile? insuranceDocumentFile;
+  
+  bool isUploadingRegistration = false;
+  bool isUploadingLicence = false;
+  bool isUploadingFitness = false;
+  bool isUploadingInsurance = false;
+
+  void dispose() {
+    plateController.dispose();
+    yearController.dispose();
+    bodyTypeController.dispose();
+    chassisController.dispose();
+    axlesController.dispose();
+    mtcController.dispose();
+    nwcController.dispose();
+    tareController.dispose();
+  }
+}
+
 class NewApplicationPage extends StatefulWidget {
   const NewApplicationPage({super.key});
 
@@ -27,14 +81,7 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
   final _formKey = GlobalKey<FormState>();
   
   // Representative fields
-  final _representativeNameController = TextEditingController();
-  final _representativeEmailController = TextEditingController();
-  final _representativePhoneController = TextEditingController();
-  final _representativeIdController = TextEditingController();
-  final _representativeAddressController = TextEditingController();
-  DateTime? _representativeDob;
-  PlatformFile? _publicProxyInstrumentFile;
-  bool _isUploadingFile = false;
+  final List<RepresentativeData> _representatives = [RepresentativeData()];
   
   // Organization file upload
   PlatformFile? _companyRegistrationFile;
@@ -56,27 +103,7 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
   String _modalityOfTraffic = '';
   String _origin = '';
   String _destination = '';
-  final _vehiclePlateController = TextEditingController();
-  final _vehicleYearController = TextEditingController();
-  final _vehicleBodyTypeController = TextEditingController();
-  final _vehicleChassisController = TextEditingController();
-  final _vehicleAxlesController = TextEditingController();
-  final _vehicleMtcController = TextEditingController();
-  final _vehicleNwcController = TextEditingController();
-  final _vehicleTareController = TextEditingController();
-  
-  String? _vehicleType;
-  String? _vehicleMake;
-  
-  PlatformFile? _vehicleRegistrationFile;
-  PlatformFile? _revenueLicenceFile;
-  PlatformFile? _fitnessCertificateFile;
-  PlatformFile? _insuranceDocumentFile;
-  
-  bool _isUploadingRegistration = false;
-  bool _isUploadingLicence = false;
-  bool _isUploadingFitness = false;
-  bool _isUploadingInsurance = false;
+  final List<VehicleData> _vehicles = [VehicleData()];
   
   // Declarations
   bool _declarationAgreed = false;
@@ -84,11 +111,9 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
   @override
   void dispose() {
     _pageController.dispose();
-    _representativeNameController.dispose();
-    _representativeEmailController.dispose();
-    _representativePhoneController.dispose();
-    _representativeIdController.dispose();
-    _representativeAddressController.dispose();
+    for (var rep in _representatives) {
+      rep.dispose();
+    }
     _firmNameController.dispose();
     _firmAddressController.dispose();
     _legalRepresentativeController.dispose();
@@ -96,14 +121,9 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
     _companyRegController.dispose();
     _telephoneController.dispose();
     _faxController.dispose();
-    _vehiclePlateController.dispose();
-    _vehicleYearController.dispose();
-    _vehicleBodyTypeController.dispose();
-    _vehicleChassisController.dispose();
-    _vehicleAxlesController.dispose();
-    _vehicleMtcController.dispose();
-    _vehicleNwcController.dispose();
-    _vehicleTareController.dispose();
+    for (var vehicle in _vehicles) {
+      vehicle.dispose();
+    }
     super.dispose();
   }
 
@@ -155,22 +175,22 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
     // Collect all form data
     final applicationData = {
       'formType': 'Business IRTA', // Default, could be made configurable
-      'applicantName': _representativeNameController.text.isNotEmpty 
-          ? _representativeNameController.text 
+      'applicantName': _representatives.isNotEmpty && _representatives[0].nameController.text.isNotEmpty 
+          ? _representatives[0].nameController.text 
           : user.displayName ?? user.email ?? 'Unknown',
       'nationality': null, // Not in current form
       'purpose': null, // Could be added later
       
       // Representative information
-      'representative': {
-        'name': _representativeNameController.text,
-        'email': _representativeEmailController.text,
-        'phone': _representativePhoneController.text,
-        'idNumber': _representativeIdController.text,
-        'address': _representativeAddressController.text,
-        'dateOfBirth': _representativeDob?.toIso8601String(),
-        'publicProxyInstrumentFileName': _publicProxyInstrumentFile?.name,
-      },
+      'representatives': _representatives.map((rep) => {
+        'name': rep.nameController.text,
+        'email': rep.emailController.text,
+        'phone': rep.phoneController.text,
+        'idNumber': rep.idController.text,
+        'address': rep.addressController.text,
+        'dateOfBirth': rep.dob?.toIso8601String(),
+        'publicProxyInstrumentFileName': rep.publicProxyInstrumentFile?.name,
+      }).toList(),
       
       // Organization information
       'organization': {
@@ -190,20 +210,22 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
         'modalityOfTraffic': _modalityOfTraffic,
         'origin': _origin,
         'destination': _destination,
-        'vehiclePlate': _vehiclePlateController.text,
-        'vehicleType': _vehicleType,
-        'vehicleYear': _vehicleYearController.text,
-        'vehicleMake': _vehicleMake,
-        'vehicleBodyType': _vehicleBodyTypeController.text,
-        'vehicleChassis': _vehicleChassisController.text,
-        'vehicleAxles': _vehicleAxlesController.text,
-        'vehicleMtc': _vehicleMtcController.text,
-        'vehicleNwc': _vehicleNwcController.text,
-        'vehicleTare': _vehicleTareController.text,
-        'vehicleRegistrationFileName': _vehicleRegistrationFile?.name,
-        'revenueLicenceFileName': _revenueLicenceFile?.name,
-        'fitnessCertificateFileName': _fitnessCertificateFile?.name,
-        'thirdPartyInsuranceFileName': _insuranceDocumentFile?.name,
+        'vehicles': _vehicles.map((v) => {
+          'vehiclePlate': v.plateController.text,
+          'vehicleType': v.type,
+          'vehicleYear': v.yearController.text,
+          'vehicleMake': v.make,
+          'vehicleBodyType': v.bodyTypeController.text,
+          'vehicleChassis': v.chassisController.text,
+          'vehicleAxles': v.axlesController.text,
+          'vehicleMtc': v.mtcController.text,
+          'vehicleNwc': v.nwcController.text,
+          'vehicleTare': v.tareController.text,
+          'vehicleRegistrationFileName': v.registrationFile?.name,
+          'revenueLicenceFileName': v.revenueLicenceFile?.name,
+          'fitnessCertificateFileName': v.fitnessCertificateFile?.name,
+          'thirdPartyInsuranceFileName': v.insuranceDocumentFile?.name,
+        }).toList(),
       },
       
       // Metadata
@@ -248,21 +270,21 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
     }
   }
 
-  Future<void> _selectDate(BuildContext context) async {
+  Future<void> _selectDate(BuildContext context, int index) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: _representativeDob ?? DateTime(2000),
+      initialDate: _representatives[index].dob ?? DateTime(2000),
       firstDate: DateTime(1950),
       lastDate: DateTime.now().subtract(const Duration(days: 365 * 21)),
     );
-    if (picked != null && picked != _representativeDob) {
+    if (picked != null && picked != _representatives[index].dob) {
       setState(() {
-        _representativeDob = picked;
+        _representatives[index].dob = picked;
       });
     }
   }
 
-  Future<void> _pickPublicProxyInstrument() async {
+  Future<void> _pickPublicProxyInstrument(int index) async {
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
@@ -289,7 +311,7 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
         }
 
         setState(() {
-          _publicProxyInstrumentFile = file;
+          _representatives[index].publicProxyInstrumentFile = file;
         });
       }
     } catch (e) {
@@ -346,7 +368,7 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
     }
   }
 
-  Future<void> _pickVehicleRegistrationFile() async {
+  Future<void> _pickVehicleRegistrationFile(int index) async {
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
@@ -367,7 +389,7 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
           return;
         }
         setState(() {
-          _vehicleRegistrationFile = file;
+          _vehicles[index].registrationFile = file;
         });
       }
     } catch (e) {
@@ -379,7 +401,7 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
     }
   }
 
-  Future<void> _pickRevenueLicenceFile() async {
+  Future<void> _pickRevenueLicenceFile(int index) async {
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
@@ -400,7 +422,7 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
           return;
         }
         setState(() {
-          _revenueLicenceFile = file;
+          _vehicles[index].revenueLicenceFile = file;
         });
       }
     } catch (e) {
@@ -412,7 +434,7 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
     }
   }
 
-  Future<void> _pickFitnessCertificateFile() async {
+  Future<void> _pickFitnessCertificateFile(int index) async {
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
@@ -433,7 +455,7 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
           return;
         }
         setState(() {
-          _fitnessCertificateFile = file;
+          _vehicles[index].fitnessCertificateFile = file;
         });
       }
     } catch (e) {
@@ -445,7 +467,7 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
     }
   }
 
-  Future<void> _pickInsuranceDocumentFile() async {
+  Future<void> _pickInsuranceDocumentFile(int index) async {
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
@@ -466,7 +488,7 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
           return;
         }
         setState(() {
-          _insuranceDocumentFile = file;
+          _vehicles[index].insuranceDocumentFile = file;
         });
       }
     } catch (e) {
@@ -896,337 +918,335 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
               ),
             ),
             const SizedBox(height: 32),
-            Container(
-              padding: const EdgeInsets.all(30),
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                border: Border.all(color: AppColors.border),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Center(
-                          child: Text(
-                            '1',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
+            
+            ..._representatives.asMap().entries.map((entry) {
+              final index = entry.key;
+              final rep = entry.value;
+              return Container(
+                margin: const EdgeInsets.only(bottom: 24),
+                padding: const EdgeInsets.all(30),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  border: Border.all(color: AppColors.border),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              width: 32,
+                              height: 32,
+                              decoration: BoxDecoration(
+                                color: AppColors.primary,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  '${index + 1}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
                             ),
+                            const SizedBox(width: 12),
+                            Text(
+                              'Representative ${index + 1}',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (_representatives.length > 1)
+                          IconButton(
+                            icon: const Icon(Icons.delete_outline, color: AppColors.error),
+                            onPressed: () {
+                              setState(() {
+                                rep.dispose();
+                                _representatives.removeAt(index);
+                              });
+                            },
+                            tooltip: 'Remove Representative',
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    GridView.count(
+                      crossAxisCount: 2,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      crossAxisSpacing: 20,
+                      mainAxisSpacing: 20,
+                      childAspectRatio: 2.5,
+                      children: [
+                        TextFormField(
+                          controller: rep.nameController,
+                          decoration: const InputDecoration(
+                            labelText: 'Full Name *',
+                            hintText: 'Enter representative name',
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter full name';
+                            }
+                            return null;
+                          },
+                        ),
+                        TextFormField(
+                          controller: rep.emailController,
+                          decoration: const InputDecoration(
+                            labelText: 'Email Address *',
+                            hintText: 'representative@example.com',
+                          ),
+                          keyboardType: TextInputType.emailAddress,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter email address';
+                            }
+                            if (!value.contains('@')) {
+                              return 'Please enter a valid email';
+                            }
+                            return null;
+                          },
+                        ),
+                        TextFormField(
+                          controller: rep.phoneController,
+                          decoration: const InputDecoration(
+                            labelText: 'Phone Number *',
+                            hintText: 'e.g., +592-226-2444',
+                          ),
+                          keyboardType: TextInputType.phone,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter phone number';
+                            }
+                            return null;
+                          },
+                        ),
+                        TextFormField(
+                          controller: rep.idController,
+                          decoration: const InputDecoration(
+                            labelText: 'National ID / Passport',
+                            hintText: 'Enter ID or passport number',
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      const Text(
-                        'Primary Representative',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  GridView.count(
-                    crossAxisCount: 2,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    crossAxisSpacing: 20,
-                    mainAxisSpacing: 20,
-                    childAspectRatio: 2.5,
-                    children: [
-                      TextFormField(
-                        controller: _representativeNameController,
-                        decoration: const InputDecoration(
-                          labelText: 'Full Name *',
-                          hintText: 'Enter representative name',
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter full name';
-                          }
-                          return null;
-                        },
-                      ),
-                      TextFormField(
-                        controller: _representativeEmailController,
-                        decoration: const InputDecoration(
-                          labelText: 'Email Address *',
-                          hintText: 'representative@example.com',
-                        ),
-                        keyboardType: TextInputType.emailAddress,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter email address';
-                          }
-                          if (!value.contains('@')) {
-                            return 'Please enter a valid email';
-                          }
-                          return null;
-                        },
-                      ),
-                      TextFormField(
-                        controller: _representativePhoneController,
-                        decoration: const InputDecoration(
-                          labelText: 'Phone Number *',
-                          hintText: 'e.g., +592-226-2444',
-                        ),
-                        keyboardType: TextInputType.phone,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter phone number';
-                          }
-                          return null;
-                        },
-                      ),
-                      TextFormField(
-                        controller: _representativeIdController,
-                        decoration: const InputDecoration(
-                          labelText: 'National ID / Passport',
-                          hintText: 'Enter ID or passport number',
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: InkWell(
-                          onTap: () => _selectDate(context),
-                          child: InputDecorator(
-                            decoration: InputDecoration(
-                              labelText: 'Date of Birth *',
-                              suffixIcon: const Icon(Icons.calendar_today),
-                            ),
-                            child: Text(
-                              _representativeDob != null
-                                  ? '${_representativeDob!.day}/${_representativeDob!.month}/${_representativeDob!.year}'
-                                  : 'Select date',
-                              style: TextStyle(
-                                color: _representativeDob != null
-                                    ? AppColors.textPrimary
-                                    : AppColors.textTertiary,
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: InkWell(
+                            onTap: () => _selectDate(context, index),
+                            child: InputDecorator(
+                              decoration: const InputDecoration(
+                                labelText: 'Date of Birth *',
+                                suffixIcon: Icon(Icons.calendar_today),
+                              ),
+                              child: Text(
+                                rep.dob != null
+                                    ? '${rep.dob!.day}/${rep.dob!.month}/${rep.dob!.year}'
+                                    : 'Select date',
+                                style: TextStyle(
+                                  color: rep.dob != null
+                                      ? AppColors.textPrimary
+                                      : AppColors.textTertiary,
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 20),
-                      const Expanded(child: SizedBox()),
-                    ],
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(top: 4, left: 12),
-                    child: Text(
-                      'Must be 21 years or older',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.textTertiary,
-                      ),
+                        const SizedBox(width: 20),
+                        const Expanded(child: SizedBox()),
+                      ],
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  TextFormField(
-                    controller: _representativeAddressController,
-                    decoration: const InputDecoration(
-                      labelText: 'Residential Address *',
-                      hintText: 'Enter residential address',
-                    ),
-                    maxLines: 3,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter residential address';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 24),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Public Proxy Instrument',
+                    const Padding(
+                      padding: EdgeInsets.only(top: 4, left: 12),
+                      child: Text(
+                        'Must be 21 years or older',
                         style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.textPrimary,
+                          fontSize: 12,
+                          color: AppColors.textTertiary,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      InkWell(
-                        onTap: _isUploadingFile ? null : _pickPublicProxyInstrument,
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: AppColors.background,
-                            border: Border.all(
-                              color: _publicProxyInstrumentFile != null
-                                  ? AppColors.primary
-                                  : AppColors.border,
-                              width: 2,
-                              style: BorderStyle.solid,
-                            ),
-                            borderRadius: BorderRadius.circular(8),
+                    ),
+                    const SizedBox(height: 20),
+                    TextFormField(
+                      controller: rep.addressController,
+                      decoration: const InputDecoration(
+                        labelText: 'Residential Address *',
+                        hintText: 'Enter residential address',
+                      ),
+                      maxLines: 3,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter residential address';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Public Proxy Instrument',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.textPrimary,
                           ),
-                          child: Column(
-                            children: [
-                              if (_isUploadingFile)
-                                const Column(
-                                  children: [
-                                    CircularProgressIndicator(),
-                                    SizedBox(height: 12),
-                                    Text(
-                                      'Uploading...',
-                                      style: TextStyle(
-                                        color: AppColors.textSecondary,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              else if (_publicProxyInstrumentFile != null)
-                                Column(
-                                  children: [
-                                    const Icon(
-                                      Icons.check_circle,
-                                      color: AppColors.success,
-                                      size: 48,
-                                    ),
-                                    const SizedBox(height: 12),
-                                    Text(
-                                      _publicProxyInstrumentFile!.name,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                        color: AppColors.textPrimary,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    if (_publicProxyInstrumentFile!.size > 0)
-                                      Padding(
-                                        padding: const EdgeInsets.only(top: 4),
-                                        child: Text(
-                                          '${(_publicProxyInstrumentFile!.size / (1024 * 1024)).toStringAsFixed(2)} MB',
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            color: AppColors.textTertiary,
-                                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        InkWell(
+                          onTap: rep.isUploadingFile ? null : () => _pickPublicProxyInstrument(index),
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: AppColors.background,
+                              border: Border.all(
+                                color: rep.publicProxyInstrumentFile != null
+                                    ? AppColors.primary
+                                    : AppColors.border,
+                                width: 2,
+                                style: BorderStyle.solid,
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Column(
+                              children: [
+                                if (rep.isUploadingFile)
+                                  const Column(
+                                    children: [
+                                      CircularProgressIndicator(),
+                                      SizedBox(height: 12),
+                                      Text(
+                                        'Uploading...',
+                                        style: TextStyle(
+                                          color: AppColors.textSecondary,
+                                          fontSize: 14,
                                         ),
                                       ),
-                                    const SizedBox(height: 8),
-                                    TextButton.icon(
-                                      onPressed: () {
-                                        setState(() {
-                                          _publicProxyInstrumentFile = null;
-                                        });
-                                      },
-                                      icon: const Icon(Icons.delete_outline, size: 18),
-                                      label: const Text('Remove'),
-                                      style: TextButton.styleFrom(
-                                        foregroundColor: AppColors.error,
+                                    ],
+                                  )
+                                else if (rep.publicProxyInstrumentFile != null)
+                                  Column(
+                                    children: [
+                                      const Icon(
+                                        Icons.check_circle,
+                                        color: AppColors.success,
+                                        size: 48,
                                       ),
-                                    ),
-                                  ],
-                                )
-                              else
-                                Column(
-                                  children: [
-                                    const Icon(
-                                      Icons.cloud_upload,
-                                      size: 48,
-                                      color: AppColors.textTertiary,
-                                    ),
-                                    const SizedBox(height: 12),
-                                    const Text(
-                                      'Click to upload or drag and drop',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                        color: AppColors.textSecondary,
+                                      const SizedBox(height: 12),
+                                      Text(
+                                        rep.publicProxyInstrumentFile!.name,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w500,
+                                          color: AppColors.textPrimary,
+                                        ),
+                                        textAlign: TextAlign.center,
                                       ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    const Text(
-                                      'PDF or Image (Max 10MB)',
-                                      style: TextStyle(
-                                        fontSize: 13,
+                                      if (rep.publicProxyInstrumentFile!.size > 0)
+                                        Padding(
+                                          padding: const EdgeInsets.only(top: 4),
+                                          child: Text(
+                                            '${(rep.publicProxyInstrumentFile!.size / (1024 * 1024)).toStringAsFixed(2)} MB',
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              color: AppColors.textTertiary,
+                                            ),
+                                          ),
+                                        ),
+                                      const SizedBox(height: 8),
+                                      TextButton.icon(
+                                        onPressed: () {
+                                          setState(() {
+                                            rep.publicProxyInstrumentFile = null;
+                                          });
+                                        },
+                                        icon: const Icon(Icons.delete_outline, size: 18),
+                                        label: const Text('Remove'),
+                                        style: TextButton.styleFrom(
+                                          foregroundColor: AppColors.error,
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                else
+                                  Column(
+                                    children: [
+                                      const Icon(
+                                        Icons.cloud_upload,
+                                        size: 48,
                                         color: AppColors.textTertiary,
                                       ),
-                                    ),
-                                  ],
-                                ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.only(top: 8, left: 4),
-                        child: Text(
-                          'Upload Public Proxy Instrument granting legal Representative in Brazil full powers (English & Portuguese)',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.textTertiary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 32),
-            Builder(
-              builder: (BuildContext context) {
-                return TextButton.icon(
-                  onPressed: () {
-                    // Show dialog for adding another representative
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text('Add Another Representative'),
-                          content: const Text(
-                            'The ability to add multiple representatives is currently being developed. '
-                            'For now, you can proceed with a single representative. '
-                            'Multiple representatives will be available in a future update.',
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: const Text('OK'),
+                                      const SizedBox(height: 12),
+                                      const Text(
+                                        'Click to upload or drag and drop',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w500,
+                                          color: AppColors.textSecondary,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      const Text(
+                                        'PDF or Image (Max 10MB)',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: AppColors.textTertiary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                              ],
                             ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                  icon: const Icon(Icons.add, size: 20),
-                  label: const Text(
-                    'Add Another Representative',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.only(top: 8, left: 4),
+                          child: Text(
+                            'Upload Public Proxy Instrument granting legal Representative in Brazil full powers (English & Portuguese)',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textTertiary,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  style: TextButton.styleFrom(
-                    foregroundColor: AppColors.textSecondary,
-                    padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
-                    alignment: Alignment.centerLeft,
-                  ),
-                );
+                  ],
+                ),
+              );
+            }).toList(),
+            
+            TextButton.icon(
+              onPressed: () {
+                setState(() {
+                  _representatives.add(RepresentativeData());
+                });
               },
+              icon: const Icon(Icons.add, size: 20),
+              label: const Text(
+                'Add Another Representative',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.textSecondary,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
             ),
           ],
         ),
@@ -1665,160 +1685,192 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 32),
-                  const Text(
-                    'Vehicle Information',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Add vehicles authorized for international road transport.',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: AppColors.textTertiary,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppColors.background,
-                      border: Border.all(color: AppColors.border),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                ],
+              ),
+            ),
+            const SizedBox(height: 32),
+            const Text(
+              'Vehicle Information',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Add vehicles authorized for international road transport.',
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.textTertiary,
+              ),
+            ),
+            const SizedBox(height: 16),
+            
+            ..._vehicles.asMap().entries.map((entry) {
+              final index = entry.key;
+              final vehicle = entry.value;
+              return Container(
+                margin: const EdgeInsets.only(bottom: 24),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.background,
+                  border: Border.all(color: AppColors.border),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          'New Vehicle Details',
-                          style: TextStyle(
+                        Text(
+                          'Vehicle ${index + 1}',
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             color: AppColors.textPrimary,
                           ),
                         ),
-                        const SizedBox(height: 20),
-                        GridView.count(
-                          crossAxisCount: 2,
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          crossAxisSpacing: 20,
-                          mainAxisSpacing: 20,
-                          childAspectRatio: 2.5,
-                          children: [
-                            DropdownButtonFormField<String>(
-                              decoration: const InputDecoration(labelText: 'Vehicle Type *'),
-                              value: _vehicleType,
-                              items: ['Bus', 'Truck', 'Van', 'Other']
-                                  .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                                  .toList(),
-                              onChanged: (v) => setState(() => _vehicleType = v),
-                            ),
-                            TextFormField(
-                              controller: _vehicleYearController,
-                              decoration: const InputDecoration(labelText: 'Year', hintText: 'e.g., 2020'),
-                              keyboardType: TextInputType.number,
-                            ),
-                            DropdownButtonFormField<String>(
-                              decoration: const InputDecoration(labelText: 'Make'),
-                              value: _vehicleMake,
-                              items: ['VW', 'Mercedes', 'Toyota', 'Ford', 'Other']
-                                  .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                                  .toList(),
-                              onChanged: (v) => setState(() => _vehicleMake = v),
-                            ),
-                            TextFormField(
-                              controller: _vehicleBodyTypeController,
-                              decoration: const InputDecoration(labelText: 'Body Type', hintText: 'e.g., Flatbed'),
-                            ),
-                            TextFormField(
-                              controller: _vehicleChassisController,
-                              decoration: const InputDecoration(labelText: 'Chassis Number'),
-                            ),
-                            TextFormField(
-                              controller: _vehicleAxlesController,
-                              decoration: const InputDecoration(labelText: 'Axles / Eixos'),
-                              keyboardType: TextInputType.number,
-                            ),
-                            TextFormField(
-                              controller: _vehicleMtcController,
-                              decoration: const InputDecoration(
-                                labelText: 'MTC (Maximum Total Capacity) / CMT',
-                                hintText: 'MTC in tons',
-                              ),
-                            ),
-                            TextFormField(
-                              controller: _vehicleNwcController,
-                              decoration: const InputDecoration(
-                                labelText: 'NWC (Net Weight Capacity) / CCU',
-                                hintText: 'NWC in tons',
-                              ),
-                            ),
-                            TextFormField(
-                              controller: _vehicleTareController,
-                              decoration: const InputDecoration(
-                                labelText: 'Tare Weight / TARA',
-                                hintText: 'Tare in tons',
-                              ),
-                            ),
-                            TextFormField(
-                              controller: _vehiclePlateController,
-                              decoration: const InputDecoration(labelText: 'Plate Number / Placa *'),
-                              validator: (v) => v == null || v.isEmpty ? 'Required' : null,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 32),
-                        const Text(
-                          'Vehicle Documents',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-                        ),
-                        const SizedBox(height: 16),
-                        _buildFileUploader(
-                          label: '1. Vehicle Registration Certificate *',
-                          file: _vehicleRegistrationFile,
-                          onTap: _pickVehicleRegistrationFile,
-                          isUploading: _isUploadingRegistration,
-                        ),
-                        const SizedBox(height: 12),
-                        _buildFileUploader(
-                          label: '2. Revenue Licence *',
-                          file: _revenueLicenceFile,
-                          onTap: _pickRevenueLicenceFile,
-                          isUploading: _isUploadingLicence,
-                        ),
-                        const SizedBox(height: 12),
-                        _buildFileUploader(
-                          label: '3. Certificate of Fitness *',
-                          file: _fitnessCertificateFile,
-                          onTap: _pickFitnessCertificateFile,
-                          isUploading: _isUploadingFitness,
-                        ),
-                        const SizedBox(height: 12),
-                        _buildFileUploader(
-                          label: '4. Third Party Insurance *',
-                          file: _insuranceDocumentFile,
-                          onTap: _pickInsuranceDocumentFile,
-                          isUploading: _isUploadingInsurance,
-                        ),
-                        const SizedBox(height: 24),
-                        TextButton.icon(
-                          onPressed: null, // Disabled as per mockup
-                          icon: const Icon(Icons.add, size: 20),
-                          label: const Text('Add Another Vehicle'),
-                          style: TextButton.styleFrom(
-                            foregroundColor: AppColors.textTertiary,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
+                        if (_vehicles.length > 1)
+                          IconButton(
+                            icon: const Icon(Icons.delete_outline, color: AppColors.error),
+                            onPressed: () {
+                              setState(() {
+                                vehicle.dispose();
+                                _vehicles.removeAt(index);
+                              });
+                            },
+                            tooltip: 'Remove Vehicle',
                           ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    GridView.count(
+                      crossAxisCount: 2,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      crossAxisSpacing: 20,
+                      mainAxisSpacing: 20,
+                      childAspectRatio: 2.5,
+                      children: [
+                        DropdownButtonFormField<String>(
+                          decoration: const InputDecoration(labelText: 'Vehicle Type *'),
+                          value: vehicle.type,
+                          items: ['Bus', 'Truck', 'Van', 'Other']
+                              .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                              .toList(),
+                          onChanged: (v) => setState(() => vehicle.type = v),
+                        ),
+                        TextFormField(
+                          controller: vehicle.yearController,
+                          decoration: const InputDecoration(labelText: 'Year', hintText: 'e.g., 2020'),
+                          keyboardType: TextInputType.number,
+                        ),
+                        DropdownButtonFormField<String>(
+                          decoration: const InputDecoration(labelText: 'Make'),
+                          value: vehicle.make,
+                          items: ['VW', 'Mercedes', 'Toyota', 'Ford', 'Other']
+                              .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                              .toList(),
+                          onChanged: (v) => setState(() => vehicle.make = v),
+                        ),
+                        TextFormField(
+                          controller: vehicle.bodyTypeController,
+                          decoration: const InputDecoration(labelText: 'Body Type', hintText: 'e.g., Flatbed'),
+                        ),
+                        TextFormField(
+                          controller: vehicle.chassisController,
+                          decoration: const InputDecoration(labelText: 'Chassis Number'),
+                        ),
+                        TextFormField(
+                          controller: vehicle.axlesController,
+                          decoration: const InputDecoration(labelText: 'Axles / Eixos'),
+                          keyboardType: TextInputType.number,
+                        ),
+                        TextFormField(
+                          controller: vehicle.mtcController,
+                          decoration: const InputDecoration(
+                            labelText: 'MTC (Maximum Total Capacity) / CMT',
+                            hintText: 'MTC in tons',
+                          ),
+                        ),
+                        TextFormField(
+                          controller: vehicle.nwcController,
+                          decoration: const InputDecoration(
+                            labelText: 'NWC (Net Weight Capacity) / CCU',
+                            hintText: 'NWC in tons',
+                          ),
+                        ),
+                        TextFormField(
+                          controller: vehicle.tareController,
+                          decoration: const InputDecoration(
+                            labelText: 'Tare Weight / TARA',
+                            hintText: 'Tare in tons',
+                          ),
+                        ),
+                        TextFormField(
+                          controller: vehicle.plateController,
+                          decoration: const InputDecoration(labelText: 'Plate Number / Placa *'),
+                          validator: (v) => v == null || v.isEmpty ? 'Required' : null,
                         ),
                       ],
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 32),
+                    const Text(
+                      'Vehicle Documents',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                    ),
+                    const SizedBox(height: 16),
+                    _buildFileUploader(
+                      label: '1. Vehicle Registration Certificate *',
+                      file: vehicle.registrationFile,
+                      onTap: () => _pickVehicleRegistrationFile(index),
+                      isUploading: vehicle.isUploadingRegistration,
+                    ),
+                    const SizedBox(height: 12),
+                    _buildFileUploader(
+                      label: '2. Revenue Licence *',
+                      file: vehicle.revenueLicenceFile,
+                      onTap: () => _pickRevenueLicenceFile(index),
+                      isUploading: vehicle.isUploadingLicence,
+                    ),
+                    const SizedBox(height: 12),
+                    _buildFileUploader(
+                      label: '3. Certificate of Fitness *',
+                      file: vehicle.fitnessCertificateFile,
+                      onTap: () => _pickFitnessCertificateFile(index),
+                      isUploading: vehicle.isUploadingFitness,
+                    ),
+                    const SizedBox(height: 12),
+                    _buildFileUploader(
+                      label: '4. Third Party Insurance *',
+                      file: vehicle.insuranceDocumentFile,
+                      onTap: () => _pickInsuranceDocumentFile(index),
+                      isUploading: vehicle.isUploadingInsurance,
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+            
+            TextButton.icon(
+              onPressed: () {
+                setState(() {
+                  _vehicles.add(VehicleData());
+                });
+              },
+              icon: const Icon(Icons.add, size: 20),
+              label: const Text(
+                'Add Another Vehicle',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.textSecondary,
+                padding: const EdgeInsets.symmetric(vertical: 12),
               ),
             ),
           ],

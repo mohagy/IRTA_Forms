@@ -95,3 +95,4 @@ Check your Firebase Console → Authentication → Settings for the exact auth d
 **Once you update the redirect URIs, the error should be resolved!**
 
 
+
