@@ -301,26 +301,103 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
 
   Future<void> _submitApplication(BuildContext context, AuthProvider authProvider, ApplicationProvider appProvider) async {
     if (_formKey.currentState!.validate() && _declarationAgreed) {
-      // Save draft first (silently)
-      final success = await _saveDraft(context, authProvider, appProvider, silent: true);
-      
-      if (success && _draftId != null && mounted) {
-        // Submit application
-        final submitted = await appProvider.submitApplication(_draftId!);
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+
+      try {
+        // Save draft first (silently)
+        final success = await _saveDraft(context, authProvider, appProvider, silent: true);
         
-        if (submitted && mounted) {
+        if (success && _draftId != null && mounted) {
+          // Submit application
+          final submitted = await appProvider.submitApplication(_draftId!);
+          
+          // Close loading dialog
+          if (mounted) {
+            Navigator.of(context).pop();
+          }
+          
+          if (submitted && mounted) {
+            // Reload user applications to ensure the submitted application appears
+            final user = authProvider.user;
+            if (user != null) {
+              appProvider.loadUserApplications(user.uid, forceRefresh: true);
+            }
+
+            // Show success dialog
+            await showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) => AlertDialog(
+                title: const Row(
+                  children: [
+                    Icon(Icons.check_circle, color: AppColors.statusCompleted, size: 32),
+                    SizedBox(width: 12),
+                    Expanded(child: Text('Application Submitted!')),
+                  ],
+                ),
+                content: const Text(
+                  'Your application has been submitted successfully. You can view it in "My Applications".',
+                  style: TextStyle(fontSize: 16),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      // Navigate to application detail page
+                      context.go('${AppConstants.routeApplications}/${_draftId}');
+                    },
+                    child: const Text('View Application'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      // Navigate to dashboard
+                      context.go(AppConstants.routeDashboard);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                    ),
+                    child: const Text('Go to Dashboard'),
+                  ),
+                ],
+              ),
+            );
+          } else if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Failed to submit application. Please try again.'),
+                backgroundColor: AppColors.error,
+                duration: Duration(seconds: 5),
+              ),
+            );
+          }
+        } else if (mounted) {
+          // Close loading dialog if still open
+          Navigator.of(context).pop();
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Application submitted successfully!'),
-              backgroundColor: AppColors.statusCompleted,
+              content: Text('Failed to save application. Please try again.'),
+              backgroundColor: AppColors.error,
+              duration: Duration(seconds: 5),
             ),
           );
-          context.go(AppConstants.routeDashboard);
-        } else if (mounted) {
+        }
+      } catch (e) {
+        // Close loading dialog if still open
+        if (mounted) {
+          Navigator.of(context).pop();
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Failed to submit application. Please try again.'),
+            SnackBar(
+              content: Text('Error submitting application: ${e.toString()}'),
               backgroundColor: AppColors.error,
+              duration: const Duration(seconds: 5),
             ),
           );
         }
@@ -330,6 +407,7 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
         const SnackBar(
           content: Text('Please agree to the declarations'),
           backgroundColor: AppColors.error,
+          duration: Duration(seconds: 3),
         ),
       );
     }

@@ -203,7 +203,7 @@ class DashboardPage extends StatelessWidget {
                         applications: applications,
                         onRowTap: (app) {
                           // Navigate to application detail
-                          // context.push('/applications/${app.id}');
+                          context.push('/applications/${app.id}');
                         },
                         isApplicantView: false,
                       ),
@@ -244,6 +244,20 @@ class _ApplicantDashboardWidgetState extends State<_ApplicantDashboardWidget> {
         _hasInitialized = true;
       }
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Reload applications when returning to this page
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final user = widget.authProvider.user;
+      if (user != null && mounted) {
+        final appProvider = Provider.of<ApplicationProvider>(context, listen: false);
+        // Force reload by canceling and restarting the stream
+        appProvider.loadUserApplications(user.uid);
+      }
+    });
   }
 
   @override
@@ -384,7 +398,7 @@ class _ApplicantDashboardWidgetState extends State<_ApplicantDashboardWidget> {
                         applications: applications,
                         onRowTap: (app) {
                           // Navigate to application detail
-                          // context.push('/applications/${app.id}');
+                          context.push('/applications/${app.id}');
                         },
                         isApplicantView: true,
                       ),

@@ -28,9 +28,9 @@ class ApplicationProvider with ChangeNotifier {
   }
 
   // Load applications for a specific user (applicant view)
-  void loadUserApplications(String userId) {
-    // Prevent loading if already loading for the same user
-    if (_currentUserId == userId && _applicationsSubscription != null) {
+  void loadUserApplications(String userId, {bool forceRefresh = false}) {
+    // Prevent loading if already loading for the same user (unless forcing refresh)
+    if (!forceRefresh && _currentUserId == userId && _applicationsSubscription != null) {
       return;
     }
 
@@ -193,6 +193,17 @@ class ApplicationProvider with ChangeNotifier {
     } catch (e) {
       _errorMessage = e.toString();
       _isLoading = false;
+      notifyListeners();
+      return null;
+    }
+  }
+
+  // Get application by ID
+  Future<ApplicationModel?> getApplicationById(String applicationId) async {
+    try {
+      return await _repository.getApplicationById(applicationId);
+    } catch (e) {
+      _errorMessage = e.toString();
       notifyListeners();
       return null;
     }

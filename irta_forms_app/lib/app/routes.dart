@@ -16,6 +16,7 @@ import '../../presentation/pages/admin/vehicle_approval_page.dart';
 import '../../presentation/pages/admin/system_config_page.dart';
 import '../../presentation/pages/admin/database_access_page.dart';
 import '../../presentation/pages/admin/system_logs_page.dart';
+import '../../presentation/pages/applications/application_detail_page.dart';
 
 class AppRoutes {
   static GoRouter getRouter() {
@@ -41,6 +42,13 @@ class AppRoutes {
         GoRoute(
           path: AppConstants.routeNewApplication,
           builder: (context, state) => const NewApplicationPage(),
+        ),
+        GoRoute(
+          path: '/applications/:id',
+          builder: (context, state) {
+            final applicationId = state.pathParameters['id']!;
+            return ApplicationDetailPage(applicationId: applicationId);
+          },
         ),
         GoRoute(
           path: '/individual-irta',
