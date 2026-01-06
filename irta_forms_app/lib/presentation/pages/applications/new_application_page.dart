@@ -569,12 +569,14 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
 
   Widget _buildNewApplicationForm(BuildContext context, AuthProvider authProvider, user, String userName, String userEmail, String userRole) {
 
-        // Pre-fill representative info from user profile
-    if (_representativeNameController.text.isEmpty && userName != 'User') {
-      _representativeNameController.text = userName;
-    }
-    if (_representativeEmailController.text.isEmpty && userEmail.isNotEmpty) {
-      _representativeEmailController.text = userEmail;
+    // Pre-fill representative info from user profile
+    if (_representatives.isNotEmpty) {
+      if (_representatives[0].nameController.text.isEmpty && userName != 'User') {
+        _representatives[0].nameController.text = userName;
+      }
+      if (_representatives[0].emailController.text.isEmpty && userEmail.isNotEmpty) {
+        _representatives[0].emailController.text = userEmail;
+      }
     }
 
     return MainLayout(
