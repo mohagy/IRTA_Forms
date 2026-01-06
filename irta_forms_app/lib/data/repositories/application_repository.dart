@@ -84,12 +84,16 @@ class ApplicationRepository {
     return _firestore
         .collection(_collection)
         .where('userId', isEqualTo: userId)
-        .orderBy('submissionDate', descending: true)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs
+      final applications = snapshot.docs
           .map((doc) => ApplicationModel.fromMap(doc.data(), doc.id))
           .toList();
+      
+      // Sort by submissionDate descending (in memory since we can't use orderBy without index)
+      applications.sort((a, b) => b.submissionDate.compareTo(a.submissionDate));
+      
+      return applications;
     });
   }
 
@@ -152,6 +156,7 @@ class ApplicationRepository {
     }
   }
 }
+
 
 
 
