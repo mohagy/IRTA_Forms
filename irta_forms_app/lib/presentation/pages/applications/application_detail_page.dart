@@ -249,6 +249,12 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
                   ],
                 ),
 
+                // Documents Section (Files)
+                if (app.applicationData != null) ...[
+                  const SizedBox(height: 24),
+                  _buildDocumentsSection(app.applicationData!),
+                ],
+
                 // Detailed Application Data
                 if (app.applicationData != null) ...[
                   const SizedBox(height: 24),
@@ -454,6 +460,193 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
           ),
           const SizedBox(height: 8),
           ...children,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDocumentsSection(Map<String, dynamic> data) {
+    final List<Map<String, String>> documents = [];
+
+    // Collect representative files
+    if (data['representatives'] != null) {
+      final representatives = data['representatives'] as List;
+      for (int i = 0; i < representatives.length; i++) {
+        final rep = representatives[i] as Map<String, dynamic>;
+        if (rep['publicProxyInstrumentFileName'] != null) {
+          documents.add({
+            'category': 'Representative ${i + 1}',
+            'type': 'Public Proxy Instrument',
+            'fileName': rep['publicProxyInstrumentFileName'],
+            'fileUrl': rep['publicProxyInstrumentFileUrl'] ?? '',
+          });
+        }
+      }
+    }
+
+    // Collect organization file
+    if (data['organization'] != null) {
+      final org = data['organization'] as Map<String, dynamic>;
+      if (org['companyRegistrationFileName'] != null) {
+        documents.add({
+          'category': 'Organization',
+          'type': 'Company Registration Certificate',
+          'fileName': org['companyRegistrationFileName'],
+          'fileUrl': org['companyRegistrationFileUrl'] ?? '',
+        });
+      }
+    }
+
+    // Collect vehicle files
+    if (data['transportation'] != null) {
+      final transport = data['transportation'] as Map<String, dynamic>;
+      if (transport['vehicles'] != null) {
+        final vehicles = transport['vehicles'] as List;
+        for (int i = 0; i < vehicles.length; i++) {
+          final vehicle = vehicles[i] as Map<String, dynamic>;
+          
+          if (vehicle['vehicleRegistrationFileName'] != null) {
+            documents.add({
+              'category': 'Vehicle ${i + 1}',
+              'type': 'Vehicle Registration',
+              'fileName': vehicle['vehicleRegistrationFileName'],
+              'fileUrl': vehicle['vehicleRegistrationFileUrl'] ?? '',
+            });
+          }
+          if (vehicle['revenueLicenceFileName'] != null) {
+            documents.add({
+              'category': 'Vehicle ${i + 1}',
+              'type': 'Revenue Licence',
+              'fileName': vehicle['revenueLicenceFileName'],
+              'fileUrl': vehicle['revenueLicenceFileUrl'] ?? '',
+            });
+          }
+          if (vehicle['fitnessCertificateFileName'] != null) {
+            documents.add({
+              'category': 'Vehicle ${i + 1}',
+              'type': 'Fitness Certificate',
+              'fileName': vehicle['fitnessCertificateFileName'],
+              'fileUrl': vehicle['fitnessCertificateFileUrl'] ?? '',
+            });
+          }
+          if (vehicle['thirdPartyInsuranceFileName'] != null) {
+            documents.add({
+              'category': 'Vehicle ${i + 1}',
+              'type': 'Third Party Insurance',
+              'fileName': vehicle['thirdPartyInsuranceFileName'],
+              'fileUrl': vehicle['thirdPartyInsuranceFileUrl'] ?? '',
+            });
+          }
+        }
+      }
+    }
+
+    if (documents.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return _buildSection(
+      title: 'Uploaded Documents',
+      children: [
+        ...documents.map((doc) => _buildDocumentCard(
+          category: doc['category']!,
+          type: doc['type']!,
+          fileName: doc['fileName']!,
+          fileUrl: doc['fileUrl']!,
+        )),
+      ],
+    );
+  }
+
+  Widget _buildDocumentCard({
+    required String category,
+    required String type,
+    required String fileName,
+    required String fileUrl,
+  }) {
+    final hasUrl = fileUrl.isNotEmpty;
+    
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        border: Border.all(color: AppColors.border),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: hasUrl ? AppColors.primary.withOpacity(0.1) : AppColors.borderLight,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              hasUrl ? Icons.description : Icons.description_outlined,
+              color: hasUrl ? AppColors.primary : AppColors.textTertiary,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  type,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '$category • $fileName',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          if (hasUrl)
+            IconButton(
+              icon: const Icon(Icons.download, size: 20),
+              color: AppColors.primary,
+              tooltip: 'Download/View',
+              onPressed: () async {
+                final uri = Uri.parse(fileUrl);
+                if (await canLaunchUrl(uri)) {
+                  await launchUrl(uri, mode: LaunchMode.externalApplication);
+                } else {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Unable to open file'),
+                        backgroundColor: AppColors.error,
+                      ),
+                    );
+                  }
+                }
+              },
+            )
+          else
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                'Not uploaded',
+                style: TextStyle(
+                  color: AppColors.textTertiary,
+                  fontSize: 12,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ),
         ],
       ),
     );
