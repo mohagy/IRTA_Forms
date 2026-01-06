@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../data/models/application_model.dart';
 import '../../data/repositories/application_repository.dart';
 
@@ -291,7 +290,7 @@ class ApplicationProvider with ChangeNotifier {
       );
 
       // Reload applications to reflect the change
-      await loadAllApplications();
+      loadAllApplications();
 
       _isLoading = false;
       notifyListeners();
