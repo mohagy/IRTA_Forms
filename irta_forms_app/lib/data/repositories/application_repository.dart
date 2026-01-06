@@ -159,15 +159,21 @@ class ApplicationRepository {
   // Update application status
   Future<void> updateApplicationStatus(String applicationId, String newStatus, {String? comment, String? updatedBy}) async {
     try {
-      final updates = {
+      final updates = <String, dynamic>{
         'status': newStatus,
         'updatedAt': FieldValue.serverTimestamp(),
       };
       
       if (comment != null && comment.isNotEmpty) {
         updates['lastComment'] = comment;
-        updates['lastCommentBy'] = updatedBy;
+        if (updatedBy != null) {
+          updates['lastCommentBy'] = updatedBy;
+        }
         updates['lastCommentAt'] = FieldValue.serverTimestamp();
+      }
+      
+      if (updatedBy != null && (comment == null || comment.isEmpty)) {
+        updates['lastUpdatedBy'] = updatedBy;
       }
       
       await _firestore.collection(_collection).doc(applicationId).update(updates);
