@@ -306,21 +306,26 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
           children: representatives.asMap().entries.map((entry) {
             final index = entry.key;
             final rep = entry.value as Map<String, dynamic>;
+            final List<Widget> repChildren = [
+              if (rep['name'] != null) _buildInfoRow('Name', rep['name']),
+              if (rep['email'] != null) _buildInfoRow('Email', rep['email']),
+              if (rep['phone'] != null) _buildInfoRow('Phone', rep['phone']),
+              if (rep['idNumber'] != null) _buildInfoRow('ID Number', rep['idNumber']),
+              if (rep['address'] != null) _buildInfoRow('Address', rep['address']),
+            ];
+            
+            if (rep['dateOfBirth'] != null) {
+              repChildren.add(
+                _buildInfoRow(
+                  'Date of Birth',
+                  DateFormat('yyyy-MM-dd').format(DateTime.parse(rep['dateOfBirth'])),
+                ),
+              );
+            }
+            
             return _buildSubSection(
               'Representative ${index + 1}',
-              [
-                if (rep['name'] != null) _buildInfoRow('Name', rep['name']),
-                if (rep['email'] != null) _buildInfoRow('Email', rep['email']),
-                if (rep['phone'] != null) _buildInfoRow('Phone', rep['phone']),
-                if (rep['idNumber'] != null) _buildInfoRow('ID Number', rep['idNumber']),
-                if (rep['address'] != null) _buildInfoRow('Address', rep['address']),
-                if (rep['dateOfBirth'] != null) {
-                  _buildInfoRow(
-                    'Date of Birth',
-                    DateFormat('yyyy-MM-dd').format(DateTime.parse(rep['dateOfBirth'])),
-                  ),
-                },
-              ],
+              repChildren,
             );
           }).toList(),
         ),
@@ -351,35 +356,41 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
     // Transportation
     if (data['transportation'] != null) {
       final transport = data['transportation'] as Map<String, dynamic>;
+      final List<Widget> transportChildren = [
+        if (transport['natureOfTransport'] != null)
+          _buildInfoRow('Nature of Transport', transport['natureOfTransport']),
+        if (transport['origin'] != null) _buildInfoRow('Origin', transport['origin']),
+        if (transport['destination'] != null)
+          _buildInfoRow('Destination', transport['destination']),
+        if (transport['route'] != null) _buildInfoRow('Route', transport['route']),
+      ];
+      
+      // Add vehicles if they exist
+      if (transport['vehicles'] != null) {
+        final vehicles = transport['vehicles'] as List;
+        transportChildren.addAll(
+          vehicles.asMap().entries.map((entry) {
+            final index = entry.key;
+            final vehicle = entry.value as Map<String, dynamic>;
+            return _buildSubSection(
+              'Vehicle ${index + 1}',
+              [
+                if (vehicle['plateNumber'] != null)
+                  _buildInfoRow('Plate Number', vehicle['plateNumber']),
+                if (vehicle['make'] != null) _buildInfoRow('Make', vehicle['make']),
+                if (vehicle['type'] != null) _buildInfoRow('Type', vehicle['type']),
+                if (vehicle['year'] != null) _buildInfoRow('Year', vehicle['year']),
+                if (vehicle['bodyType'] != null) _buildInfoRow('Body Type', vehicle['bodyType']),
+              ],
+            );
+          }),
+        );
+      }
+      
       sections.add(
         _buildSection(
           title: 'Transportation Information',
-          children: [
-            if (transport['natureOfTransport'] != null)
-              _buildInfoRow('Nature of Transport', transport['natureOfTransport']),
-            if (transport['origin'] != null) _buildInfoRow('Origin', transport['origin']),
-            if (transport['destination'] != null)
-              _buildInfoRow('Destination', transport['destination']),
-            if (transport['route'] != null) _buildInfoRow('Route', transport['route']),
-            if (transport['vehicles'] != null) {
-              final vehicles = transport['vehicles'] as List;
-              ...vehicles.asMap().entries.map((entry) {
-                final index = entry.key;
-                final vehicle = entry.value as Map<String, dynamic>;
-                return _buildSubSection(
-                  'Vehicle ${index + 1}',
-                  [
-                    if (vehicle['plateNumber'] != null)
-                      _buildInfoRow('Plate Number', vehicle['plateNumber']),
-                    if (vehicle['make'] != null) _buildInfoRow('Make', vehicle['make']),
-                    if (vehicle['type'] != null) _buildInfoRow('Type', vehicle['type']),
-                    if (vehicle['year'] != null) _buildInfoRow('Year', vehicle['year']),
-                    if (vehicle['bodyType'] != null) _buildInfoRow('Body Type', vehicle['bodyType']),
-                  ],
-                );
-              }),
-            },
-          ],
+          children: transportChildren,
         ),
       );
     }

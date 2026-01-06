@@ -378,7 +378,7 @@ class _ApplicantDashboardWidgetState extends State<_ApplicantDashboardWidget> {
                     IconButton(
                       icon: const Icon(Icons.refresh, color: AppColors.error),
                       onPressed: () {
-                        final user = authProvider.user;
+                        final user = widget.authProvider.user;
                         if (user != null) {
                           appProvider.loadUserApplications(user.uid);
                         }

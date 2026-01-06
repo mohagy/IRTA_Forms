@@ -996,20 +996,24 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
                               child: const Text('Next'),
                             ),
                           ] else
-                            ElevatedButton(
-                              onPressed: appProvider.isLoading
-                                  ? null
-                                  : () => _submitApplication(context, authProvider, appProvider),
-                              child: appProvider.isLoading
-                                  ? const SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Colors.white,
-                                      ),
-                                    )
-                                  : const Text('Submit Application'),
+                            Consumer<ApplicationProvider>(
+                              builder: (context, appProvider, _) {
+                                return ElevatedButton(
+                                  onPressed: appProvider.isLoading
+                                      ? null
+                                      : () => _submitApplication(context, authProvider, appProvider),
+                                  child: appProvider.isLoading
+                                      ? const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                      : const Text('Submit Application'),
+                                );
+                              },
                             ),
                         ],
                       ),
