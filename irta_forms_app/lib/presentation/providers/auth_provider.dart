@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../services/auth_service.dart';
+import '../../services/logging_service.dart';
 import '../../core/constants/app_constants.dart';
 import '../../data/models/user_model.dart';
 import '../../data/repositories/user_repository.dart';
@@ -141,6 +142,13 @@ class AuthProvider with ChangeNotifier {
       // Load user role after successful login
       if (userCredential?.user != null) {
         await _loadUserRole(userCredential!.user!.uid);
+        
+        // Log successful login
+        await LoggingService().logLogin(
+          userId: userCredential.user!.uid,
+          userName: userCredential.user!.displayName ?? email,
+          success: true,
+        );
       }
       
       _isLoading = false;
@@ -148,6 +156,15 @@ class AuthProvider with ChangeNotifier {
       return true;
     } catch (e) {
       _errorMessage = e.toString().replaceAll('Exception: ', '');
+      
+      // Log failed login attempt
+      await LoggingService().logLogin(
+        userId: '',
+        userName: email,
+        success: false,
+        errorMessage: _errorMessage,
+      );
+      
       _isLoading = false;
       notifyListeners();
       return false;
@@ -201,6 +218,13 @@ class AuthProvider with ChangeNotifier {
       // Load user role after creating/updating document
       await _loadUserRole(user.uid);
       
+      // Log successful Google login
+      await LoggingService().logLogin(
+        userId: user.uid,
+        userName: user.displayName ?? user.email ?? 'Unknown',
+        success: true,
+      );
+      
       _isLoading = false;
       notifyListeners();
       return true;
@@ -213,10 +237,21 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> signOut() async {
+    final userId = _user?.uid;
+    final userName = _user?.displayName ?? _user?.email ?? 'Unknown';
+    
     await _authService.signOut();
     _user = null;
     _userRole = AppConstants.roleApplicant;
     notifyListeners();
+    
+    // Log logout
+    if (userId != null) {
+      await LoggingService().logLogout(
+        userId: userId,
+        userName: userName,
+      );
+    }
   }
 
   void clearError() {

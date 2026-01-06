@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import '../../data/models/application_model.dart';
 import '../../data/repositories/application_repository.dart';
+import '../../services/logging_service.dart';
 
 class ApplicationProvider with ChangeNotifier {
   final ApplicationRepository _repository = ApplicationRepository();
@@ -137,7 +138,17 @@ class ApplicationProvider with ChangeNotifier {
       _errorMessage = null;
       notifyListeners();
 
+      final app = await _repository.getApplicationById(applicationId);
       await _repository.submitApplication(applicationId);
+
+      // Log application submission
+      if (app != null) {
+        await LoggingService().logFormAction(
+          action: 'Application Submitted',
+          details: 'Application ${app.irtaRef} submitted',
+          applicationId: applicationId,
+        );
+      }
 
       _isLoading = false;
       notifyListeners();
@@ -215,7 +226,18 @@ class ApplicationProvider with ChangeNotifier {
       _errorMessage = null;
       notifyListeners();
 
+      final app = await _repository.getApplicationById(applicationId);
       await _repository.updateApplicationStatus(applicationId, newStatus, comment: comment, updatedBy: updatedBy);
+
+      // Log status update
+      if (app != null) {
+        await LoggingService().logFormAction(
+          action: 'Status Updated',
+          details: 'Application ${app.irtaRef} status changed to $newStatus',
+          userId: updatedBy,
+          applicationId: applicationId,
+        );
+      }
 
       _isLoading = false;
       notifyListeners();
@@ -235,7 +257,17 @@ class ApplicationProvider with ChangeNotifier {
       _errorMessage = null;
       notifyListeners();
 
+      final app = await _repository.getApplicationById(applicationId);
       await _repository.assignToOfficer(applicationId, officerId, officerName);
+
+      // Log assignment
+      if (app != null) {
+        await LoggingService().logFormAction(
+          action: 'Application Assigned',
+          details: 'Application ${app.irtaRef} assigned to $officerName',
+          applicationId: applicationId,
+        );
+      }
 
       _isLoading = false;
       notifyListeners();
@@ -255,7 +287,18 @@ class ApplicationProvider with ChangeNotifier {
       _errorMessage = null;
       notifyListeners();
 
+      final app = await _repository.getApplicationById(applicationId);
       await _repository.requestAdditionalInfo(applicationId, comment, requestedBy);
+
+      // Log request
+      if (app != null) {
+        await LoggingService().logFormAction(
+          action: 'Additional Info Requested',
+          details: 'Additional information requested for ${app.irtaRef}',
+          userId: requestedBy,
+          applicationId: applicationId,
+        );
+      }
 
       _isLoading = false;
       notifyListeners();
