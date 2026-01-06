@@ -6,6 +6,7 @@ import '../../widgets/app_header.dart';
 import '../../widgets/main_layout.dart';
 import '../../providers/auth_provider.dart';
 import 'package:go_router/go_router.dart';
+import '../../../data/repositories/form_config_repository.dart';
 
 class FormConfigPage extends StatefulWidget {
   const FormConfigPage({super.key});
@@ -17,6 +18,25 @@ class FormConfigPage extends StatefulWidget {
 class _FormConfigPageState extends State<FormConfigPage> {
   String _selectedFormType = 'individual';
   String _selectedSection = 'introduction';
+  bool _isSaving = false;
+  bool _isPublishing = false;
+  final FormConfigRepository _repository = FormConfigRepository();
+
+  Map<String, dynamic> _buildCurrentConfig() {
+    // Minimal stub configuration aligned with sections in the UI.
+    // This can be extended into a full builder later.
+    return {
+      'formType': _selectedFormType,
+      'sections': [
+        {'key': 'introduction', 'title': 'Introduction', 'fields': []},
+        {'key': 'representative', 'title': 'Representative', 'fields': []},
+        {'key': 'organization', 'title': 'Organization', 'fields': []},
+        {'key': 'transportation', 'title': 'Transportation', 'fields': []},
+        {'key': 'declarations', 'title': 'Declarations', 'fields': []},
+      ],
+      'updatedAt': DateTime.now().toIso8601String(),
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +62,42 @@ class _FormConfigPageState extends State<FormConfigPage> {
         final userName = user?.displayName ?? 'User';
         final userEmail = user?.email ?? '';
         final userRole = authProvider.userRole;
+
+        // Restrict access to admins only
+        final isAdmin = userRole == AppConstants.roleAdmin;
+        if (!isAdmin) {
+          return MainLayout(
+            currentRoute: '/form-config',
+            onNavigate: (route) => context.go(route),
+            userRole: userRole,
+            userName: userName,
+            userEmail: userEmail,
+            onLogout: () async {
+              await authProvider.signOut();
+              if (context.mounted) {
+                context.go(AppConstants.routeLanding);
+              }
+            },
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Icon(Icons.lock_outline, size: 48, color: AppColors.textSecondary),
+                  SizedBox(height: 12),
+                  Text(
+                    'Access Denied',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Only administrators can access Form Configuration.',
+                    style: TextStyle(color: AppColors.textSecondary),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
 
         return MainLayout(
           currentRoute: '/form-config',
@@ -98,23 +154,76 @@ class _FormConfigPageState extends State<FormConfigPage> {
             ),
             const SizedBox(width: 12),
             ElevatedButton(
-              onPressed: () {
-                // Save configuration functionality
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Form configuration saved')),
-                );
-              },
-              child: const Text('Save Configuration'),
+              onPressed: _isSaving
+                  ? null
+                  : () async {
+                      setState(() => _isSaving = true);
+                      try {
+                        await _repository.saveFormConfig(
+                          formType: _selectedFormType,
+                          config: _buildCurrentConfig(),
+                          updatedBy: userEmail,
+                        );
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Form configuration saved to database')),
+                          );
+                        }
+                      } catch (e) {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Failed to save configuration: $e'),
+                              backgroundColor: AppColors.error,
+                            ),
+                          );
+                        }
+                      } finally {
+                        if (mounted) setState(() => _isSaving = false);
+                      }
+                    },
+              child: _isSaving
+                  ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                  : const Text('Save Configuration'),
             ),
             const SizedBox(width: 12),
             ElevatedButton(
-              onPressed: () {
-                // Publish version functionality
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Form version published')),
-                );
-              },
-              child: const Text('Publish Version'),
+              onPressed: _isPublishing
+                  ? null
+                  : () async {
+                      setState(() => _isPublishing = true);
+                      try {
+                        // Ensure latest is saved first
+                        await _repository.saveFormConfig(
+                          formType: _selectedFormType,
+                          config: _buildCurrentConfig(),
+                          updatedBy: userEmail,
+                        );
+                        await _repository.publishFormConfig(
+                          formType: _selectedFormType,
+                          publishedBy: userEmail,
+                        );
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Form version published')),
+                          );
+                        }
+                      } catch (e) {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Failed to publish version: $e'),
+                              backgroundColor: AppColors.error,
+                            ),
+                          );
+                        }
+                      } finally {
+                        if (mounted) setState(() => _isPublishing = false);
+                      }
+                    },
+              child: _isPublishing
+                  ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                  : const Text('Publish Version'),
             ),
           ],
         ),
@@ -299,6 +408,7 @@ class _FormConfigPageState extends State<FormConfigPage> {
     }
   }
 }
+
 
 
 
