@@ -5,6 +5,7 @@ import '../presentation/providers/auth_provider.dart';
 import '../presentation/providers/application_provider.dart';
 import '../presentation/providers/user_provider.dart';
 import '../presentation/providers/role_provider.dart';
+import '../presentation/providers/system_log_provider.dart';
 import 'routes.dart';
 
 class IRTAFormsApp extends StatelessWidget {
@@ -18,6 +19,7 @@ class IRTAFormsApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ApplicationProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => RoleProvider()),
+        ChangeNotifierProvider(create: (_) => SystemLogProvider()),
       ],
       child: MaterialApp.router(
         title: 'IRTA Forms',

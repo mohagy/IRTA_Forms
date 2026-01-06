@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../widgets/app_header.dart';
 import '../../widgets/main_layout.dart';
 import '../../widgets/stat_card.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/system_log_provider.dart';
 import 'package:go_router/go_router.dart';
 
 class SystemLogsPage extends StatefulWidget {
@@ -19,6 +21,15 @@ class _SystemLogsPageState extends State<SystemLogsPage> {
   String? _selectedLogLevel;
   String? _selectedLogType;
   final _searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Load logs when page initializes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<SystemLogProvider>().loadLogs();
+    });
+  }
 
   @override
   void dispose() {
@@ -72,82 +83,110 @@ class _SystemLogsPageState extends State<SystemLogsPage> {
   }
 
   Widget _buildContent() {
-    return Column(
-      children: [
-        // Header
-        AppHeader(
-          title: 'System Logs',
-          actions: [
-            SizedBox(
-              width: 300,
-              child: TextField(
-                controller: _searchController,
-                decoration: InputDecoration(
-                  hintText: 'Search logs...',
-                  prefixIcon: const Icon(Icons.search, size: 20),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    return Consumer<SystemLogProvider>(
+      builder: (context, logProvider, _) {
+        return Column(
+          children: [
+            // Header
+            AppHeader(
+              title: 'System Logs',
+              actions: [
+                SizedBox(
+                  width: 300,
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Search logs...',
+                      prefixIcon: const Icon(Icons.search, size: 20),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    ),
+                    onChanged: (value) {
+                      logProvider.setSearchQuery(value.isEmpty ? null : value);
+                    },
+                  ),
                 ),
-              ),
+                const SizedBox(width: 12),
+                ElevatedButton(
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Logs exported successfully')),
+                    );
+                  },
+                  child: const Text('Export Logs'),
+                ),
+                const SizedBox(width: 12),
+                OutlinedButton(
+                  onPressed: () async {
+                    final confirmed = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Clear Old Logs'),
+                        content: const Text('Delete logs older than 90 days? This action cannot be undone.'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(false),
+                            child: const Text('Cancel'),
+                          ),
+                          ElevatedButton(
+                            onPressed: () => Navigator.of(context).pop(true),
+                            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+                            child: const Text('Delete'),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (confirmed == true) {
+                      await logProvider.clearOldLogs(90);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Old logs cleared')),
+                        );
+                      }
+                    }
+                  },
+                  child: const Text('Clear Old Logs'),
+                ),
+              ],
             ),
-            const SizedBox(width: 12),
-            ElevatedButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Logs exported successfully')),
-                );
-              },
-              child: const Text('Export Logs'),
-            ),
-            const SizedBox(width: 12),
-            OutlinedButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Clear Old Logs functionality coming soon')),
-                );
-              },
-              child: const Text('Clear Old Logs'),
-            ),
-          ],
-        ),
 
-        // Stats Cards
-        Padding(
-          padding: const EdgeInsets.all(24),
-          child: Row(
-            children: [
-              Expanded(
-                child: StatCard(
-                  label: 'Total Logs',
-                  value: '12,458',
-                ),
+            // Stats Cards
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: StatCard(
+                      label: 'Total Logs',
+                      value: logProvider.statistics['total']?.toString() ?? '0',
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: StatCard(
+                      label: 'Today',
+                      value: logProvider.statistics['today']?.toString() ?? '0',
+                      valueColor: AppColors.info,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: StatCard(
+                      label: 'Errors',
+                      value: logProvider.statistics['errors']?.toString() ?? '0',
+                      valueColor: AppColors.error,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: StatCard(
+                      label: 'Warnings',
+                      value: logProvider.statistics['warnings']?.toString() ?? '0',
+                      valueColor: AppColors.warning,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: StatCard(
-                  label: 'Today',
-                  value: '234',
-                  valueColor: AppColors.info,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: StatCard(
-                  label: 'Errors',
-                  value: '12',
-                  valueColor: AppColors.error,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: StatCard(
-                  label: 'Warnings',
-                  value: '45',
-                  valueColor: AppColors.warning,
-                ),
-              ),
-            ],
-          ),
-        ),
+            ),
 
         // Table Section
         Expanded(
@@ -211,6 +250,8 @@ class _SystemLogsPageState extends State<SystemLogsPage> {
                             setState(() {
                               _selectedLogLevel = value;
                             });
+                            final logProvider = context.read<SystemLogProvider>();
+                            logProvider.loadLogs(level: value, type: _selectedLogType);
                           },
                         ),
                       ),
@@ -246,15 +287,19 @@ class _SystemLogsPageState extends State<SystemLogsPage> {
                             setState(() {
                               _selectedLogType = value;
                             });
+                            final logProvider = context.read<SystemLogProvider>();
+                            logProvider.loadLogs(level: _selectedLogLevel, type: value);
                           },
                         ),
                       ),
                       const SizedBox(width: 12),
                       IconButton(
                         onPressed: () {
+                          logProvider.refresh();
                           setState(() {
                             _selectedLogLevel = null;
                             _selectedLogType = null;
+                            _searchController.clear();
                           });
                         },
                         icon: const Icon(Icons.refresh),
@@ -268,7 +313,7 @@ class _SystemLogsPageState extends State<SystemLogsPage> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   child: Text(
-                    'Showing 234 log entries',
+                    'Showing ${logProvider.filteredLogs.length} log entries',
                     style: TextStyle(
                       fontSize: 14,
                       color: AppColors.textSecondary,
@@ -278,24 +323,51 @@ class _SystemLogsPageState extends State<SystemLogsPage> {
 
                 // Table
                 Expanded(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: SingleChildScrollView(
-                      child: DataTable(
-                        headingRowColor: MaterialStateProperty.all(AppColors.background),
-                        columns: const [
-                          DataColumn(label: Text('Timestamp')),
-                          DataColumn(label: Text('Level')),
-                          DataColumn(label: Text('Type')),
-                          DataColumn(label: Text('User')),
-                          DataColumn(label: Text('Action')),
-                          DataColumn(label: Text('Details')),
-                          DataColumn(label: Text('IP Address')),
-                        ],
-                        rows: _buildLogRows(),
-                      ),
-                    ),
-                  ),
+                  child: logProvider.isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : logProvider.filteredLogs.isEmpty
+                          ? Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.description_outlined, size: 64, color: AppColors.textTertiary),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    'No logs found',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w500,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    logProvider.logs.isEmpty
+                                        ? 'System logs will appear here as events occur'
+                                        : 'No logs match your search criteria',
+                                    style: TextStyle(fontSize: 14, color: AppColors.textTertiary),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: SingleChildScrollView(
+                                child: DataTable(
+                                  headingRowColor: MaterialStateProperty.all(AppColors.background),
+                                  columns: const [
+                                    DataColumn(label: Text('Timestamp')),
+                                    DataColumn(label: Text('Level')),
+                                    DataColumn(label: Text('Type')),
+                                    DataColumn(label: Text('User')),
+                                    DataColumn(label: Text('Action')),
+                                    DataColumn(label: Text('Details')),
+                                    DataColumn(label: Text('IP Address')),
+                                  ],
+                                  rows: _buildLogRows(logProvider.filteredLogs),
+                                ),
+                              ),
+                            ),
                 ),
               ],
             ),
@@ -303,80 +375,17 @@ class _SystemLogsPageState extends State<SystemLogsPage> {
         ),
       ],
     );
+      },
+    );
   }
 
-  List<DataRow> _buildLogRows() {
-    // Sample log data - in real app, this would come from Firestore
-    final logs = [
-      {
-        'timestamp': '2024-01-15 14:32:15',
-        'level': 'Info',
-        'type': 'Login',
-        'user': 'John Doe',
-        'action': 'User Login',
-        'details': 'Successful login from office network',
-        'ip': '192.168.1.45',
-      },
-      {
-        'timestamp': '2024-01-15 14:28:42',
-        'level': 'Info',
-        'type': 'Form',
-        'user': 'Sarah Johnson',
-        'action': 'Application Approved',
-        'details': 'IRTA-2024-001234 approved',
-        'ip': '192.168.1.32',
-      },
-      {
-        'timestamp': '2024-01-15 14:15:20',
-        'level': 'Warning',
-        'type': 'System',
-        'user': 'System',
-        'action': 'Backup Scheduled',
-        'details': 'Automatic backup initiated',
-        'ip': 'N/A',
-      },
-      {
-        'timestamp': '2024-01-15 13:45:10',
-        'level': 'Error',
-        'type': 'Form',
-        'user': 'Michael Chen',
-        'action': 'Document Upload Failed',
-        'details': 'File size exceeds limit for IRTA-2024-001235',
-        'ip': '192.168.1.28',
-      },
-      {
-        'timestamp': '2024-01-15 13:30:55',
-        'level': 'Info',
-        'type': 'User',
-        'user': 'Ahmed Hassan',
-        'action': 'User Created',
-        'details': 'New user created: robert.kim@irta.gov',
-        'ip': '192.168.1.10',
-      },
-      {
-        'timestamp': '2024-01-15 13:20:18',
-        'level': 'Info',
-        'type': 'Login',
-        'user': 'Ahmad Mahmoud',
-        'action': 'User Login',
-        'details': 'Successful login',
-        'ip': '203.0.113.45',
-      },
-      {
-        'timestamp': '2024-01-15 13:05:33',
-        'level': 'Warning',
-        'type': 'Login',
-        'user': 'unknown',
-        'action': 'Failed Login Attempt',
-        'details': 'Invalid credentials for email@example.com',
-        'ip': '203.0.113.12',
-      },
-    ];
-
+  List<DataRow> _buildLogRows(List logs) {
+    final dateFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
+    
     return logs.map((log) {
       Color levelColor;
       Color levelBgColor;
-      switch (log['level']) {
+      switch (log.level) {
         case 'Error':
           levelColor = AppColors.error;
           levelBgColor = AppColors.error.withOpacity(0.1);
@@ -384,6 +393,10 @@ class _SystemLogsPageState extends State<SystemLogsPage> {
         case 'Warning':
           levelColor = AppColors.warning;
           levelBgColor = AppColors.warning.withOpacity(0.1);
+          break;
+        case 'Debug':
+          levelColor = AppColors.textTertiary;
+          levelBgColor = AppColors.textTertiary.withOpacity(0.1);
           break;
         case 'Info':
         default:
@@ -394,7 +407,7 @@ class _SystemLogsPageState extends State<SystemLogsPage> {
 
       return DataRow(
         cells: [
-          DataCell(Text(log['timestamp'] as String)),
+          DataCell(Text(dateFormat.format(log.timestamp))),
           DataCell(
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -403,7 +416,7 @@ class _SystemLogsPageState extends State<SystemLogsPage> {
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
-                log['level'] as String,
+                log.level,
                 style: TextStyle(
                   color: levelColor,
                   fontSize: 12,
@@ -412,16 +425,17 @@ class _SystemLogsPageState extends State<SystemLogsPage> {
               ),
             ),
           ),
-          DataCell(Text(log['type'] as String)),
-          DataCell(Text(log['user'] as String)),
-          DataCell(Text(log['action'] as String)),
-          DataCell(Text(log['details'] as String)),
-          DataCell(Text(log['ip'] as String)),
+          DataCell(Text(log.type)),
+          DataCell(Text(log.userName ?? log.userId ?? 'System')),
+          DataCell(Text(log.action)),
+          DataCell(Text(log.details)),
+          DataCell(Text(log.ipAddress ?? 'N/A')),
         ],
       );
     }).toList();
   }
 }
+
 
 
 
