@@ -113,13 +113,13 @@ class _FormConfigPageState extends State<FormConfigPage> {
               context.go(AppConstants.routeLanding);
             }
           },
-          child: _buildContent(),
+          child: _buildContent(context, userEmail),
         );
       },
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(BuildContext context, String userEmail) {
     return Column(
       children: [
         // Header
