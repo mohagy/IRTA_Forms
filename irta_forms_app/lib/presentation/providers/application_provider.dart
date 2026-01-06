@@ -324,6 +324,7 @@ class ApplicationProvider with ChangeNotifier {
       _errorMessage = null;
       notifyListeners();
 
+      final app = await _repository.getApplicationById(applicationId);
       await _repository.updateVehicleApprovalStatus(
         applicationId,
         vehicleIndex,
@@ -331,6 +332,16 @@ class ApplicationProvider with ChangeNotifier {
         comment: comment,
         approvedBy: approvedBy,
       );
+
+      // Log vehicle approval action
+      if (app != null) {
+        await LoggingService().logFormAction(
+          action: 'Vehicle $status',
+          details: 'Vehicle ${vehicleIndex + 1} in ${app.irtaRef} $status${comment != null ? ": $comment" : ""}',
+          userId: approvedBy,
+          applicationId: applicationId,
+        );
+      }
 
       // Reload applications to reflect the change
       loadAllApplications();
