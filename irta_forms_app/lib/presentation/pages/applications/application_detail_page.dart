@@ -9,6 +9,7 @@ import '../../widgets/app_header.dart';
 import '../../widgets/status_badge.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/application_provider.dart';
+import '../../providers/user_provider.dart';
 import '../../../data/models/application_model.dart';
 import 'package:intl/intl.dart';
 
@@ -227,6 +228,25 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
                       StatusBadge(status: app.status),
                     ],
                   ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // Action Panel for Officers/Admins
+                Consumer<AuthProvider>(
+                  builder: (context, authProvider, _) {
+                    final userRole = authProvider.userRole;
+                    final isOfficerOrAdmin = userRole == AppConstants.roleAdmin ||
+                        userRole == AppConstants.roleOfficer ||
+                        userRole == AppConstants.roleReception ||
+                        userRole == AppConstants.roleVerification ||
+                        userRole == AppConstants.roleIssuing;
+                    
+                    if (isOfficerOrAdmin && app.status != AppConstants.statusDraft) {
+                      return _buildActionPanel(context, app, authProvider);
+                    }
+                    return const SizedBox.shrink();
+                  },
                 ),
 
                 const SizedBox(height: 24),
@@ -727,6 +747,554 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
         ],
       ),
     );
+  }
+
+  Widget _buildActionPanel(BuildContext context, ApplicationModel app, AuthProvider authProvider) {
+    final userRole = authProvider.userRole;
+    final currentStatus = app.status;
+
+    return Container(
+      padding: const EdgeInsets.all(24),
+      margin: const EdgeInsets.only(bottom: 24),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.work_outline, color: AppColors.primary, size: 24),
+              const SizedBox(width: 12),
+              const Text(
+                'Workflow Actions',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              // Review button - for Reception Staff
+              if (userRole == AppConstants.roleReception || userRole == AppConstants.roleAdmin)
+                if (currentStatus == AppConstants.statusSubmitted)
+                  ElevatedButton.icon(
+                    onPressed: () => _reviewApplication(context, app),
+                    icon: const Icon(Icons.visibility, size: 18),
+                    label: const Text('Review'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+
+              // Verify button - for Verification Officers
+              if (userRole == AppConstants.roleVerification || userRole == AppConstants.roleAdmin)
+                if (currentStatus == AppConstants.statusReceptionReview || currentStatus == AppConstants.statusSubmitted)
+                  ElevatedButton.icon(
+                    onPressed: () => _verifyApplication(context, app),
+                    icon: const Icon(Icons.verified, size: 18),
+                    label: const Text('Verify'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.statusCompleted,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+
+              // Approve button - for Issuing Officers and Admins
+              if (userRole == AppConstants.roleIssuing || userRole == AppConstants.roleAdmin)
+                if (currentStatus == AppConstants.statusVerification || currentStatus == AppConstants.statusIssuingDecision)
+                  ElevatedButton.icon(
+                    onPressed: () => _approveApplication(context, app),
+                    icon: const Icon(Icons.check_circle, size: 18),
+                    label: const Text('Approve'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.statusCompleted,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+
+              // Reject button - for Issuing Officers and Admins
+              if (userRole == AppConstants.roleIssuing || userRole == AppConstants.roleAdmin)
+                if (currentStatus != AppConstants.statusCompleted && currentStatus != AppConstants.statusRejected && currentStatus != AppConstants.statusDraft)
+                  ElevatedButton.icon(
+                    onPressed: () => _rejectApplication(context, app),
+                    icon: const Icon(Icons.cancel, size: 18),
+                    label: const Text('Reject'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.error,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+
+              // Request Additional Info - for all officers
+              if (userRole != AppConstants.roleApplicant)
+                if (currentStatus != AppConstants.statusCompleted && currentStatus != AppConstants.statusRejected && currentStatus != AppConstants.statusDraft)
+                  ElevatedButton.icon(
+                    onPressed: () => _requestAdditionalInfo(context, app),
+                    icon: const Icon(Icons.info_outline, size: 18),
+                    label: const Text('Request Info'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.statusSubmitted,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+
+              // Assign to Officer - for Reception and Admins
+              if (userRole == AppConstants.roleReception || userRole == AppConstants.roleAdmin)
+                if (currentStatus == AppConstants.statusSubmitted || currentStatus == AppConstants.statusReceptionReview)
+                  ElevatedButton.icon(
+                    onPressed: () => _assignToOfficer(context, app),
+                    icon: const Icon(Icons.person_add, size: 18),
+                    label: const Text('Assign Officer'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+
+              // Reassign - for Admins
+              if (userRole == AppConstants.roleAdmin)
+                if (currentStatus != AppConstants.statusDraft && currentStatus != AppConstants.statusCompleted && currentStatus != AppConstants.statusRejected)
+                  ElevatedButton.icon(
+                    onPressed: () => _reassignApplication(context, app),
+                    icon: const Icon(Icons.swap_horiz, size: 18),
+                    label: const Text('Reassign'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _reviewApplication(BuildContext context, ApplicationModel app) async {
+    final appProvider = context.read<ApplicationProvider>();
+    final authProvider = context.read<AuthProvider>();
+    final user = authProvider.user;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Review Application'),
+        content: const Text('Move this application to Reception Review status?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Review'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && user != null) {
+      final success = await appProvider.updateApplicationStatus(
+        app.id,
+        AppConstants.statusReceptionReview,
+        updatedBy: user.displayName ?? user.email ?? 'Unknown',
+      );
+
+      if (mounted) {
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Application moved to Reception Review'),
+              backgroundColor: AppColors.statusCompleted,
+            ),
+          );
+          _loadApplication();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error: ${appProvider.errorMessage ?? "Failed to update status"}'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _verifyApplication(BuildContext context, ApplicationModel app) async {
+    final appProvider = context.read<ApplicationProvider>();
+    final authProvider = context.read<AuthProvider>();
+    final user = authProvider.user;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Verify Application'),
+        content: const Text('Move this application to Verification status?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Verify'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && user != null) {
+      final success = await appProvider.updateApplicationStatus(
+        app.id,
+        AppConstants.statusVerification,
+        updatedBy: user.displayName ?? user.email ?? 'Unknown',
+      );
+
+      if (mounted) {
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Application verified'),
+              backgroundColor: AppColors.statusCompleted,
+            ),
+          );
+          _loadApplication();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error: ${appProvider.errorMessage ?? "Failed to verify"}'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _approveApplication(BuildContext context, ApplicationModel app) async {
+    final appProvider = context.read<ApplicationProvider>();
+    final authProvider = context.read<AuthProvider>();
+    final user = authProvider.user;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Approve Application'),
+        content: const Text('Approve this application and mark it as completed?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.statusCompleted),
+            child: const Text('Approve'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && user != null) {
+      final success = await appProvider.updateApplicationStatus(
+        app.id,
+        AppConstants.statusCompleted,
+        updatedBy: user.displayName ?? user.email ?? 'Unknown',
+      );
+
+      if (mounted) {
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Application approved and completed'),
+              backgroundColor: AppColors.statusCompleted,
+            ),
+          );
+          _loadApplication();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error: ${appProvider.errorMessage ?? "Failed to approve"}'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _rejectApplication(BuildContext context, ApplicationModel app) async {
+    final commentController = TextEditingController();
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Reject Application'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Please provide a reason for rejection:'),
+            const SizedBox(height: 16),
+            TextField(
+              controller: commentController,
+              decoration: const InputDecoration(
+                labelText: 'Rejection Reason',
+                hintText: 'Enter reason for rejection...',
+                border: OutlineInputBorder(),
+              ),
+              maxLines: 3,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (commentController.text.trim().isNotEmpty) {
+                Navigator.of(context).pop(true);
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+            child: const Text('Reject'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && commentController.text.trim().isNotEmpty) {
+      final appProvider = context.read<ApplicationProvider>();
+      final authProvider = context.read<AuthProvider>();
+      final user = authProvider.user;
+
+      if (user != null) {
+        final success = await appProvider.updateApplicationStatus(
+          app.id,
+          AppConstants.statusRejected,
+          comment: commentController.text.trim(),
+          updatedBy: user.displayName ?? user.email ?? 'Unknown',
+        );
+
+        if (mounted) {
+          if (success) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Application rejected'),
+                backgroundColor: AppColors.error,
+              ),
+            );
+            _loadApplication();
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Error: ${appProvider.errorMessage ?? "Failed to reject"}'),
+                backgroundColor: AppColors.error,
+              ),
+            );
+          }
+        }
+      }
+    }
+  }
+
+  Future<void> _requestAdditionalInfo(BuildContext context, ApplicationModel app) async {
+    final commentController = TextEditingController();
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Request Additional Information'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('What additional information is needed?'),
+            const SizedBox(height: 16),
+            TextField(
+              controller: commentController,
+              decoration: const InputDecoration(
+                labelText: 'Request Details',
+                hintText: 'Enter what information is needed...',
+                border: OutlineInputBorder(),
+              ),
+              maxLines: 4,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (commentController.text.trim().isNotEmpty) {
+                Navigator.of(context).pop(true);
+              }
+            },
+            child: const Text('Send Request'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && commentController.text.trim().isNotEmpty) {
+      final appProvider = context.read<ApplicationProvider>();
+      final authProvider = context.read<AuthProvider>();
+      final user = authProvider.user;
+
+      if (user != null) {
+        final success = await appProvider.requestAdditionalInfo(
+          app.id,
+          commentController.text.trim(),
+          user.displayName ?? user.email ?? 'Unknown',
+        );
+
+        if (mounted) {
+          if (success) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Request for additional information sent'),
+                backgroundColor: AppColors.statusSubmitted,
+              ),
+            );
+            _loadApplication();
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Error: ${appProvider.errorMessage ?? "Failed to send request"}'),
+                backgroundColor: AppColors.error,
+              ),
+            );
+          }
+        }
+      }
+    }
+  }
+
+  Future<void> _assignToOfficer(BuildContext context, ApplicationModel app) async {
+    final userProvider = context.read<UserProvider>();
+    if (userProvider.users.isEmpty) {
+      await userProvider.loadUsers();
+    }
+
+    // Filter to get only officers
+    final officers = userProvider.users.where((user) {
+      return user.role == AppConstants.roleOfficer ||
+          user.role == AppConstants.roleVerification ||
+          user.role == AppConstants.roleIssuing ||
+          user.role == AppConstants.roleAdmin;
+    }).toList();
+
+    if (officers.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No officers available to assign'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+      return;
+    }
+
+    String? selectedOfficerId;
+    String? selectedOfficerName;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Assign to Officer'),
+          content: SizedBox(
+            width: 400,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('Select an officer to assign this application to:'),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  decoration: const InputDecoration(
+                    labelText: 'Officer',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: officers.map((officer) {
+                    return DropdownMenuItem(
+                      value: officer.id,
+                      child: Text('${officer.fullName ?? officer.email} (${officer.role})'),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedOfficerId = value;
+                      final officer = officers.firstWhere((o) => o.id == value);
+                      selectedOfficerName = officer.fullName ?? officer.email;
+                    });
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: selectedOfficerId != null
+                  ? () => Navigator.of(context).pop(true)
+                  : null,
+              child: const Text('Assign'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (confirmed == true && selectedOfficerId != null && selectedOfficerName != null) {
+      final appProvider = context.read<ApplicationProvider>();
+      final success = await appProvider.assignToOfficer(
+        app.id,
+        selectedOfficerId!,
+        selectedOfficerName!,
+      );
+
+      if (mounted) {
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Application assigned to $selectedOfficerName'),
+              backgroundColor: AppColors.statusCompleted,
+            ),
+          );
+          _loadApplication();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error: ${appProvider.errorMessage ?? "Failed to assign"}'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _reassignApplication(BuildContext context, ApplicationModel app) async {
+    // Reassign is similar to assign, but can change the current assignment
+    await _assignToOfficer(context, app);
   }
 }
 
