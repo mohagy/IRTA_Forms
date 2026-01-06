@@ -6,6 +6,7 @@ import '../../widgets/app_header.dart';
 import '../../widgets/main_layout.dart';
 import '../../providers/auth_provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SystemConfigPage extends StatefulWidget {
   const SystemConfigPage({super.key});
@@ -242,12 +243,121 @@ class _SystemConfigPageState extends State<SystemConfigPage> {
                     ),
                   ],
                 ),
+
+                const SizedBox(height: 24),
+
+                // Data Management
+                _buildSettingsSection(
+                  title: 'Data Management',
+                  children: [
+                    const Text(
+                      'Danger Zone',
+                      style: TextStyle(
+                        color: AppColors.error,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'These actions are irreversible. Please proceed with caution.',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.textTertiary,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton.icon(
+                      onPressed: () => _deleteAllDrafts(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.error,
+                        foregroundColor: Colors.white,
+                      ),
+                      icon: const Icon(Icons.delete_forever),
+                      label: const Text('Delete All Draft Applications'),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
         ),
       ],
     );
+  }
+
+  Future<void> _deleteAllDrafts(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete All Drafts?'),
+        content: const Text(
+          'This will permanently delete ALL applications with "Draft" status from the database. This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.error,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Delete All'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      try {
+        // Show loading
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => const Center(child: CircularProgressIndicator()),
+        );
+
+        final firestore = FirebaseFirestore.instance;
+        final batch = firestore.batch();
+        
+        final snapshot = await firestore
+            .collection('applications')
+            .where('status', isEqualTo: 'Draft')
+            .get();
+
+        int count = 0;
+        for (final doc in snapshot.docs) {
+          batch.delete(doc.reference);
+          count++;
+        }
+
+        if (count > 0) {
+          await batch.commit();
+        }
+
+        if (context.mounted) {
+          Navigator.pop(context); // Close loading
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Successfully deleted $count drafts.'),
+              backgroundColor: AppColors.statusCompleted,
+            ),
+          );
+        }
+      } catch (e) {
+        if (context.mounted) {
+          Navigator.pop(context); // Close loading
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error deleting drafts: $e'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      }
+    }
   }
 
   Widget _buildSettingsSection({
