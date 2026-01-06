@@ -179,6 +179,24 @@ class ApplicationProvider with ChangeNotifier {
 
     return filtered;
   }
+  // Get latest draft
+  Future<ApplicationModel?> getLatestDraft(String userId) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      final draft = await _repository.getLatestDraft(userId);
+
+      _isLoading = false;
+      notifyListeners();
+      return draft;
+    } catch (e) {
+      _errorMessage = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return null;
+    }
+  }
 }
 
 

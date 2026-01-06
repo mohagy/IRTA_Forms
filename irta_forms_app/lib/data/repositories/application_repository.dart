@@ -128,6 +128,29 @@ class ApplicationRepository {
       throw Exception('Failed to delete application: $e');
     }
   }
+  // Get latest draft for user
+  Future<ApplicationModel?> getLatestDraft(String userId) async {
+    try {
+      final snapshot = await _firestore
+          .collection(_collection)
+          .where('userId', isEqualTo: userId)
+          .where('status', isEqualTo: 'Draft')
+          .orderBy('updatedAt', descending: true)
+          .limit(1)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        final doc = snapshot.docs.first;
+        return ApplicationModel.fromMap(doc.data(), doc.id);
+      }
+      return null;
+    } catch (e) {
+      // If index is missing, we might get an error. For now, return null or handle gracefully.
+      // In production, ensure composite index exists: userId ASC, status ASC, updatedAt DESC
+      print('Error getting latest draft: $e'); 
+      return null;
+    }
+  }
 }
 
 

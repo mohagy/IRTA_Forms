@@ -585,6 +585,105 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
     );
   }
 
+  @override
+  void initState() {
+    super.initState();
+    // Check for existing draft
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkForDraft();
+    });
+  }
+
+  Future<void> _checkForDraft() async {
+    final authProvider = context.read<AuthProvider>();
+    final appProvider = context.read<ApplicationProvider>();
+    final user = authProvider.user;
+
+    if (user != null) {
+      final draft = await appProvider.getLatestDraft(user.uid);
+      if (draft != null && mounted) {
+        _populateFormFromDraft(draft);
+      }
+    }
+  }
+
+  void _populateFormFromDraft(ApplicationModel draft) {
+    setState(() {
+      _draftId = draft.id;
+      _currentStep = draft.applicationData['currentStep'] ?? 0;
+      _declarationAgreed = draft.applicationData['declarationAgreed'] ?? false;
+      
+      // Organization Info
+      final org = draft.applicationData['organization'] ?? {};
+      _firmNameController.text = org['firmName'] ?? '';
+      _firmAddressController.text = org['firmAddress'] ?? '';
+      _legalRepresentativeController.text = org['legalRepresentative'] ?? '';
+      _tinController.text = org['tin'] ?? '';
+      _companyRegController.text = org['companyRegistrationNumber'] ?? '';
+      _telephoneController.text = org['telephone'] ?? '';
+      _faxController.text = org['fax'] ?? '';
+      
+      // Transportation Info
+      final trans = draft.applicationData['transportation'] ?? {};
+      _natureOfTransport = trans['natureOfTransport'] ?? '';
+      _modalityOfTraffic = trans['modalityOfTraffic'] ?? '';
+      _origin = trans['origin'] ?? '';
+      _destination = trans['destination'] ?? '';
+      
+      // Representatives
+      final reps = draft.applicationData['representatives'] as List?;
+      if (reps != null && reps.isNotEmpty) {
+        // Clear existing and rebuild
+        for (var r in _representatives) r.dispose();
+        _representatives.clear();
+        
+        for (var repData in reps) {
+          final rep = RepresentativeData();
+          rep.nameController.text = repData['name'] ?? '';
+          rep.emailController.text = repData['email'] ?? '';
+          rep.phoneController.text = repData['phone'] ?? '';
+          rep.idController.text = repData['idNumber'] ?? '';
+          rep.addressController.text = repData['address'] ?? '';
+          if (repData['dateOfBirth'] != null) {
+            rep.dob = DateTime.tryParse(repData['dateOfBirth']);
+          }
+          _representatives.add(rep);
+        }
+      }
+      
+      // Vehicles
+      final vehicles = trans['vehicles'] as List?;
+      if (vehicles != null && vehicles.isNotEmpty) {
+        // Clear existing and rebuild
+        for (var v in _vehicles) v.dispose();
+        _vehicles.clear();
+        
+        for (var vData in vehicles) {
+          final v = VehicleData();
+          v.plateController.text = vData['vehiclePlate'] ?? '';
+          v.type = vData['vehicleType'];
+          v.yearController.text = vData['vehicleYear'] ?? '';
+          v.make = vData['vehicleMake'];
+          v.bodyTypeController.text = vData['vehicleBodyType'] ?? '';
+          v.chassisController.text = vData['vehicleChassis'] ?? '';
+          v.axlesController.text = vData['vehicleAxles'] ?? '';
+          v.mtcController.text = vData['vehicleMtc'] ?? '';
+          v.nwcController.text = vData['vehicleNwc'] ?? '';
+          v.tareController.text = vData['vehicleTare'] ?? '';
+          _vehicles.add(v);
+        }
+      }
+    });
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Resumed existing draft'),
+        backgroundColor: AppColors.primary,
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
   Widget _buildNewApplicationForm(BuildContext context, AuthProvider authProvider, user, String userName, String userEmail, String userRole) {
 
     // Pre-fill representative info from user profile
