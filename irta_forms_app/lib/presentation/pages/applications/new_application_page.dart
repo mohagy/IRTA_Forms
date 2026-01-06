@@ -11,6 +11,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/application_provider.dart';
 import '../../../services/storage_service.dart';
 import 'package:file_picker/file_picker.dart';
+import '../../../data/models/application_model.dart';
 
 class RepresentativeData {
   final TextEditingController nameController = TextEditingController();
