@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:io';
+import 'dart:async';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../widgets/main_layout.dart';
@@ -68,7 +69,9 @@ class VehicleData {
 }
 
 class NewApplicationPage extends StatefulWidget {
-  const NewApplicationPage({super.key});
+  final String? editApplicationId;
+  
+  const NewApplicationPage({super.key, this.editApplicationId});
 
   @override
   State<NewApplicationPage> createState() => _NewApplicationPageState();
@@ -111,9 +114,11 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
   
   // Draft Management
   String? _draftId;
+  Timer? _autoSaveTimer;
 
   @override
   void dispose() {
+    _autoSaveTimer?.cancel();
     _pageController.dispose();
     for (var rep in _representatives) {
       rep.dispose();
@@ -140,6 +145,8 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
+      // Auto-save when moving to next step
+      _triggerAutoSave();
     }
   }
 
@@ -152,6 +159,8 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
+      // Auto-save when moving to previous step
+      _triggerAutoSave();
     }
   }
 
@@ -161,7 +170,21 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
         _currentStep = step;
       });
       _pageController.jumpToPage(step);
+      // Auto-save when jumping to a step
+      _triggerAutoSave();
     }
+  }
+
+  // Trigger auto-save with debounce (saves 2 seconds after last change)
+  void _triggerAutoSave() {
+    _autoSaveTimer?.cancel();
+    _autoSaveTimer = Timer(const Duration(seconds: 2), () {
+      if (mounted) {
+        final authProvider = context.read<AuthProvider>();
+        final appProvider = context.read<ApplicationProvider>();
+        _saveDraft(context, authProvider, appProvider, silent: true);
+      }
+    });
   }
 
   Future<bool> _saveDraft(BuildContext context, AuthProvider authProvider, ApplicationProvider appProvider, {bool silent = false}) async {
@@ -665,6 +688,11 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
         if (userRole == AppConstants.roleApplicant && user != null) {
           return Consumer<ApplicationProvider>(
             builder: (context, appProvider, _) {
+              // If editing an existing application, skip the check
+              if (widget.editApplicationId != null) {
+                return _buildNewApplicationForm(context, authProvider, user, userName, userEmail, userRole);
+              }
+
               // Load applications to check if user already has one
               if (appProvider.applications.isEmpty && !appProvider.isLoading) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -672,13 +700,17 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
                 });
               }
 
-              // If user already has an application, redirect to dashboard
-              if (!appProvider.isLoading && appProvider.applications.isNotEmpty) {
+              // If user already has a submitted application (not draft), redirect to dashboard
+              final hasSubmittedApp = appProvider.applications.any(
+                (app) => app.status != AppConstants.statusDraft
+              );
+              
+              if (!appProvider.isLoading && hasSubmittedApp) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('You can only have one application. Please manage your existing application.'),
+                        content: Text('You can only have one submitted application. Please manage your existing application or edit your draft.'),
                         backgroundColor: AppColors.error,
                         duration: Duration(seconds: 3),
                       ),
@@ -698,7 +730,7 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
                 );
               }
 
-              // Continue with normal new application form
+              // Continue with normal new application form (or editing draft)
               return _buildNewApplicationForm(context, authProvider, user, userName, userEmail, userRole);
             },
           );
@@ -725,9 +757,37 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
     final user = authProvider.user;
 
     if (user != null) {
-      final draft = await appProvider.getLatestDraft(user.uid);
-      if (draft != null && mounted) {
-        _populateFormFromDraft(draft);
+      // If editing a specific application, load that one
+      if (widget.editApplicationId != null) {
+        final application = await appProvider.getApplicationById(widget.editApplicationId!);
+        if (application != null && mounted) {
+          // Check if it's a draft and belongs to the user
+          if (application.status == AppConstants.statusDraft && application.userId == user.uid) {
+            _populateFormFromDraft(application);
+          } else {
+            // Not a draft or doesn't belong to user - redirect
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    application.status != AppConstants.statusDraft
+                        ? 'This application cannot be edited. Only draft applications can be edited.'
+                        : 'You can only edit your own applications.'
+                  ),
+                  backgroundColor: AppColors.error,
+                  duration: const Duration(seconds: 3),
+                ),
+              );
+              context.go(AppConstants.routeDashboard);
+            }
+          }
+        }
+      } else {
+        // Otherwise, check for latest draft
+        final draft = await appProvider.getLatestDraft(user.uid);
+        if (draft != null && mounted) {
+          _populateFormFromDraft(draft);
+        }
       }
     }
   }

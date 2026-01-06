@@ -41,7 +41,11 @@ class AppRoutes {
         ),
         GoRoute(
           path: AppConstants.routeNewApplication,
-          builder: (context, state) => const NewApplicationPage(),
+          builder: (context, state) {
+            // Check for edit query parameter
+            final editId = state.uri.queryParameters['edit'];
+            return NewApplicationPage(editApplicationId: editId);
+          },
         ),
         GoRoute(
           path: '/applications/:id',

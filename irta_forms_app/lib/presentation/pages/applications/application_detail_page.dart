@@ -148,6 +148,31 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
         AppHeader(
           title: 'Application Details',
           actions: [
+            // Show Edit button only for Draft applications
+            if (app.status == AppConstants.statusDraft)
+              Consumer<AuthProvider>(
+                builder: (context, authProvider, _) {
+                  final user = authProvider.user;
+                  final userRole = authProvider.userRole;
+                  // Only show edit button for applicants (they can edit their own drafts)
+                  if (user != null && userRole == AppConstants.roleApplicant) {
+                    return ElevatedButton.icon(
+                      onPressed: () {
+                        // Navigate to edit page with application ID
+                        context.go('${AppConstants.routeNewApplication}?edit=${app.id}');
+                      },
+                      icon: const Icon(Icons.edit, size: 18),
+                      label: const Text('Edit Application'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                      ),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
+            const SizedBox(width: 12),
             TextButton.icon(
               onPressed: () {
                 context.go(AppConstants.routeDashboard);

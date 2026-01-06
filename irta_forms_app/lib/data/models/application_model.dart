@@ -13,6 +13,7 @@ class ApplicationModel {
   final String? previousIrtaRef;
   final DateTime? expiryDate;
   final Map<String, dynamic>? applicationData;
+  final String? userId;
 
   ApplicationModel({
     required this.id,
@@ -27,6 +28,7 @@ class ApplicationModel {
     this.previousIrtaRef,
     this.expiryDate,
     this.applicationData,
+    this.userId,
   });
 
   // Factory constructor from Firestore document
@@ -44,6 +46,7 @@ class ApplicationModel {
       previousIrtaRef: map['previousIrtaRef'],
       expiryDate: (map['expiryDate'] as Timestamp?)?.toDate(),
       applicationData: map['applicationData'],
+      userId: map['userId'],
     );
   }
 
