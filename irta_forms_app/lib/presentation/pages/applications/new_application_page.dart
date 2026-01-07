@@ -851,17 +851,18 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
                 });
               }
 
-              // If user already has a submitted application (not draft), redirect to dashboard
-              final hasSubmittedApp = appProvider.applications.any(
-                (app) => app.status != AppConstants.statusDraft
+              // If user already has an active application (not draft, not rejected), redirect to dashboard
+              // Allow new application if all existing applications are rejected or draft
+              final hasActiveApp = appProvider.applications.any(
+                (app) => app.status != AppConstants.statusDraft && app.status != AppConstants.statusRejected
               );
               
-              if (!appProvider.isLoading && hasSubmittedApp) {
+              if (!appProvider.isLoading && hasActiveApp) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('You can only have one submitted application. Please manage your existing application or edit your draft.'),
+                        content: Text('You have an active application. Please manage your existing application or wait for it to be processed.'),
                         backgroundColor: AppColors.error,
                         duration: Duration(seconds: 3),
                       ),
