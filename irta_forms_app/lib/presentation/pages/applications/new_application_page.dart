@@ -1338,10 +1338,13 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
                             fontSize: 14,
                           ),
                         ),
-                const SizedBox(height: 20),
-                // New Requirements (as requested)
-                Container(
-                  padding: const EdgeInsets.all(24),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  // New Requirements (as requested)
+                  Container(
+                    padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
                     color: AppColors.surface,
                     border: Border.all(color: AppColors.border),
@@ -1434,13 +1437,9 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
                     ],
                   ),
                 ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
