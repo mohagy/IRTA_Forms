@@ -420,6 +420,12 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
         final success = await appProvider.updateApplication(_draftId!, updates);
         
         if (success && mounted) {
+          // Re-assert current step to prevent any UI jump after save
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (_pageController.hasClients) {
+              _pageController.jumpToPage(_currentStep);
+            }
+          });
           if (!silent) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -443,6 +449,12 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
         if (applicationId != null && mounted) {
           setState(() {
             _draftId = applicationId;
+          });
+          // Re-assert current step to prevent any UI jump after save
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (_pageController.hasClients) {
+              _pageController.jumpToPage(_currentStep);
+            }
           });
           
           if (!silent) {
