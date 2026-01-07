@@ -217,16 +217,87 @@ class _SidebarState extends State<Sidebar> {
       ];
     }
 
-    // Find the user's role in the roles list
-    final userRoleModel = roleProvider.roles.firstWhere(
-      (r) => r.name.toLowerCase() == role.toLowerCase(),
-      orElse: () => RoleModel(
-        id: '',
-        name: role,
-        permissions: [],
-        createdAt: DateTime.now(),
-      ),
+    // If roles haven't loaded yet, show basic navigation
+    if (roleProvider.roles.isEmpty) {
+      return [
+        {'icon': Icons.dashboard, 'label': 'Dashboard', 'route': AppConstants.routeDashboard},
+      ];
+    }
+
+    // Normalize role name - handle various formats
+    final normalizedRole = role.toLowerCase().trim();
+    
+    // Try to find the role with various matching strategies
+    RoleModel? userRoleModel;
+    
+    // First try exact match (case-insensitive)
+    try {
+      userRoleModel = roleProvider.roles.firstWhere(
+        (r) => r.name.toLowerCase().trim() == normalizedRole,
+      );
+    } catch (e) {
+      // Try partial match (e.g., "admin" matches "IT Admin", "System Admin")
+      try {
+        userRoleModel = roleProvider.roles.firstWhere(
+          (r) => r.name.toLowerCase().trim().contains(normalizedRole) || 
+                 normalizedRole.contains(r.name.toLowerCase().trim()),
+        );
+      } catch (e) {
+        // Try matching with common role constants
+        String? roleConstant;
+        switch (normalizedRole) {
+          case 'admin':
+            roleConstant = 'admin';
+            break;
+          case 'officer':
+          case 'issuing':
+            roleConstant = 'issuing officer';
+            break;
+          case 'reception':
+            roleConstant = 'reception';
+            break;
+          case 'verification':
+            roleConstant = 'verification officer';
+            break;
+        }
+        
+        if (roleConstant != null) {
+          try {
+            userRoleModel = roleProvider.roles.firstWhere(
+              (r) => r.name.toLowerCase().trim() == roleConstant ||
+                     r.name.toLowerCase().trim().contains(roleConstant) ||
+                     roleConstant.contains(r.name.toLowerCase().trim()),
+            );
+          } catch (e) {
+            userRoleModel = null;
+          }
+        }
+      }
+    }
+
+    // If still no match, create empty role model (no permissions = no access)
+    userRoleModel ??= RoleModel(
+      id: '',
+      name: role,
+      permissions: [],
+      createdAt: DateTime.now(),
     );
+
+    // For admin role specifically, give all permissions if role exists but no permissions set
+    if (normalizedRole == 'admin' && roleProvider.roles.any((r) => r.name.toLowerCase().contains('admin'))) {
+      final adminRole = roleProvider.roles.firstWhere(
+        (r) => r.name.toLowerCase().contains('admin'),
+        orElse: () => userRoleModel!,
+      );
+      if (adminRole.permissions.isEmpty) {
+        // Admin role found but no permissions - give all permissions
+        userRoleModel = adminRole.copyWith(
+          permissions: PermissionConstants.getAllPermissions(),
+        );
+      } else {
+        userRoleModel = adminRole;
+      }
+    }
 
     // For other roles, check permissions for each navigation item
     final allItems = _getAllNavItems();

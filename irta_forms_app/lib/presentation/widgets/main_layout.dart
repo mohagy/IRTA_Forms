@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'sidebar.dart';
 import '../../core/theme/app_colors.dart';
+import '../providers/role_provider.dart';
 
-class MainLayout extends StatelessWidget {
+class MainLayout extends StatefulWidget {
   final Widget child;
   final String currentRoute;
   final Function(String) onNavigate;
@@ -23,21 +25,38 @@ class MainLayout extends StatelessWidget {
   });
 
   @override
+  State<MainLayout> createState() => _MainLayoutState();
+}
+
+class _MainLayoutState extends State<MainLayout> {
+  @override
+  void initState() {
+    super.initState();
+    // Ensure roles are loaded when layout initializes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final roleProvider = context.read<RoleProvider>();
+      if (roleProvider.roles.isEmpty) {
+        roleProvider.loadRoles();
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Row(
       children: [
         Sidebar(
-          currentRoute: currentRoute,
-          onNavigate: onNavigate,
-          userRole: userRole,
-          userName: userName,
-          userEmail: userEmail,
-          onLogout: onLogout,
+          currentRoute: widget.currentRoute,
+          onNavigate: widget.onNavigate,
+          userRole: widget.userRole,
+          userName: widget.userName,
+          userEmail: widget.userEmail,
+          onLogout: widget.onLogout,
         ),
         Expanded(
           child: Material(
             color: AppColors.background,
-            child: child,
+            child: widget.child,
           ),
         ),
       ],
