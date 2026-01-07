@@ -1315,7 +1315,7 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: AppColors.primary.withValues(alpha: 0.1),
-                      border: Border(
+                      border: const Border(
                         left: BorderSide(color: AppColors.primary, width: 4),
                       ),
                       borderRadius: BorderRadius.circular(4),
@@ -1347,7 +1347,7 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
                     border: Border.all(color: AppColors.border),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Column(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
