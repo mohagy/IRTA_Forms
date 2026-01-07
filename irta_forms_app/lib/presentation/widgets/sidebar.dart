@@ -262,13 +262,14 @@ class _SidebarState extends State<Sidebar> {
         }
         
         if (roleConstant != null) {
+          final finalRoleConstant = roleConstant; // Non-nullable local variable
           try {
             userRoleModel = roleProvider.roles.firstWhere(
               (r) {
                 final roleName = r.name.toLowerCase().trim();
-                return roleName == roleConstant ||
-                       roleName.contains(roleConstant) ||
-                       roleConstant.contains(roleName);
+                return roleName == finalRoleConstant ||
+                       roleName.contains(finalRoleConstant) ||
+                       finalRoleConstant.contains(roleName);
               },
             );
           } catch (e) {
