@@ -234,7 +234,37 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
 
                 const SizedBox(height: 24),
 
-                // Action Panel for Officers/Admins (based on permissions)
+                // Application Information
+                _buildSection(
+                  title: 'Application Information',
+                  children: [
+                    _buildInfoRow('Reference Number', app.irtaRef),
+                    _buildInfoRow('Form Type', app.formType),
+                    _buildInfoRow('Status', app.status),
+                    _buildInfoRow('Applicant Name', app.applicantName),
+                    if (app.nationality != null)
+                      _buildInfoRow('Nationality', app.nationality!),
+                    if (app.purpose != null)
+                      _buildInfoRow('Purpose', app.purpose!),
+                    _buildInfoRow('Submission Date', dateFormat.format(app.submissionDate)),
+                    if (app.assignedOfficer != null)
+                      _buildInfoRow('Assigned Officer', app.assignedOfficer!),
+                  ],
+                ),
+
+                // Documents Section (Files)
+                if (app.applicationData != null) ...[
+                  const SizedBox(height: 24),
+                  _buildDocumentsSection(app.applicationData!),
+                ],
+
+                // Detailed Application Data
+                if (app.applicationData != null) ...[
+                  const SizedBox(height: 24),
+                  _buildDetailedData(app.applicationData!),
+                ],
+
+                // Action Panel for Officers/Admins (based on permissions) - At the bottom
                 Consumer2<AuthProvider, RoleProvider>(
                   builder: (context, authProvider, roleProvider, _) {
                     final userRole = authProvider.userRole;
@@ -279,43 +309,16 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
                         ].contains(p));
                     
                     if (hasWorkflowPermissions) {
-                      return _buildActionPanel(context, app, authProvider);
+                      return Column(
+                        children: [
+                          const SizedBox(height: 24),
+                          _buildActionPanel(context, app, authProvider),
+                        ],
+                      );
                     }
                     return const SizedBox.shrink();
                   },
                 ),
-
-                const SizedBox(height: 24),
-
-                // Application Information
-                _buildSection(
-                  title: 'Application Information',
-                  children: [
-                    _buildInfoRow('Reference Number', app.irtaRef),
-                    _buildInfoRow('Form Type', app.formType),
-                    _buildInfoRow('Status', app.status),
-                    _buildInfoRow('Applicant Name', app.applicantName),
-                    if (app.nationality != null)
-                      _buildInfoRow('Nationality', app.nationality!),
-                    if (app.purpose != null)
-                      _buildInfoRow('Purpose', app.purpose!),
-                    _buildInfoRow('Submission Date', dateFormat.format(app.submissionDate)),
-                    if (app.assignedOfficer != null)
-                      _buildInfoRow('Assigned Officer', app.assignedOfficer!),
-                  ],
-                ),
-
-                // Documents Section (Files)
-                if (app.applicationData != null) ...[
-                  const SizedBox(height: 24),
-                  _buildDocumentsSection(app.applicationData!),
-                ],
-
-                // Detailed Application Data
-                if (app.applicationData != null) ...[
-                  const SizedBox(height: 24),
-                  _buildDetailedData(app.applicationData!),
-                ],
               ],
             ),
           ),
