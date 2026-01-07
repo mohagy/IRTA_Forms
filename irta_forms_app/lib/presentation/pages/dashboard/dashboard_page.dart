@@ -295,7 +295,13 @@ class _ApplicantDashboardWidgetState extends State<_ApplicantDashboardWidget> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                if (applications.isEmpty)
+                // Enable "New Application" button if:
+                // 1. No applications exist, OR
+                // 2. All applications are rejected (applicant can reapply)
+                final canCreateNew = applications.isEmpty || 
+                    applications.every((app) => app.status == AppConstants.statusRejected || app.status == AppConstants.statusDraft);
+                
+                if (canCreateNew)
                   ElevatedButton.icon(
                     onPressed: () {
                       // Navigate to new application
@@ -306,7 +312,7 @@ class _ApplicantDashboardWidgetState extends State<_ApplicantDashboardWidget> {
                   )
                 else
                   Tooltip(
-                    message: 'You can only have one application. Please manage your existing application.',
+                    message: 'You have an active application. Please manage your existing application first.',
                     child: ElevatedButton.icon(
                       onPressed: null, // Disabled
                       icon: const Icon(Icons.add, size: 18),
