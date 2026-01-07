@@ -264,9 +264,12 @@ class _SidebarState extends State<Sidebar> {
         if (roleConstant != null) {
           try {
             userRoleModel = roleProvider.roles.firstWhere(
-              (r) => r.name.toLowerCase().trim() == roleConstant ||
-                     r.name.toLowerCase().trim().contains(roleConstant) ||
-                     roleConstant.contains(r.name.toLowerCase().trim()),
+              (r) {
+                final roleName = r.name.toLowerCase().trim();
+                return roleName == roleConstant ||
+                       roleName.contains(roleConstant) ||
+                       roleConstant.contains(roleName);
+              },
             );
           } catch (e) {
             userRoleModel = null;
