@@ -144,9 +144,14 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
-      );
-      // Auto-save when moving to next step
-      _triggerAutoSave();
+      ).then((_) {
+        // Save after navigation completes (silently, in background)
+        if (mounted) {
+          final authProvider = context.read<AuthProvider>();
+          final appProvider = context.read<ApplicationProvider>();
+          _saveDraft(context, authProvider, appProvider, silent: true);
+        }
+      });
     }
   }
 
@@ -158,9 +163,14 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
       _pageController.previousPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
-      );
-      // Auto-save when moving to previous step
-      _triggerAutoSave();
+      ).then((_) {
+        // Save after navigation completes (silently, in background)
+        if (mounted) {
+          final authProvider = context.read<AuthProvider>();
+          final appProvider = context.read<ApplicationProvider>();
+          _saveDraft(context, authProvider, appProvider, silent: true);
+        }
+      });
     }
   }
 
@@ -420,12 +430,6 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
         final success = await appProvider.updateApplication(_draftId!, updates);
         
         if (success && mounted) {
-          // Re-assert current step to prevent any UI jump after save
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (_pageController.hasClients) {
-              _pageController.jumpToPage(_currentStep);
-            }
-          });
           if (!silent) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -449,12 +453,6 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
         if (applicationId != null && mounted) {
           setState(() {
             _draftId = applicationId;
-          });
-          // Re-assert current step to prevent any UI jump after save
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (_pageController.hasClients) {
-              _pageController.jumpToPage(_currentStep);
-            }
           });
           
           if (!silent) {
@@ -1075,23 +1073,6 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
                 AppHeader(
                   title: 'New IRTA Application',
                   actions: [
-                    Consumer<ApplicationProvider>(
-                      builder: (context, appProvider, _) {
-                        return TextButton(
-                          onPressed: appProvider.isLoading 
-                              ? null 
-                              : () => _saveDraft(context, authProvider, appProvider),
-                          child: appProvider.isLoading 
-                              ? const SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
-                                )
-                              : const Text('Save Draft'),
-                        );
-                      },
-                    ),
-                    const SizedBox(width: 12),
                     TextButton(
                       onPressed: () {
                         context.go(AppConstants.routeDashboard);
@@ -1207,23 +1188,6 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
                       Row(
                         children: _currentStep < 4
                             ? [
-                                Consumer<ApplicationProvider>(
-                                  builder: (context, appProvider, _) {
-                                    return TextButton(
-                                      onPressed: appProvider.isLoading 
-                                          ? null 
-                                          : () => _saveDraft(context, authProvider, appProvider),
-                                      child: appProvider.isLoading 
-                                          ? const SizedBox(
-                                              width: 16,
-                                              height: 16,
-                                              child: CircularProgressIndicator(strokeWidth: 2),
-                                            )
-                                          : const Text('Save Draft'),
-                                    );
-                                  },
-                                ),
-                                const SizedBox(width: 12),
                                 ElevatedButton(
                                   onPressed: _nextStep,
                                   child: const Text('Next'),
