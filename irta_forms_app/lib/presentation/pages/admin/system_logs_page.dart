@@ -325,49 +325,82 @@ class _SystemLogsPageState extends State<SystemLogsPage> {
                 Expanded(
                   child: logProvider.isLoading
                       ? const Center(child: CircularProgressIndicator())
-                      : logProvider.filteredLogs.isEmpty
+                      : logProvider.errorMessage != null
                           ? Center(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.description_outlined, size: 64, color: AppColors.textTertiary),
+                                  Icon(Icons.error_outline, size: 64, color: AppColors.error),
                                   const SizedBox(height: 16),
                                   Text(
-                                    'No logs found',
+                                    'Error loading logs',
                                     style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w500,
-                                      color: AppColors.textSecondary,
+                                      color: AppColors.error,
                                     ),
                                   ),
                                   const SizedBox(height: 8),
-                                  Text(
-                                    logProvider.logs.isEmpty
-                                        ? 'System logs will appear here as events occur'
-                                        : 'No logs match your search criteria',
-                                    style: TextStyle(fontSize: 14, color: AppColors.textTertiary),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                                    child: Text(
+                                      logProvider.errorMessage!,
+                                      style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  ElevatedButton(
+                                    onPressed: () => logProvider.refresh(),
+                                    child: const Text('Retry'),
                                   ),
                                 ],
                               ),
                             )
-                          : SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: SingleChildScrollView(
-                                child: DataTable(
-                                  headingRowColor: MaterialStateProperty.all(AppColors.background),
-                                  columns: const [
-                                    DataColumn(label: Text('Timestamp')),
-                                    DataColumn(label: Text('Level')),
-                                    DataColumn(label: Text('Type')),
-                                    DataColumn(label: Text('User')),
-                                    DataColumn(label: Text('Action')),
-                                    DataColumn(label: Text('Details')),
-                                    DataColumn(label: Text('IP Address')),
-                                  ],
-                                  rows: _buildLogRows(logProvider.filteredLogs),
+                          : logProvider.filteredLogs.isEmpty
+                              ? Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.description_outlined, size: 64, color: AppColors.textTertiary),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        'No logs found',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w500,
+                                          color: AppColors.textSecondary,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        logProvider.logs.isEmpty
+                                            ? 'System logs will appear here as events occur.\nTry logging in, submitting an application, or performing other actions.'
+                                            : 'No logs match your search criteria',
+                                        style: TextStyle(fontSize: 14, color: AppColors.textTertiary),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: SingleChildScrollView(
+                                    child: DataTable(
+                                      headingRowColor: MaterialStateProperty.all(AppColors.background),
+                                      columns: const [
+                                        DataColumn(label: Text('Timestamp')),
+                                        DataColumn(label: Text('Level')),
+                                        DataColumn(label: Text('Type')),
+                                        DataColumn(label: Text('User')),
+                                        DataColumn(label: Text('Action')),
+                                        DataColumn(label: Text('Details')),
+                                        DataColumn(label: Text('IP Address')),
+                                      ],
+                                      rows: _buildLogRows(logProvider.filteredLogs),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
                 ),
               ],
             ),
