@@ -10,7 +10,9 @@ import '../../widgets/status_badge.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/application_provider.dart';
 import '../../providers/user_provider.dart';
+import '../../providers/role_provider.dart';
 import '../../../data/models/application_model.dart';
+import '../../../data/models/role_model.dart';
 import 'package:intl/intl.dart';
 
 class ApplicationDetailPage extends StatefulWidget {
@@ -752,6 +754,27 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
   Widget _buildActionPanel(BuildContext context, ApplicationModel app, AuthProvider authProvider) {
     final userRole = authProvider.userRole;
     final currentStatus = app.status;
+    final roleProvider = context.watch<RoleProvider>();
+    
+    // Get user's role model to check permissions
+    final userRoleModel = roleProvider.roles.firstWhere(
+      (r) => r.name.toLowerCase() == userRole.toLowerCase(),
+      orElse: () => RoleModel(
+        id: '',
+        name: userRole,
+        permissions: [],
+        createdAt: DateTime.now(),
+      ),
+    );
+    
+    // Helper to check if user has permission
+    bool hasPermission(String permission) {
+      // Admin always has all permissions
+      if (userRole.toLowerCase() == 'admin') {
+        return true;
+      }
+      return userRoleModel.permissions.contains(permission);
+    }
 
     return Container(
       padding: const EdgeInsets.all(24),
@@ -783,8 +806,8 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
             spacing: 12,
             runSpacing: 12,
             children: [
-              // Review button - for Reception Staff
-              if (userRole == AppConstants.roleReception || userRole == AppConstants.roleAdmin)
+              // Review button - requires Review permission
+              if (hasPermission(PermissionConstants.review))
                 if (currentStatus == AppConstants.statusSubmitted)
                   ElevatedButton.icon(
                     onPressed: () => _reviewApplication(context, app),
@@ -796,8 +819,8 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
                     ),
                   ),
 
-              // Verify button - for Verification Officers
-              if (userRole == AppConstants.roleVerification || userRole == AppConstants.roleAdmin)
+              // Verify button - requires Verify permission
+              if (hasPermission(PermissionConstants.verify))
                 if (currentStatus == AppConstants.statusReceptionReview || currentStatus == AppConstants.statusSubmitted)
                   ElevatedButton.icon(
                     onPressed: () => _verifyApplication(context, app),
@@ -809,8 +832,8 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
                     ),
                   ),
 
-              // Approve button - for Issuing Officers and Admins
-              if (userRole == AppConstants.roleIssuing || userRole == AppConstants.roleAdmin)
+              // Approve button - requires Approve permission
+              if (hasPermission(PermissionConstants.approve))
                 if (currentStatus == AppConstants.statusVerification || currentStatus == AppConstants.statusIssuingDecision)
                   ElevatedButton.icon(
                     onPressed: () => _approveApplication(context, app),
@@ -822,8 +845,8 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
                     ),
                   ),
 
-              // Reject button - for Issuing Officers and Admins
-              if (userRole == AppConstants.roleIssuing || userRole == AppConstants.roleAdmin)
+              // Reject button - requires Reject permission
+              if (hasPermission(PermissionConstants.reject))
                 if (currentStatus != AppConstants.statusCompleted && currentStatus != AppConstants.statusRejected && currentStatus != AppConstants.statusDraft)
                   ElevatedButton.icon(
                     onPressed: () => _rejectApplication(context, app),
@@ -835,8 +858,8 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
                     ),
                   ),
 
-              // Request Additional Info - for all officers
-              if (userRole != AppConstants.roleApplicant)
+              // Request Additional Info - requires Request Additional Info permission
+              if (hasPermission(PermissionConstants.requestAdditionalInfo))
                 if (currentStatus != AppConstants.statusCompleted && currentStatus != AppConstants.statusRejected && currentStatus != AppConstants.statusDraft)
                   ElevatedButton.icon(
                     onPressed: () => _requestAdditionalInfo(context, app),
@@ -848,8 +871,8 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
                     ),
                   ),
 
-              // Assign to Officer - for Reception and Admins
-              if (userRole == AppConstants.roleReception || userRole == AppConstants.roleAdmin)
+              // Assign to Officer - requires Assign to Officers permission
+              if (hasPermission(PermissionConstants.assignToOfficers))
                 if (currentStatus == AppConstants.statusSubmitted || currentStatus == AppConstants.statusReceptionReview)
                   ElevatedButton.icon(
                     onPressed: () => _assignToOfficer(context, app),
@@ -861,8 +884,8 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
                     ),
                   ),
 
-              // Reassign - for Admins
-              if (userRole == AppConstants.roleAdmin)
+              // Reassign - requires Reassign permission
+              if (hasPermission(PermissionConstants.reassign))
                 if (currentStatus != AppConstants.statusDraft && currentStatus != AppConstants.statusCompleted && currentStatus != AppConstants.statusRejected)
                   ElevatedButton.icon(
                     onPressed: () => _reassignApplication(context, app),
