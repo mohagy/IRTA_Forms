@@ -281,45 +281,49 @@ class _ApplicantDashboardWidgetState extends State<_ApplicantDashboardWidget> {
         return Column(
           children: [
             // Header
-            AppHeader(
-              title: 'My IRTA Applications',
-              actions: [
-                SizedBox(
-                  width: 300,
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Search my applications...',
-                      prefixIcon: const Icon(Icons.search, size: 20),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
+            Builder(
+              builder: (context) {
                 // Enable "New Application" button if:
                 // 1. No applications exist, OR
                 // 2. All applications are rejected (applicant can reapply)
                 final canCreateNew = applications.isEmpty || 
                     applications.every((app) => app.status == AppConstants.statusRejected || app.status == AppConstants.statusDraft);
                 
-                if (canCreateNew)
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      // Navigate to new application
-                      context.push(AppConstants.routeNewApplication);
-                    },
-                    icon: const Icon(Icons.add, size: 18),
-                    label: const Text('New Application'),
-                  )
-                else
-                  Tooltip(
-                    message: 'You have an active application. Please manage your existing application first.',
-                    child: ElevatedButton.icon(
-                      onPressed: null, // Disabled
-                      icon: const Icon(Icons.add, size: 18),
-                      label: const Text('New Application'),
+                return AppHeader(
+                  title: 'My IRTA Applications',
+                  actions: [
+                    SizedBox(
+                      width: 300,
+                      child: TextField(
+                        decoration: InputDecoration(
+                          hintText: 'Search my applications...',
+                          prefixIcon: const Icon(Icons.search, size: 20),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        ),
+                      ),
                     ),
-                  ),
-              ],
+                    const SizedBox(width: 12),
+                    if (canCreateNew)
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          // Navigate to new application
+                          context.push(AppConstants.routeNewApplication);
+                        },
+                        icon: const Icon(Icons.add, size: 18),
+                        label: const Text('New Application'),
+                      )
+                    else
+                      Tooltip(
+                        message: 'You have an active application. Please manage your existing application first.',
+                        child: ElevatedButton.icon(
+                          onPressed: null, // Disabled
+                          icon: const Icon(Icons.add, size: 18),
+                          label: const Text('New Application'),
+                        ),
+                      ),
+                  ],
+                );
+              },
             ),
 
             // Stats Cards
