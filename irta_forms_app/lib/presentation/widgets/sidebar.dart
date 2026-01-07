@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/constants/app_constants.dart';
+import '../../services/permission_service.dart';
+import '../../data/models/role_model.dart';
+import '../providers/role_provider.dart';
 
-class Sidebar extends StatelessWidget {
+class Sidebar extends StatefulWidget {
   final String currentRoute;
   final Function(String) onNavigate;
   final String userRole;
@@ -21,9 +25,16 @@ class Sidebar extends StatelessWidget {
   });
 
   @override
+  State<Sidebar> createState() => _SidebarState();
+}
+
+class _SidebarState extends State<Sidebar> {
+  @override
   Widget build(BuildContext context) {
-    final navItems = _getNavItemsForRole(userRole);
-    final initials = _getInitials(userName);
+    return Consumer<RoleProvider>(
+      builder: (context, roleProvider, _) {
+        final navItems = _getNavItemsForRole(context, widget.userRole, roleProvider);
+        final initials = _getInitials(widget.userName);
 
     return Container(
       width: AppConstants.sidebarWidth,
@@ -70,7 +81,7 @@ class Sidebar extends StatelessWidget {
             ),
           ),
 
-          // Navigation Items
+            // Navigation Items
           Expanded(
             child: ListView(
               padding: const EdgeInsets.symmetric(vertical: 20),
@@ -78,8 +89,8 @@ class Sidebar extends StatelessWidget {
                 icon: item['icon'] as IconData,
                 label: item['label'] as String,
                 route: item['route'] as String,
-                isActive: currentRoute == item['route'],
-                onTap: () => onNavigate(item['route'] as String),
+                isActive: widget.currentRoute == item['route'],
+                onTap: () => widget.onNavigate(item['route'] as String),
               )).toList(),
             ),
           ),
@@ -124,7 +135,7 @@ class Sidebar extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            userName,
+                            widget.userName,
                             style: const TextStyle(
                               color: AppColors.sidebarText,
                               fontWeight: FontWeight.w500,
@@ -133,7 +144,7 @@ class Sidebar extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                           Text(
-                            _getRoleDisplayName(userRole),
+                            _getRoleDisplayName(widget.userRole),
                             style: const TextStyle(
                               color: AppColors.sidebarText,
                               fontSize: 12,
@@ -151,7 +162,7 @@ class Sidebar extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
-                    onPressed: onLogout,
+                    onPressed: widget.onLogout,
                     style: OutlinedButton.styleFrom(
                       backgroundColor: AppColors.sidebarHover,
                       side: BorderSide.none,
@@ -175,10 +186,12 @@ class Sidebar extends StatelessWidget {
         ],
       ),
     );
+      },
+    );
   }
 
-  List<Map<String, dynamic>> _getNavItemsForRole(String role) {
-    final allItems = [
+  List<Map<String, dynamic>> _getAllNavItems() {
+    return [
       {'icon': Icons.dashboard, 'label': 'Dashboard', 'route': AppConstants.routeDashboard},
       {'icon': Icons.description, 'label': 'Individual IRTA', 'route': '/individual-irta'},
       {'icon': Icons.refresh, 'label': 'Renewal', 'route': '/renewal'},
@@ -193,17 +206,66 @@ class Sidebar extends StatelessWidget {
       {'icon': Icons.settings, 'label': 'System Configuration', 'route': '/system-config'},
       {'icon': Icons.history, 'label': 'View All Logs', 'route': '/logs'},
     ];
+  }
 
+  List<Map<String, dynamic>> _getNavItemsForRole(BuildContext context, String role, RoleProvider roleProvider) {
+    // Applicants always see limited navigation
     if (role == AppConstants.roleApplicant) {
-      // Applicants see limited navigation
       return [
         {'icon': Icons.dashboard, 'label': 'My Applications', 'route': AppConstants.routeDashboard},
         {'icon': Icons.add, 'label': 'New Application', 'route': AppConstants.routeNewApplication},
       ];
-    } else {
-      // Officers and Admins see all items
-      return allItems;
     }
+
+    // Find the user's role in the roles list
+    final userRoleModel = roleProvider.roles.firstWhere(
+      (r) => r.name.toLowerCase() == role.toLowerCase(),
+      orElse: () => RoleModel(
+        id: '',
+        name: role,
+        permissions: [],
+        createdAt: DateTime.now(),
+      ),
+    );
+
+    // For other roles, check permissions for each navigation item
+    final allItems = _getAllNavItems();
+    final filteredItems = <Map<String, dynamic>>[];
+
+    for (final item in allItems) {
+      final route = item['route'] as String;
+      final permissions = PermissionService.getPermissionsForRoute(route);
+
+      // If no permissions required, always show
+      if (permissions.isEmpty) {
+        filteredItems.add(item);
+        continue;
+      }
+
+      // Check if user has any of the required permissions
+      bool hasAccess = false;
+      for (final permission in permissions) {
+        if (userRoleModel.permissions.contains(permission)) {
+          hasAccess = true;
+          break;
+        }
+      }
+
+      if (hasAccess) {
+        filteredItems.add(item);
+      }
+    }
+
+    // Always show Dashboard for authenticated users
+    if (!filteredItems.any((item) => item['route'] == AppConstants.routeDashboard)) {
+      filteredItems.insert(0, {
+        'icon': Icons.dashboard,
+        'label': 'Dashboard',
+        'route': AppConstants.routeDashboard,
+      });
+    }
+
+    return filteredItems;
   }
 
   String _getInitials(String name) {
