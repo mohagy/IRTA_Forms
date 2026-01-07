@@ -945,11 +945,12 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
   }
 
   void _populateFormFromDraft(ApplicationModel draft) {
+    final data = draft.applicationData ?? {};
+    final savedStep = data['currentStep'] ?? 0;
+    
     setState(() {
       _draftId = draft.id;
-      final data = draft.applicationData ?? {};
-      
-      _currentStep = data['currentStep'] ?? 0;
+      _currentStep = savedStep;
       _declarationAgreed = data['declarationAgreed'] ?? false;
       
       // Organization Info
@@ -1011,6 +1012,13 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
           v.tareController.text = vData['vehicleTare'] ?? '';
           _vehicles.add(v);
         }
+      }
+    });
+    
+    // Sync PageController with the restored step
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_pageController.hasClients && _currentStep > 0) {
+        _pageController.jumpToPage(_currentStep);
       }
     });
     
