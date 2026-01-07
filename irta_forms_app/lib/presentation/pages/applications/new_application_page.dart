@@ -1104,7 +1104,8 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
 
                       return Expanded(
                         child: GestureDetector(
-                          onTap: () => _goToStep(index),
+                          // Disable tapping step headers to avoid accidental jumps that feel like "going back"
+                          onTap: null,
                           child: Column(
                             children: [
                               Container(
@@ -1337,6 +1338,102 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
                             fontSize: 14,
                           ),
                         ),
+                const SizedBox(height: 20),
+                // New Requirements (as requested)
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    border: Border.all(color: AppColors.border),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Required Documents',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      Text(
+                        'Representatives:',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Padding(
+                        padding: EdgeInsets.only(left: 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('1) Owner ID card or Passport'),
+                            SizedBox(height: 6),
+                            Text('2) Primary representative ID/Passport and Legal Representative (notarised via Power of Attorney)'),
+                            SizedBox(height: 6),
+                            Text('3) Secondary representative ID/Passport and Legal Representative (notarised via Power of Attorney)'),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      Text(
+                        'Organization:',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Padding(
+                        padding: EdgeInsets.only(left: 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('1) Business Registration or Certificate of Incorporation'),
+                            SizedBox(height: 6),
+                            Text('2) GRA Compliance'),
+                            SizedBox(height: 6),
+                            Text('3) NIS Compliance'),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      Text(
+                        'Transportation (for each vehicle):',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Padding(
+                        padding: EdgeInsets.only(left: 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('1) Registration of Vehicle'),
+                            SizedBox(height: 6),
+                            Text('2) Revenue Licence'),
+                            SizedBox(height: 6),
+                            Text('3) Certificate of Fitness'),
+                            SizedBox(height: 6),
+                            Text('4) Third-party Insurance (death, personal injuries and material damages of third person(s) not transported and of passengers)'),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 12),
+                      Text(
+                        'Note: Country of Origin selection (Guyana or Brazil) is available under Transportation → Origin.',
+                        style: TextStyle(color: AppColors.textTertiary),
+                      ),
+                    ],
+                  ),
+                ),
                       ],
                     ),
                   ),
