@@ -62,7 +62,7 @@ class SystemLogRepository {
 
     return query.snapshots().map((snapshot) {
       return snapshot.docs
-          .map((doc) => SystemLogModel.fromMap(doc.data(), doc.id))
+          .map((doc) => SystemLogModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
           .toList();
     });
   }
@@ -92,7 +92,7 @@ class SystemLogRepository {
 
     final snapshot = await query.get();
     return snapshot.docs
-        .map((doc) => SystemLogModel.fromMap(doc.data(), doc.id))
+        .map((doc) => SystemLogModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
         .toList();
   }
 
