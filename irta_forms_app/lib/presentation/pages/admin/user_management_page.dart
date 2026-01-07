@@ -12,6 +12,7 @@ import '../../providers/user_provider.dart';
 import '../../providers/role_provider.dart';
 import '../../../data/models/user_model.dart';
 import '../../../services/auth_service.dart';
+import '../../../services/logging_service.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 
 class UserManagementPage extends StatefulWidget {
@@ -813,6 +814,17 @@ class _AddEditUserDialogState extends State<_AddEditUserDialog> {
           );
 
           final success = await userProvider.createUserWithId(userId, newUser);
+          
+          // Log user creation
+          final authProvider = context.read<AuthProvider>();
+          final adminUser = authProvider.user;
+          await LoggingService().logUserAction(
+            action: 'User Created',
+            details: 'User ${newUser.email} created with role ${newUser.role}',
+            userId: adminUser?.uid ?? 'system',
+            userName: adminUser?.displayName ?? adminUser?.email ?? 'System',
+            targetUserId: userId,
+          );
           
           if (context.mounted) {
             Navigator.pop(context);
