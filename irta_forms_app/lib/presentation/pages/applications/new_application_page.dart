@@ -1267,6 +1267,7 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
               ),
             ),
             const SizedBox(height: 24),
+            // Application Overview Container
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
@@ -1310,136 +1311,138 @@ class _NewApplicationPageState extends State<NewApplicationPage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.1),
-                      border: const Border(
-                        left: BorderSide(color: AppColors.primary, width: 4),
-                      ),
-                      borderRadius: BorderRadius.circular(4),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            // Note Container
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.1),
+                border: const Border(
+                  left: BorderSide(color: AppColors.primary, width: 4),
+                ),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Note:',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.primary,
                     ),
-                    child: const Column(
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Please ensure you have all required documents (Registration, Insurance, Fitness, etc.) in digital format (PDF or Image) before starting.',
+                    style: TextStyle(
+                      color: AppColors.primary,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            // Required Documents Container
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                border: Border.all(color: AppColors.border),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Required Documents',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Representatives:',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Padding(
+                    padding: EdgeInsets.only(left: 16),
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Note:',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          'Please ensure you have all required documents (Registration, Insurance, Fitness, etc.) in digital format (PDF or Image) before starting.',
-                          style: TextStyle(
-                            color: AppColors.primary,
-                            fontSize: 14,
-                          ),
-                        ),
+                        Text('1) Owner ID card or Passport'),
+                        SizedBox(height: 6),
+                        Text('2) Primary representative ID/Passport and Legal Representative (notarised via Power of Attorney)'),
+                        SizedBox(height: 6),
+                        Text('3) Secondary representative ID/Passport and Legal Representative (notarised via Power of Attorney)'),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  // New Requirements (as requested)
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    border: Border.all(color: AppColors.border),
-                    borderRadius: BorderRadius.circular(8),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Organization:',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textSecondary,
+                    ),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Required Documents',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                      Text(
-                        'Representatives:',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      Padding(
-                        padding: EdgeInsets.only(left: 16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('1) Owner ID card or Passport'),
-                            SizedBox(height: 6),
-                            Text('2) Primary representative ID/Passport and Legal Representative (notarised via Power of Attorney)'),
-                            SizedBox(height: 6),
-                            Text('3) Secondary representative ID/Passport and Legal Representative (notarised via Power of Attorney)'),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                      Text(
-                        'Organization:',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      Padding(
-                        padding: EdgeInsets.only(left: 16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('1) Business Registration or Certificate of Incorporation'),
-                            SizedBox(height: 6),
-                            Text('2) GRA Compliance'),
-                            SizedBox(height: 6),
-                            Text('3) NIS Compliance'),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                      Text(
-                        'Transportation (for each vehicle):',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      Padding(
-                        padding: EdgeInsets.only(left: 16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('1) Registration of Vehicle'),
-                            SizedBox(height: 6),
-                            Text('2) Revenue Licence'),
-                            SizedBox(height: 6),
-                            Text('3) Certificate of Fitness'),
-                            SizedBox(height: 6),
-                            Text('4) Third-party Insurance (death, personal injuries and material damages of third person(s) not transported and of passengers)'),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 12),
-                      Text(
-                        'Note: Country of Origin selection (Guyana or Brazil) is available under Transportation → Origin.',
-                        style: TextStyle(color: AppColors.textTertiary),
-                      ),
-                    ],
+                  const SizedBox(height: 8),
+                  const Padding(
+                    padding: EdgeInsets.only(left: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('1) Business Registration or Certificate of Incorporation'),
+                        SizedBox(height: 6),
+                        Text('2) GRA Compliance'),
+                        SizedBox(height: 6),
+                        Text('3) NIS Compliance'),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Transportation (for each vehicle):',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Padding(
+                    padding: EdgeInsets.only(left: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('1) Registration of Vehicle'),
+                        SizedBox(height: 6),
+                        Text('2) Revenue Licence'),
+                        SizedBox(height: 6),
+                        Text('3) Certificate of Fitness'),
+                        SizedBox(height: 6),
+                        Text('4) Third-party Insurance (death, personal injuries and material damages of third person(s) not transported and of passengers)'),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Note: Country of Origin selection (Guyana or Brazil) is available under Transportation → Origin.',
+                    style: TextStyle(color: AppColors.textTertiary),
+                  ),
+                ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
