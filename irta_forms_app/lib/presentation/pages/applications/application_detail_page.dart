@@ -234,17 +234,51 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
 
                 const SizedBox(height: 24),
 
-                // Action Panel for Officers/Admins
-                Consumer<AuthProvider>(
-                  builder: (context, authProvider, _) {
+                // Action Panel for Officers/Admins (based on permissions)
+                Consumer2<AuthProvider, RoleProvider>(
+                  builder: (context, authProvider, roleProvider, _) {
                     final userRole = authProvider.userRole;
-                    final isOfficerOrAdmin = userRole == AppConstants.roleAdmin ||
-                        userRole == AppConstants.roleOfficer ||
-                        userRole == AppConstants.roleReception ||
-                        userRole == AppConstants.roleVerification ||
-                        userRole == AppConstants.roleIssuing;
                     
-                    if (isOfficerOrAdmin && app.status != AppConstants.statusDraft) {
+                    // Don't show for applicants
+                    if (userRole == AppConstants.roleApplicant) {
+                      return const SizedBox.shrink();
+                    }
+                    
+                    // Don't show for draft applications
+                    if (app.status == AppConstants.statusDraft) {
+                      return const SizedBox.shrink();
+                    }
+                    
+                    // Check if user has any workflow permissions
+                    final normalizedRole = userRole.toLowerCase().trim();
+                    final userRoleModel = roleProvider.roles.firstWhere(
+                      (r) {
+                        final roleName = r.name.toLowerCase().trim();
+                        return roleName == normalizedRole ||
+                               roleName.contains(normalizedRole) ||
+                               normalizedRole.contains(roleName);
+                      },
+                      orElse: () => RoleModel(
+                        id: '',
+                        name: userRole,
+                        permissions: [],
+                        createdAt: DateTime.now(),
+                      ),
+                    );
+                    
+                    // Admin always has access
+                    final hasWorkflowPermissions = normalizedRole == 'admin' ||
+                        userRoleModel.permissions.any((p) => [
+                          PermissionConstants.review,
+                          PermissionConstants.verify,
+                          PermissionConstants.approve,
+                          PermissionConstants.reject,
+                          PermissionConstants.reassign,
+                          PermissionConstants.requestAdditionalInfo,
+                          PermissionConstants.assignToOfficers,
+                        ].contains(p));
+                    
+                    if (hasWorkflowPermissions) {
                       return _buildActionPanel(context, app, authProvider);
                     }
                     return const SizedBox.shrink();
@@ -756,24 +790,51 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
     final currentStatus = app.status;
     final roleProvider = context.watch<RoleProvider>();
     
-    // Get user's role model to check permissions
-    final userRoleModel = roleProvider.roles.firstWhere(
-      (r) => r.name.toLowerCase() == userRole.toLowerCase(),
-      orElse: () => RoleModel(
+    // Normalize role name for matching
+    final normalizedRole = userRole.toLowerCase().trim();
+    
+    // Get user's role model to check permissions (with improved matching)
+    RoleModel userRoleModel;
+    try {
+      userRoleModel = roleProvider.roles.firstWhere(
+        (r) {
+          final roleName = r.name.toLowerCase().trim();
+          return roleName == normalizedRole ||
+                 roleName.contains(normalizedRole) ||
+                 normalizedRole.contains(roleName);
+        },
+      );
+    } catch (e) {
+      // If role not found, create empty role model
+      userRoleModel = RoleModel(
         id: '',
         name: userRole,
         permissions: [],
         createdAt: DateTime.now(),
-      ),
-    );
+      );
+    }
     
     // Helper to check if user has permission
     bool hasPermission(String permission) {
       // Admin always has all permissions
-      if (userRole.toLowerCase() == 'admin') {
+      if (normalizedRole == 'admin') {
         return true;
       }
       return userRoleModel.permissions.contains(permission);
+    }
+    
+    // Check if there are any buttons to show
+    final hasAnyButton = hasPermission(PermissionConstants.review) && currentStatus == AppConstants.statusSubmitted ||
+        hasPermission(PermissionConstants.verify) && (currentStatus == AppConstants.statusReceptionReview || currentStatus == AppConstants.statusSubmitted) ||
+        hasPermission(PermissionConstants.approve) && (currentStatus == AppConstants.statusVerification || currentStatus == AppConstants.statusIssuingDecision) ||
+        hasPermission(PermissionConstants.reject) && (currentStatus != AppConstants.statusCompleted && currentStatus != AppConstants.statusRejected && currentStatus != AppConstants.statusDraft) ||
+        hasPermission(PermissionConstants.requestAdditionalInfo) && (currentStatus != AppConstants.statusCompleted && currentStatus != AppConstants.statusRejected && currentStatus != AppConstants.statusDraft) ||
+        hasPermission(PermissionConstants.assignToOfficers) && (currentStatus == AppConstants.statusSubmitted || currentStatus == AppConstants.statusReceptionReview) ||
+        hasPermission(PermissionConstants.reassign) && (currentStatus != AppConstants.statusDraft && currentStatus != AppConstants.statusCompleted && currentStatus != AppConstants.statusRejected);
+    
+    // Don't show panel if no buttons would be displayed
+    if (!hasAnyButton) {
+      return const SizedBox.shrink();
     }
 
     return Container(
